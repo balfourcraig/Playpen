@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Sacred Geometry - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/common.css">
+	<link id="styleSwap" rel="stylesheet" href="../css/lightStyles.css">
+	<script src="../scripts/homepage.js"></script>
+	<script>
+		function setUpFast(){
+			const c = document.createElement('canvas');
+			
+			const ctx = c.getContext('2d');
+			ctx.strokeStyle = "#FF0000";
+			const sizeCalc = document.getElementById('sizeCalc');
+			
+			const w = sizeCalc.getBoundingClientRect().width;
+			const h = w;
+			
+			sizeCalc.parentElement.removeChild(sizeCalc);
+			
+			c.setAttribute('width', w);
+			c.setAttribute('height', h);
+			
+			ctx.fillStyle = '#9bf';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, h);
+			ctx.fill();
+
+			const center = {x: w/2.0, y: h/2.0};
+			const radius = Math.min(w,h) / 15;
+			
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+			ctx.closePath();
+			ctx.stroke();
+			
+			const layers = 6;
+			
+			for(let i = 1; i <= layers; i++){
+				const layerPoints = subdividedHexagonAboutPoint(center, radius * i, i);
+				for(let j = 0; j < layerPoints.length; j++){
+					const p = layerPoints[j];
+					ctx.beginPath();
+					ctx.arc(p.x, p.y, radius, 0, 2 * Math.PI);
+					ctx.closePath();
+					ctx.stroke();
+				}
+			}
+			
+			const img = c.toDataURL('image/png');
+			document.getElementById('seedOfLife').setAttribute('src', img);
+		}
+
+		const seedAngle = Math.PI / 3;
+
+		function subdividedHexagonAboutPoint(center, radius, subdivisions){
+			const pointCenters = [];
+			let prevPoint = null;
+			for(let i = 0; i < 7; i++){
+				const x = Math.sin(seedAngle * i) * radius + center.x;
+				const y = Math.cos(seedAngle * i) * radius + center.y;
+				
+				const point = {x: x, y: y};
+				if(prevPoint){
+					pointCenters.push(point);
+					if(subdivisions > 0){
+						const xDist = (x - prevPoint.x) / subdivisions;
+						const yDist = (y - prevPoint.y) / subdivisions;
+						
+						for(let sub = 1; sub < subdivisions; sub++){
+							subPoint = {x: x - xDist * sub, y: y - yDist * sub};
+							pointCenters.push(subPoint);
+						}
+					}
+				}
+				prevPoint = point;
+			}
+			return pointCenters;
+		}
+	
+		window.addEventListener('DOMContentLoaded', (e) => {
+			setUpFast();
+		});
+	</script>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+</head>
+<body>
+<nav>
+	<div class="pageWidth">
+		<ul>
+			<li><a href="../index.html">Home</a></li>
+			<li><a href="../ramblings.html">Deranged Ramblings</a></li>
+			<li><a href="../about.html">About</a></li>
+		</ul>
+	</div>
+</nav>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<div id="CSSSelectArea" style="display:none">
+				<label for="CSSSelect">Select your CSS </label>
+				<select id="CSSSelect">
+					<option value="lightStyles" title="I'm happy with defaults">Light</option>
+					<option value="darkStyles" title="I have very strong feelings about this option">Dark</option>
+					<option value="minStyles" title="I hate graphic designers!">Min</option>
+				</select>
+			</div>
+			<noscript>With JS enabled you can change stylesheet here.</noscript>
+			
+			<h1>Seed of Life</h1>
+		</header>
+		<section>
+			<p>"Seed of Life" pattern drawn on an HTML5 canvas, without re-drawing any lines</p>
+			<div id="sizeCalc">Placeholder</div>
+			<img id="seedOfLife">
+			
+			<hr>
+			<h2>Explaination</h2>
+			<p>The Seed of Life is a very simple pattern from which complexity arises.
+			In essense, it's a circle, with a point on its circumference. A second circle of equal radius is drawn from that point to the centre. Where ever circles intersect, draw another circle.</p>
+			
+			<p>By simply adding circles in this manner, the seed design (I think it looks more like a flower) arises.</p>
+			
+			<h2>Code Explaination</h2>
+			<p>To see a JS implementation, simply view the page source. This one is drawn to an HTML5 canvas, and rendered onto an img on page load. As such, the image is the correct size for your screen.</p>
+			<p>There are only two functions needed really, one to do the drawing, and another to generate a given "layer"</p>
+			
+<pre>
+SetUp()
+	define radius, imageSize, colors, canvas etc.
+	define numberOfLayers
+	
+	define center
+	
+	foreach layer in numberOfLayers do
+		foreach point in BuildHexagon(center, layer * radius, layer) do
+			draw circle of radius about point
+
+
+BuildHexagon(center, hexRadius, subdivisions)
+	define pointList
+	define previousPoint = null
+	define const angle = PI/3 (roughly 1.0471975512)
+	
+	for i in 1..7 do
+		define x = Sin(angle * i) * radius + center.X
+		define y = Cos(angle * i) * radius + center.Y
+		
+		define point = {x, y}
+		if previousPoint is not null
+			add point to pointList
+			if(subdivisions > 0)
+				define xDist = (point.X - previousPoint.X) / subdivisions
+				define yDist = (point.Y - previousPoint.Y) / subdivisions
+				
+				for sub in 1..subdivisions do
+					define subPoint = {point.X - xDist * sub, point.Y - yDist * sub}
+					add subPoint to pointList
+		set previousPoint = point
+	return pointList
+
+</pre>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>

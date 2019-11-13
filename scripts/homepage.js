@@ -12,12 +12,12 @@ function setUpCSSSelect()
 	
 	function swap(){
 		const val = get('CSSSelect').value
-		get('styleSwap').setAttribute('href', val + '.css');
+		get('styleSwap').setAttribute('href', 'css/' val + '.css');
 	}
 }
 
-document.addEventListener('DOMContentLoaded', (e) =>
-{
-	setUpCSSSelect();
-}
-);
+//document.addEventListener('DOMContentLoaded', (e) =>
+//{
+	//setUpCSSSelect();
+//}
+//);
