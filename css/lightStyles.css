@@ -57,6 +57,6 @@ nav ul li{
 	padding: 0.5rem;
 }
 
-.scrollOverflow:after{
+.scrollOverflow::after{
 	color: dodgerblue;
 }

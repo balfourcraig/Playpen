@@ -16,7 +16,7 @@ body{
 	position: relative;
 }
 
-.scrollOverflow:after{
+.scrollOverflow::after{
 	content: '~';
 	font-size: 144px;
 	width: 100%;
