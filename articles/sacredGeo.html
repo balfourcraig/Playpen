@@ -22,11 +22,6 @@
 			
 			c.setAttribute('width', w);
 			c.setAttribute('height', h);
-			
-			ctx.fillStyle = '#9bf';
-			ctx.beginPath();
-			ctx.rect(0, 0, w, h);
-			ctx.fill();
 
 			const center = {x: w/2.0, y: h/2.0};
 			const radius = Math.min(w,h) / 15;
@@ -35,9 +30,7 @@
 			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
 			ctx.closePath();
 			ctx.stroke();
-			
 			const layers = 6;
-			
 			for(let i = 1; i <= layers; i++){
 				const layerPoints = subdividedHexagonAboutPoint(center, radius * i, i);
 				for(let j = 0; j < layerPoints.length; j++){
@@ -48,7 +41,6 @@
 					ctx.stroke();
 				}
 			}
-			
 			const img = c.toDataURL('image/png');
 			document.getElementById('seedOfLife').setAttribute('src', img);
 		}
@@ -80,7 +72,7 @@
 			return pointCenters;
 		}
 	
-		window.addEventListener('DOMContentLoaded', (e) => {
+		window.addEventListener('DOMContentLoaded', () => {
 			setUpFast();
 		});
 	</script>
@@ -127,6 +119,8 @@
 			<h2>Code Explaination</h2>
 			<p>To see a JS implementation, simply view the page source. This one is drawn to an HTML5 canvas, and rendered onto an img on page load. As such, the image is the correct size for your screen.</p>
 			<p>There are only two functions needed really, one to do the drawing, and another to generate a given "layer"</p>
+			<p>Not only is it interesting to generate each refresh, there's a pretty massive space saving. This whole page, including the code to build the image is less than 2% the size of the image on a 1080p monitor!
+			Using the method below, there are no extra redraws, so it's very fast too. Faster than downloading the image, though the trade-off is that it is not cached</p>
 			
 <pre>
 SetUp()

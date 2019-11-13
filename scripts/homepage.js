@@ -11,8 +11,8 @@ function setUpCSSSelect()
 	cssSelect.addEventListener('change', swap);
 	
 	function swap(){
-		const val = get('CSSSelect').value
-		get('styleSwap').setAttribute('href', 'css/' val + '.css');
+		const val = get('CSSSelect').value;
+		get('styleSwap').setAttribute('href', 'css/' + val + '.css');
 	}
 }
 
