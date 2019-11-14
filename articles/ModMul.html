@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>From Chaos, Order - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/common.css">
+	<link id="styleSwap" rel="stylesheet" href="../css/lightStyles.css">
+	<style>
+		#sizeCalc{
+			padding: 2px;
+		}
+		
+		input{
+			margin: 5px 0;
+		}
+	</style>
+	<script src="../scripts/homepage.js"></script>
+	<script>
+		function pointOnCircle(center, radius, totalPoints, pointNum){
+			const angle = pointNum / totalPoints * Math.PI * 2;
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+		
+		let animationID = null;
+		
+		function drawLine(ctx, center, radius, multiplier, points, i, iterations){
+			if(iterations > 0){
+				const pointFrom = pointOnCircle(center, radius, points, i % points);
+				const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
+				ctx.beginPath();
+				ctx.moveTo(pointFrom.x, pointFrom.y);
+				ctx.lineTo(pointTo.x, pointTo.y);
+				ctx.stroke();
+				
+				animationID = window.requestAnimationFrame(() =>{
+					drawLine(ctx, center, radius,multiplier, points, i+1, iterations -1);
+				});
+			}
+			else{
+				document.getElementById('drawBtn').removeAttribute('style');
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+			}
+		}
+		
+		function drawModMul(){
+			document.getElementById('drawBtn').setAttribute('style','display:none');
+			document.getElementById('stopDrawingBtn').removeAttribute('style');
+			
+			window.cancelAnimationFrame(animationID);
+			const c = document.createElement('canvas');
+			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			const ctx = c.getContext('2d');
+			ctx.globalAlpha = 0.4;
+			ctx.lineWidth = 1;
+			const center = {x: w/2.0, y: w/2.0};
+			const radius = w * 0.45;
+			
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			
+			ctx.strokeStyle = 'black';
+			ctx.fillStyle = 'white';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, w);
+			ctx.fill();
+			
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+			ctx.stroke();
+			
+			let multiplier = parseFloat(document.getElementById('multInput').value);
+			const points = parseInt(document.getElementById('numNails').value);
+			
+			let iterations = points;
+			let winding = parseInt(document.getElementById('windingInput').value);
+			if(winding && winding > 1){
+				iterations *= winding;
+				multiplier += (1/winding);
+			}
+				
+			
+			const animate = document.getElementById('animateInput').checked;
+			if(animate){
+				drawLine(ctx, center, radius, multiplier, points, 0, iterations);
+			}
+			else{
+				for(let i = 1; i < iterations; i++){
+					const pointFrom = pointOnCircle(center, radius, points, i % points);
+					const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
+					ctx.beginPath();
+					ctx.moveTo(pointFrom.x, pointFrom.y);
+					ctx.lineTo(pointTo.x, pointTo.y);
+					ctx.stroke();
+				}
+				document.getElementById('drawBtn').removeAttribute('style');
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+			}
+			
+			canvResult.appendChild(c);
+		}
+
+		window.addEventListener('DOMContentLoaded', () => {
+			document.getElementById('drawBtn').addEventListener('click', drawModMul);
+			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
+				cancelAnimationFrame(animationID);
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+				document.getElementById('drawBtn').removeAttribute('style');
+			});
+		});
+	</script>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+</head>
+<body>
+<nav>
+	<div class="pageWidth">
+		<ul>
+			<li><a href="../index.html">Home</a></li>
+			<li><a href="../ramblings.html">Deranged Ramblings</a></li>
+			<li><a href="../about.html">About</a></li>
+		</ul>
+	</div>
+</nav>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<div id="CSSSelectArea" style="display:none">
+				<label for="CSSSelect">Select your CSS </label>
+				<select id="CSSSelect">
+					<option value="lightStyles" title="I'm happy with defaults">Light</option>
+					<option value="darkStyles" title="I have very strong feelings about this option">Dark</option>
+					<option value="minStyles" title="I hate graphic designers!">Min</option>
+				</select>
+			</div>
+			<noscript>With JS enabled you can change stylesheet here.</noscript>
+			
+			<h1>ModMul</h1>
+		</header>
+		<section>
+			<input id="multInput" type="number" min="2" value="2">
+			<label for="multInput">Multiplier</label>
+			<br>
+			<input id="numNails" type="number" min="3" value="200">
+			<label for="numNails">Nails</label>
+			<br>
+			<input id="windingInput" type="number" min="1" value="4" max="10">
+			<label for="windingInput">Winding</label>
+			<br>
+			<input id="animateInput" type="checkbox" checked>
+			<label for="animateInput">Animate</label>
+			<br>
+			<button id="drawBtn">Draw!</button>
+			<button id="stopDrawingBtn" style="display:none">STOP</button>
+			
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
