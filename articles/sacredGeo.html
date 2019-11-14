@@ -27,9 +27,13 @@
 			h = w;
 			sizeCalc.parentElement.removeChild(sizeCalc);
 		}
-		
-	
+
 		function setUpFast(){
+			const colors = [];
+			for(let i = 0; i < 6; i++){
+				colors.push(randomColor());
+			}
+		
 			const c = document.createElement('canvas');
 			
 			const ctx = c.getContext('2d');
@@ -38,45 +42,51 @@
 			c.setAttribute('height', h);
 
 			const center = {x: w/2.0, y: h/2.0};
-			const radius = Math.min(w,h) / 15;
-			ctx.globalAlpha = 0.3;
-			ctx.strokeStyle = '#000000';
-			//ctx.fillStyle = 'dodgerblue';
+			const radius = Math.min(w,h) / (Math.random() * 10 + 8);
 			
-			//const grad = ctx.createLinearGradient(center.x - radius, center.y-radius, center.x + radius, center.y + radius);
-			const grad = ctx.createRadialGradient(center.x, center.y,20, center.x, center.y, radius *0.9);
-			grad.addColorStop(0, 'dodgerblue');
-			grad.addColorStop(1, 'white');
+			ctx.strokeStyle = '#000000';
+			
+			ctx.fillStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, h);
+			ctx.fill();
+			
+			const grad = ctx.createRadialGradient(center.x, center.y,10, center.x, center.y, radius *0.9);
+			grad.addColorStop(0, colors[1]);
+			grad.addColorStop(1, colors[0]);
 			ctx.fillStyle = grad;
 			
-			ctx.globalCompositeOperation = 'lighter';
+			ctx.globalCompositeOperation = 'xor';
 			ctx.beginPath();
 			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
 			ctx.closePath();
-			//ctx.stroke();
+
 			ctx.fill();
-			const layers = 6;
+			const layers = Math.floor(Math.random() * 4 + 3);
 			for(let i = 1; i <= layers; i++){
 				const layerPoints = subdividedHexagonAboutPoint(center, radius * i, i);
 				for(let j = 0; j < layerPoints.length; j++){
 					const p = layerPoints[j];
 					
-					//const grad = ctx.createLinearGradient(p.x - radius, p.y-radius, p.x + radius, p.y + radius);
-					const grad = ctx.createRadialGradient(p.x,p.y,20, p.x, p.y, radius *0.9);
-					grad.addColorStop(0, 'dodgerblue');
-					//grad.addColorStop(0.25, randomColor());
-					grad.addColorStop(0.5, randomColor());
-					//grad.addColorStop(0.75, randomColor());
-					grad.addColorStop(1, 'white');
+					const grad = ctx.createRadialGradient(p.x,p.y,10, p.x, p.y, radius *0.9);
+					
+					grad.addColorStop(0, colors[(i + 2) % colors.length]);
+					grad.addColorStop(1, colors[(i+1) % colors.length]);
 					ctx.fillStyle = grad;
 					
 					ctx.beginPath();
 					ctx.arc(p.x, p.y, radius, 0, 2 * Math.PI);
-					//ctx.closePath();
-					//ctx.stroke();
 					ctx.fill();
 				}
+				
 			}
+			
+			ctx.globalCompositeOperation = 'difference';
+			ctx.fillStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, h);
+			ctx.fill();
+			
 			const img = c.toDataURL('image/png');
 			document.getElementById('seedOfLife').setAttribute('src', img);
 		}
@@ -110,11 +120,7 @@
 	
 		window.addEventListener('DOMContentLoaded', () => {
 			setUpConstants();
-			setUpFast();
-			setInterval(() => {
-				setUpFast();
-			}, 400)
-			
+			setUpFast();			
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
@@ -149,6 +155,8 @@
 			<p>"Seed of Life" pattern drawn on an HTML5 canvas, without re-drawing any lines</p>
 			<div id="sizeCalc">Placeholder while the image builds. If you see this, your computer is either very slow, you're using a shit browser (looking at you, Internet Explorer!), or my site has died.</div>
 			<img id="seedOfLife">
+			
+			<div id="placeHere"></div>
 			
 			<hr>
 			<h2>Explaination</h2>
