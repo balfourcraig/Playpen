@@ -23,10 +23,10 @@
 	<script src="../scripts/homepage.js"></script>
 	<script>
 		function randomColor() {
-			var letters = '0123456789ABCDEF';
+			var letters = '0123456789ABC';
 			var color = '#';
 			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * 16)];
+			color += letters[Math.floor(Math.random() * letters.length)];
 			}
 			return color;
 		}
@@ -40,7 +40,7 @@
 		
 		let animationID = null;
 		
-		function drawLine(ctx, center, radius, multiplier, points, i, iterations,useColor){
+		function drawLine(ctx, center, radius, multiplier, points, i, iterations, useColor, color){
 			if(iterations > 0){
 				const pointFrom = pointOnCircle(center, radius, points, i % points);
 				const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
@@ -48,7 +48,7 @@
 				if(useColor){
 					const grad = ctx.createLinearGradient(pointFrom.x, pointFrom.y, pointTo.x, pointTo.y);
 					grad.addColorStop(0, 'transparent');
-					grad.addColorStop(0.5, 'dodgerblue');
+					grad.addColorStop(0.5, color);
 					grad.addColorStop(1, 'transparent');
 					ctx.strokeStyle = grad;
 				}
@@ -59,7 +59,7 @@
 				ctx.stroke();
 				
 				animationID = window.requestAnimationFrame(() =>{
-					drawLine(ctx, center, radius,multiplier, points, i+1, iterations -1, useColor);
+					drawLine(ctx, center, radius,multiplier, points, i+1, iterations -1, useColor, color);
 				});
 			}
 			else{
@@ -104,10 +104,12 @@
 			}
 				
 			
+			const color = randomColor();
+			
 			const animate = document.getElementById('animateInput').checked;
 			const useColor = document.getElementById('colorInput').checked;
 			if(animate){
-				drawLine(ctx, center, radius, multiplier, points, 0, iterations,useColor);
+				drawLine(ctx, center, radius, multiplier, points, 0, iterations,useColor, color);
 			}
 			else{
 				for(let i = 1; i < iterations; i++){
@@ -116,7 +118,7 @@
 					if(useColor){
 						const grad = ctx.createLinearGradient(pointFrom.x, pointFrom.y, pointTo.x, pointTo.y);
 						grad.addColorStop(0, 'transparent');
-						grad.addColorStop(0.5, 'dodgerblue');
+						grad.addColorStop(0.5, color);
 						grad.addColorStop(1, 'transparent');
 						ctx.strokeStyle = grad;
 					}
