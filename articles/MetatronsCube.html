@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>From Chaos, Order - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/common.css">
+	<link id="styleSwap" rel="stylesheet" href="../css/lightStyles.css">
+	<style>
+		#sizeCalc{
+			padding: 2px;
+		}
+		
+		input{
+			margin: 5px 0;
+		}
+		
+		button{
+			margin: 5px 0;
+			padding: 5px;
+		}
+	</style>
+	<script src="../scripts/homepage.js"></script>
+	<script>
+		function randomColor() {
+			var letters = '0123456789ABC';
+			var color = '#';
+			for (var i = 0; i < 6; i++) {
+			color += letters[Math.floor(Math.random() * letters.length)];
+			}
+			return color;
+		}
+	
+		function pointOnCircle(center, radius, totalPoints, pointNum){
+			const angle = pointNum / totalPoints * Math.PI * 2;
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+		
+		let animationID = null;
+		
+
+		function drawMetatron(){
+			document.getElementById('drawBtn').setAttribute('style','display:none');
+			document.getElementById('stopDrawingBtn').removeAttribute('style');
+			
+			window.cancelAnimationFrame(animationID);
+			const c = document.createElement('canvas');
+			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			const ctx = c.getContext('2d');
+			ctx.globalAlpha = 0.6;
+			ctx.lineWidth = 1;
+			const center = {x: w/2.0, y: w/2.0};
+			const radius = w * 0.095;
+			
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			ctx.fillStyle = 'white';
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, w);
+			ctx.fill();
+
+			const level1 = [];
+			const level2 = [];
+			
+			const animate = document.getElementById('animateInput').checked;
+			const useColor = document.getElementById('colorInput').checked;
+			const gradient = document.getElementById('gradInput').checked;
+			
+			const colors = [];
+			for(let i = 0; i < 5; i++){
+				colors.push(randomColor());
+			}
+			
+			for(let i = 0; i < 6; i++){
+				level1.push(pointOnCircle(center, radius * 2, 6, i));
+				level2.push(pointOnCircle(center, radius * 4, 6, i));
+			}
+			
+			const drawings = [];
+			
+			for(let i = 0; i < 6; i++){
+				if(i % 2 === 0){
+					drawings.push(() => drawLine(ctx, level2[i], level2[(i + 3) % 6], gradient, useColor ? colors[0] : 'black'));
+				}
+				drawings.push(() => drawLine(ctx, level1[i], level1[(i + 2) % 6], gradient,  useColor ? colors[1] : 'black'));
+				
+				drawings.push(() => drawLine(ctx, level2[i], level1[(i + 2) % 6], gradient,  useColor ? colors[2] : 'black'));
+				drawings.push(() => drawLine(ctx, level2[i], level1[(i + 4) % 6], gradient,  useColor ? colors[2] : 'black'));
+				
+				drawings.push(() => drawLine(ctx, level1[i], level1[(i + 1) % 6], gradient,  useColor ? colors[3] : 'black'));
+				drawings.push(() => drawLine(ctx, level2[i], level2[(i + 1) % 6], gradient,  useColor ? colors[3] : 'black'));
+				
+				drawings.push(() => drawCircle(ctx, level1[i], radius,  useColor ? colors[4] : 'black'));
+				drawings.push(() => drawCircle(ctx, level2[i], radius,  useColor ? colors[4] : 'black'));
+			}
+			drawings.push(() => drawCircle(ctx, center, radius,  useColor ? colors[4] : 'black'));
+			
+			if(animate){
+				animateLine(drawings, 0);
+			}
+			else{
+				for(let i = 0; i < drawings.length; i++){
+					drawings[i]();
+				}
+			}
+
+			document.getElementById('drawBtn').removeAttribute('style');
+			document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+		}
+		
+		function animateLine(allActions, index){
+			if(index < allActions.length){
+				allActions[index]();
+				animationID = window.requestAnimationFrame(() => {
+					animateLine(allActions, index + 1);
+				});
+			}
+		}
+		
+		function drawLine(ctx, start, end, useGradient, color){
+			if(useGradient){
+				const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+				grad.addColorStop(0, 'transparent');
+				grad.addColorStop(0.5, color);
+				grad.addColorStop(1, 'transparent');
+				ctx.strokeStyle = grad;
+			}
+			else{
+				ctx.strokeStyle = color;
+			}
+		
+			ctx.beginPath();
+			ctx.moveTo(start.x, start.y);
+			ctx.lineTo(end.x,end.y);
+			ctx.stroke();
+		}
+		
+		function drawCircle(ctx, center, radius, color){
+			ctx.strokeStyle = color;
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+			ctx.stroke();
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			document.getElementById('drawBtn').addEventListener('click', drawMetatron);
+			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
+				cancelAnimationFrame(animationID);
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+				document.getElementById('drawBtn').removeAttribute('style');
+			});
+		});
+	</script>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+</head>
+<body>
+<nav>
+	<div class="pageWidth">
+		<ul>
+			<li><a href="../index.html">Home</a></li>
+			<li><a href="../ramblings.html">Deranged Ramblings</a></li>
+			<li><a href="../about.html">About</a></li>
+		</ul>
+	</div>
+</nav>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<div id="CSSSelectArea" style="display:none">
+				<label for="CSSSelect">Select your CSS </label>
+				<select id="CSSSelect">
+					<option value="lightStyles" title="I'm happy with defaults">Light</option>
+					<option value="darkStyles" title="I have very strong feelings about this option">Dark</option>
+					<option value="minStyles" title="I hate graphic designers!">Min</option>
+				</select>
+			</div>
+			<noscript>With JS enabled you can change stylesheet here.</noscript>
+			
+			<h1>Metatron's Cube</h1>
+		</header>
+		<section>
+			<input id="animateInput" type="checkbox" checked>
+			<label for="animateInput">Animate</label>
+			<br>
+			<input id="colorInput" type="checkbox" checked>
+			<label for="colorInput">Use color</label>
+			<br>
+			<input id="gradInput" type="checkbox" checked>
+			<label for="gradInput">Use Gradient</label>
+			<br>
+			<button id="drawBtn">Draw!</button>
+			<button id="stopDrawingBtn" style="display:none">STOP</button>
+
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
