@@ -3,7 +3,7 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
-	<title>From Chaos, Order - Craig's Playpen</title>
+	<title>Metatron - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/common.css">
 	<link id="styleSwap" rel="stylesheet" href="../css/lightStyles.css">
 	<style>
@@ -52,7 +52,7 @@
 			c.setAttribute('height', w);
 			const ctx = c.getContext('2d');
 			ctx.globalAlpha = 0.6;
-			ctx.lineWidth = 1;
+			ctx.lineWidth = 2;
 			const center = {x: w/2.0, y: w/2.0};
 			const radius = w * 0.095;
 			
@@ -136,7 +136,7 @@
 					animationID = window.requestAnimationFrame(() => {
 						animateLine(allActions, index + 1);
 					});
-				},250)
+				},60)
 			}
 		}
 		

@@ -3,7 +3,7 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
-	<title>Sacred Geometry - Craig's Playpen</title>
+	<title>Seed of Life - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/common.css">
 	<link id="styleSwap" rel="stylesheet" href="../css/lightStyles.css">
 	<script src="../scripts/homepage.js"></script>
@@ -40,7 +40,9 @@
 
 			c.setAttribute('width', w);
 			c.setAttribute('height', h);
-
+			
+			
+			
 			const center = {x: w/2.0, y: h/2.0};
 			const radius = Math.min(w,h) / (Math.random() * 10 + 8);
 			
@@ -87,8 +89,9 @@
 			ctx.rect(0, 0, w, h);
 			ctx.fill();
 			
-			const img = c.toDataURL('image/png');
-			document.getElementById('seedOfLife').setAttribute('src', img);
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
 		}
 
 		const seedAngle = Math.PI / 3;
@@ -154,58 +157,7 @@
 		<section>
 			<p>"Seed of Life" pattern drawn on an HTML5 canvas, without re-drawing any lines</p>
 			<div id="sizeCalc">Placeholder while the image builds. If you see this, your computer is either very slow, you're using a shit browser (looking at you, Internet Explorer!), or my site has died.</div>
-			<img id="seedOfLife">
-			
-			<div id="placeHere"></div>
-			
-			<hr>
-			<h2>Explaination</h2>
-			<p>The Seed of Life is a very simple pattern from which complexity arises.
-			In essense, it's a circle, with a point on its circumference. A second circle of equal radius is drawn from that point to the centre. Where ever circles intersect, draw another circle.</p>
-			
-			<p>By simply adding circles in this manner, the seed design (I think it looks more like a flower) arises.</p>
-			
-			<h2>Code Explaination</h2>
-			<p>To see a JS implementation, simply view the page source. This one is drawn to an HTML5 canvas, and rendered onto an img on page load. As such, the image is the correct size for your screen.</p>
-			<p>There are only two functions needed really, one to do the drawing, and another to generate a given "layer"</p>
-			<p>Not only is it interesting to generate each refresh, there's a pretty massive space saving. This whole page, including the code to build the image is less than 2% the size of the image on a 1080p monitor!
-			Using the method below, there are no extra redraws, so it's very fast too. Faster than downloading the image, though the trade-off is that it is not cached</p>
-			
-<pre>
-SetUp()
-	define radius, imageSize, colors, canvas etc.
-	define numberOfLayers
-	
-	define center
-	
-	foreach layer in numberOfLayers do
-		foreach point in BuildHexagon(center, layer * radius, layer) do
-			draw circle of radius about point
-
-
-BuildHexagon(center, hexRadius, subdivisions)
-	define pointList
-	define previousPoint = null
-	define const angle = PI/3 (roughly 1.0471975512)
-	
-	for i in 1..7 do
-		define x = Sin(angle * i) * radius + center.X
-		define y = Cos(angle * i) * radius + center.Y
-		
-		define point = {x, y}
-		if previousPoint is not null
-			add point to pointList
-			if(subdivisions > 0)
-				define xDist = (point.X - previousPoint.X) / subdivisions
-				define yDist = (point.Y - previousPoint.Y) / subdivisions
-				
-				for sub in 1..subdivisions do
-					define subPoint = {point.X - xDist * sub, point.Y - yDist * sub}
-					add subPoint to pointList
-		set previousPoint = point
-	return pointList
-
-</pre>
+			<div id="canvResult"></div>
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>
