@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Pentagram - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/common.css">
+	<link id="styleSwap" rel="stylesheet" href="../css/lightStyles.css">
+	<style>
+		#sizeCalc{
+			padding: 2px;
+		}
+		
+		input{
+			margin: 5px 0;
+		}
+		
+		button{
+			margin: 5px 0;
+			padding: 5px;
+		}
+	</style>
+	<script src="../scripts/homepage.js"></script>
+	<script>
+		function randomColor() {
+			var letters = '0123456789ABC';
+			var color = '#';
+			for (var i = 0; i < 6; i++) {
+			color += letters[Math.floor(Math.random() * letters.length)];
+			}
+			return color;
+		}
+	
+		function pointOnCircle(center, radius, totalPoints, pointNum){
+			const angle = pointNum / totalPoints * Math.PI * 2;
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+		
+		function midpoint(p1, p2){
+			const x = (p1.x + p2.x) / 2;
+			const y = (p1.y + p2.y) / 2;
+			return {x:x, y:y};
+		}
+		
+		let animationID = null;
+		
+
+		function drawMetatron(){
+			document.getElementById('drawBtn').setAttribute('style','display:none');
+			document.getElementById('stopDrawingBtn').removeAttribute('style');
+			
+			window.cancelAnimationFrame(animationID);
+			const c = document.createElement('canvas');
+			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			const ctx = c.getContext('2d');
+			//ctx.globalAlpha = 0.6;
+			ctx.lineWidth = 15;
+			ctx.lineCap = "round";
+			const center = {x: w/2.0, y: w/2.0};
+			const radius = w * 0.3;
+			
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			ctx.fillStyle = 'white';
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, w);
+			ctx.fill();
+			
+			const animate = document.getElementById('animateInput').checked;
+			const useColor = document.getElementById('colorInput').checked;
+			const gradient = document.getElementById('gradInput').checked;
+			
+			const colors = [];
+			for(let i = 0; i < 6; i++){
+				colors.push(randomColor());
+			}
+			
+			const pathPoints = [];
+			for(let i = 0; i < 5; i++){
+				pathPoints.push(pointOnCircle(center, radius, 5, i));
+			}
+
+			const drawings = [];
+			
+			for(let i = 0; i < 5; i++){
+				const p = pathPoints[i];
+				drawings.push(() => drawLine(ctx, p, midpoint(p, pathPoints[(i + 2) % 5]), false, colors[i]));
+			}
+			
+			drawings.push(() => drawCircle(ctx, center, radius * 0.9, colors[5]));
+			
+			for(let i = 0; i < 5; i++){
+				const p = pathPoints[(i + 2) % 5];
+				drawings.push(() => drawLine(ctx, p, midpoint(p, pathPoints[i]), false, colors[i]));
+			}
+			
+			//drawings.push(() => drawCircle(ctx, center, radius,  useColor ? colors[4] : 'black'));
+			//drawings.push(() => drawLine(ctx, level2[i], level2[(i + 3) % 6], gradient, useColor ? colors[0] : 'black'));
+
+
+			if(animate){
+				animateLine(drawings, 0);
+			}
+			else{
+				for(let i = 0; i < drawings.length; i++){
+					drawings[i]();
+				}
+			}
+
+			document.getElementById('drawBtn').removeAttribute('style');
+			document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+		}
+		
+		function animateLine(allActions, index){
+			if(index < allActions.length){
+				allActions[index]();
+				setTimeout(() => {
+					animationID = window.requestAnimationFrame(() => {
+						animateLine(allActions, index + 1);
+					});
+				},60)
+			}
+		}
+		
+		function drawLine(ctx, start, end, useGradient, color){
+			if(useGradient){
+				const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+				grad.addColorStop(0, 'transparent');
+				grad.addColorStop(0.5, color);
+				grad.addColorStop(1, 'transparent');
+				ctx.strokeStyle = grad;
+			}
+			else{
+				ctx.strokeStyle = color;
+			}
+		
+			ctx.beginPath();
+			ctx.moveTo(start.x, start.y);
+			ctx.lineTo(end.x,end.y);
+			ctx.stroke();
+		}
+		
+		function drawCircle(ctx, center, radius, color){
+			ctx.strokeStyle = color;
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+			ctx.stroke();
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			document.getElementById('drawBtn').addEventListener('click', drawMetatron);
+			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
+				cancelAnimationFrame(animationID);
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+				document.getElementById('drawBtn').removeAttribute('style');
+			});
+		});
+	</script>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+</head>
+<body>
+<nav>
+	<div class="pageWidth">
+		<ul>
+			<li><a href="../index.html">Home</a></li>
+			<li><a href="../ramblings.html">Deranged Ramblings</a></li>
+			<li><a href="../about.html">About</a></li>
+		</ul>
+	</div>
+</nav>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<div id="CSSSelectArea" style="display:none">
+				<label for="CSSSelect">Select your CSS </label>
+				<select id="CSSSelect">
+					<option value="lightStyles" title="I'm happy with defaults">Light</option>
+					<option value="darkStyles" title="I have very strong feelings about this option">Dark</option>
+					<option value="minStyles" title="I hate graphic designers!">Min</option>
+				</select>
+			</div>
+			<noscript>With JS enabled you can change stylesheet here.</noscript>
+			
+			<h1>Metatron's Cube</h1>
+		</header>
+		<section>
+			<input id="animateInput" type="checkbox" checked>
+			<label for="animateInput">Animate</label>
+			<br>
+			<input id="colorInput" type="checkbox" checked>
+			<label for="colorInput">Use color</label>
+			<br>
+			<input id="gradInput" type="checkbox">
+			<label for="gradInput">Use Gradient</label>
+			<br>
+			<button id="drawBtn">Draw!</button>
+			<button id="stopDrawingBtn" style="display:none">STOP</button>
+
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
