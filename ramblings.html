@@ -10,15 +10,13 @@
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
-<nav>
-	<div class="pageWidth">
-		<ul>
-			<li><a href="index.html">Home</a></li>
-			<li><a href="ramblings.html">Deranged Ramblings</a></li>
-			<li><a href="about.html">About</a></li>
-		</ul>
-	</div>
-</nav>
+<div class="navHolder">
+	<nav>
+		<a href="index.html">Home</a>
+		<a class="selected" href="ramblings.html">Deranged Ramblings</a>
+		<a href="about.html">About</a>
+	</nav>
+</div>
 
 <main>
 	<div class="pageWidth">
@@ -33,19 +31,44 @@
 			</div>
 			<noscript>With JS enabled you can change stylesheet here.</noscript>
 			
-			<h1>Ramblings</h1>
+			<h1>Deranged Ramblings</h1>
 		</header>
 		<section>
-			<p>Here is a collection of random ramblings and opinions</p>
-			<ul>
-				<!--
+			<h2>Experiments</h2>
+			<p>A collection of random experiments. Mostly fun visual stuff</p>
+			<div>
+				<section class="secBlock">
+					<h3><a href="articles/sacredGeo.html">Seed of Life</a></h3>
+					<p>The seed of life is a pattern</p>
+				</section>
+				<section class="secBlock">
+					<h3><a href="articles/ModMul.html">Modulo Multiplication</a></h3>
+					<p>A beautiful example of modulo maths. Based on the ideas from this <a href="https://www.youtube.com/watch?v=qhbuKbxJsk8">wonderful video from Mathologer.</a></p>
+				</section>
+				<section class="secBlock">
+					<h3><a href="articles/MetatronsCube.html">Metatron's Cube</a></h3>
+					<p>Metatron's Cube is special pattern, which contains within it projections of many simple polygons. It's also a fun shape to draw!</p>
+				</section>
+				<section class="secBlock">
+					<h3><a href="articles/Pentagram.html">Pentagram</a></h3>
+					<p>The pentagram aka star has a lot of symbolism. In this experiment I just wanted to see how to draw it following over-under-over pattern without re-drawing lines. The way to do this is to split each line in half and draw all of one side, then all of the other.</p>
+				</section>
+				<section class="secBlock">
+					<h3><a href="articles/PineCone.html">Fibonacci Dots</a></h3>
+					<p>Placing points based on rotating around a circle by the golden angle. Creates a pattern similar to a pinecone or sunflower</p>
+				</section>
+				<section class="secBlock">
+					<h3><a href="articles/Spirals.html">Fibonacci Lines</a></h3>
+					<p>Joining every nth Fibonacci point on a circle</p>
+				</section>
+			</div>
+			
+			<!--<ul>
+				
 				<li><a href="articles/lazyDevs.html">Article 1 - Lazy Developers</a></li>
 				<li><a href="articles/bullshitNames.html">Article 2 - Bullshit Naming</a></li>
-				-->
-				<li><a href="articles/sacredGeo.html">Seed of Life</a></li>
-				<li><a href="articles/ModMul.html">Modulo Multiplication</a></li>
-				<li><a href="articles/MetatronsCube.html">Metatron's Cube</a></li>
-			</ul>
+				
+			</ul>-->
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>

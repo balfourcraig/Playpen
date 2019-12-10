@@ -7,7 +7,7 @@ body{
 .pageWidth{
 	max-width: 960px;
 	margin: 0 auto;
-	padding: 1rem;
+	padding: 10px;
 }
 
 .scrollOverflow{
@@ -24,3 +24,4 @@ body{
 	text-align: center;
 	bottom: 0;
 }
+

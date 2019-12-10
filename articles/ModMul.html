@@ -155,15 +155,13 @@
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 </head>
 <body>
-<nav>
-	<div class="pageWidth">
-		<ul>
-			<li><a href="../index.html">Home</a></li>
-			<li><a href="../ramblings.html">Deranged Ramblings</a></li>
-			<li><a href="../about.html">About</a></li>
-		</ul>
-	</div>
-</nav>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
 
 <main>
 	<div class="pageWidth">
@@ -185,7 +183,7 @@
 			<label for="multInput">Multiplier</label>
 			<br>
 			<input id="numNails" type="number" min="3" value="200">
-			<label for="numNails">Nails</label>
+			<label for="numNails">Modulus</label>
 			<br>
 			<input id="windingInput" type="number" min="1" value="4" max="10">
 			<label for="windingInput">Winding</label>
