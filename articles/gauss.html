@@ -3,29 +3,51 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
-	<title>Metatron - Craig's Playpen</title>
+	<title>Gauss - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<script>
 		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * letters.length)];
+			const lightness = 255;
+			const arr = [];
+			arr[0] = Math.floor(Math.random() * lightness);
+			arr[1] = Math.floor(Math.random() * (lightness - arr[0]));
+			arr[2] = Math.floor(Math.random() * (lightness - arr[1] - arr[0]));
+			shuffleInplace(arr);
+			
+			let color = '#';
+			for(let i = 0; i < 3; i++){
+				if(arr[i] >= 16){
+					color += arr[i].toString(16);
+				}
+				else{
+					color += '0' + arr[i].toString(16);
+				}
 			}
 			return color;
-		}
-	
-		function pointOnCircle(center, radius, totalPoints, pointNum){
-			const angle = pointNum / totalPoints * Math.PI * 2;
-			const x = Math.sin(angle) * radius + center.x;
-			const y = Math.cos(angle) * radius + center.y;
-			return {x:x, y:y};
+			
+			//var letters = '0123456789ABC';
+			//var color = '#';
+			//for (var i = 0; i < 6; i++) {
+			//color += letters[Math.floor(Math.random() * letters.length)];
+			//}
+			//return color;
 		}
 		
+		function shuffleInplace(arr){
+			let n = arr.length;
+			while(n > 0){
+				const r = Math.floor(Math.random() * n);
+				const temp = arr[r];
+				arr[r] = arr[n-1];
+				arr[n-1] = temp;
+				n--;
+			}
+		}
+		
+		const goldenAngleRad = 2.39996322972865332;
 		let animationID = null;
-		
 
-		function drawMetatron(){
+		function drawPattern(){
 			document.getElementById('drawBtn').setAttribute('style','display:none');
 			document.getElementById('stopDrawingBtn').removeAttribute('style');
 			
@@ -35,69 +57,31 @@
 			c.setAttribute('width', w);
 			c.setAttribute('height', w);
 			const ctx = c.getContext('2d');
-			ctx.globalAlpha = 0.6;
-			ctx.lineWidth = 2;
 			const center = {x: w/2.0, y: w/2.0};
-			const radius = w * 0.095;
+			
 			
 			const canvResult = document.getElementById('canvResult');
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			ctx.fillStyle = 'white';
-			ctx.strokeStyle = 'black';
+			ctx.fillStyle = 'black';
+			ctx.strokeStyle = 'none';
 			ctx.beginPath();
 			ctx.rect(0, 0, w, w);
 			ctx.fill();
+			ctx.globalAlpha = 0.2;
 
-			const level1 = [];
-			const level2 = [];
+			ctx.globalCompositeOperation = 'screen';
 			
 			const animate = document.getElementById('animateInput').checked;
 			const useColor = document.getElementById('colorInput').checked;
-			const gradient = document.getElementById('gradInput').checked;
-			
-			const colors = [];
-			for(let i = 0; i < 5; i++){
-				colors.push(randomColor());
-			}
-			
-			for(let i = 0; i < 6; i++){
-				level1.push(pointOnCircle(center, radius * 2, 6, i));
-				level2.push(pointOnCircle(center, radius * 4, 6, i));
-			}
+			const useGradient = document.getElementById('gradInput').checked;
 			
 			const drawings = [];
 			
-			drawings.push(() => drawCircle(ctx, center, radius,  useColor ? colors[4] : 'black'));
-			
-			for(let i = 0; i < 6; i+=2){
-				drawings.push(() => drawLine(ctx, level2[i], level2[(i + 3) % 6], gradient, useColor ? colors[0] : 'black'));
-			}
-			
-			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawCircle(ctx, level1[i], radius,  useColor ? colors[4] : 'black'));
-			}
-			
-			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawLine(ctx, level1[i], level1[(i + 1) % 6], gradient,  useColor ? colors[3] : 'black'));
-			}
-			
-			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawLine(ctx, level1[i], level1[(i + 2) % 6], gradient,  useColor ? colors[1] : 'black'));
-			}
-			
-			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawCircle(ctx, level2[i], radius,  useColor ? colors[4] : 'black'));
-			}
-			
-			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawLine(ctx, level2[i], level1[(i + 4) % 6], gradient,  useColor ? colors[2] : 'black'));
-				drawings.push(() => drawLine(ctx, level2[i], level1[(i + 2) % 6], gradient,  useColor ? colors[2] : 'black'));
-			}
-			
-			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawLine(ctx, level2[i], level2[(i + 1) % 6], gradient,  useColor ? colors[3] : 'black'));				
+			for(let i = 0; i < 900; i++){
+				const radius = Math.random() * 0.01 + 0.01;
+				drawings.push(() => drawCircle(ctx, gaussianPoint(center.x, center.x/3), w*radius, useColor ? randomColor() : 'grey', useGradient));
 			}
 
 			if(animate){
@@ -110,18 +94,14 @@
 				document.getElementById('drawBtn').removeAttribute('style');
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 			}
-
-			
 		}
 		
 		function animateLine(allActions, index){
 			if(index < allActions.length){
 				allActions[index]();
-				setTimeout(() => {
-					animationID = window.requestAnimationFrame(() => {
-						animateLine(allActions, index + 1);
-					});
-				},60)
+				animationID = window.requestAnimationFrame(() => {
+					animateLine(allActions, index + 1);
+				});
 			}
 			else{
 				document.getElementById('drawBtn').removeAttribute('style');
@@ -129,33 +109,35 @@
 			}
 		}
 		
-		function drawLine(ctx, start, end, useGradient, color){
-			if(useGradient){
-				const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
-				grad.addColorStop(0, 'transparent');
-				grad.addColorStop(0.5, color);
-				grad.addColorStop(1, 'transparent');
-				ctx.strokeStyle = grad;
-			}
-			else{
-				ctx.strokeStyle = color;
-			}
-		
-			ctx.beginPath();
-			ctx.moveTo(start.x, start.y);
-			ctx.lineTo(end.x,end.y);
-			ctx.stroke();
+		function gaussianPoint(mean, stdDev){
+			const sq = Math.sqrt(-2 * Math.log(1 - Math.random()));
+			const u2 = (1 - Math.random()) * 2 * Math.PI;
+			const randStdNormalX = sq * Math.sin(u2);
+			const randStdNormalY = sq * Math.cos(u2);
+			const x = mean + stdDev * randStdNormalX;
+			const y = mean + stdDev * randStdNormalY;
+			return {x:x, y:y};
 		}
 		
-		function drawCircle(ctx, center, radius, color){
-			ctx.strokeStyle = color;
+		function drawCircle(ctx, center, radius, color, useGradient){
+			if(useGradient){
+				radius *= 1.5;
+				const grad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, radius);
+				grad.addColorStop(0, color);
+				grad.addColorStop(1, 'transparent');
+				ctx.fillStyle = grad;
+			}
+			else{
+				ctx.fillStyle = color;
+			}
+			
 			ctx.beginPath();
 			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
-			ctx.stroke();
+			ctx.fill();
 		}
 		
 		window.addEventListener('DOMContentLoaded', () => {
-			document.getElementById('drawBtn').addEventListener('click', drawMetatron);
+			document.getElementById('drawBtn').addEventListener('click', drawPattern);
 			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
 				cancelAnimationFrame(animationID);
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
@@ -177,7 +159,7 @@
 <main>
 	<div class="pageWidth">
 		<header>
-			<h1>Metatron's Cube</h1>
+			<h1>Gauss</h1>
 		</header>
 		<section>
 			<input id="animateInput" type="checkbox" checked>
@@ -186,7 +168,7 @@
 			<input id="colorInput" type="checkbox" checked>
 			<label for="colorInput">Use color</label>
 			<br>
-			<input id="gradInput" type="checkbox">
+			<input id="gradInput" type="checkbox" checked>
 			<label for="gradInput">Use Gradient</label>
 			<br>
 			<button id="drawBtn">Draw!</button>

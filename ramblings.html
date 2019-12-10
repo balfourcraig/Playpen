@@ -4,9 +4,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
 	<title>Ramblings - Craig's Playpen</title>
-	<link rel="stylesheet" href="css/common.css">
-	<link id="styleSwap" rel="stylesheet" href="css/lightStyles.css">
-	<script src="homepage.js"></script>
+	<link rel="stylesheet" href="css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
@@ -21,19 +19,9 @@
 <main>
 	<div class="pageWidth">
 		<header>
-			<div id="CSSSelectArea" style="display:none">
-				<label for="CSSSelect">Select your CSS </label>
-				<select id="CSSSelect">
-					<option value="lightStyles" title="I'm happy with defaults">Light</option>
-					<option value="darkStyles" title="I have very strong feelings about this option">Dark</option>
-					<option value="minStyles" title="I hate graphic designers!">Min</option>
-				</select>
-			</div>
-			<noscript>With JS enabled you can change stylesheet here.</noscript>
-			
 			<h1>Deranged Ramblings</h1>
 		</header>
-		<section>
+		<section class="area">
 			<h2>Experiments</h2>
 			<p>A collection of random experiments. Mostly fun visual stuff</p>
 			<div>
@@ -59,16 +47,23 @@
 				</section>
 				<section class="secBlock">
 					<h3><a href="articles/Spirals.html">Fibonacci Lines</a></h3>
-					<p>Joining every nth Fibonacci point on a circle</p>
+					<p>Joining every nth Fibonacci point on a circle. Creates some cool spirals</p>
+				</section>
+				<section class="secBlock">
+					<h3><a href="articles/gauss.html">Gauss</a></h3>
+					<p>Generates points in a pseudo-gaussian manner and plots them. Makes for some pretty, smokey looking patterns</p>
 				</section>
 			</div>
-			
-			<!--<ul>
-				
-				<li><a href="articles/lazyDevs.html">Article 1 - Lazy Developers</a></li>
-				<li><a href="articles/bullshitNames.html">Article 2 - Bullshit Naming</a></li>
-				
-			</ul>-->
+		</section>
+		<section class="area">
+			<h2>Unfounded and Biased Opinions</h2>
+			<p>Thoughts on my mind.</p>
+			<div>
+				<section class="secBlock">
+					<h3><a href="articles/bullshitNames.html">Bullshit names</a></h3>
+					<p>A general rant about stupid names in software.</p>
+				</section>
+			</div>
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>
