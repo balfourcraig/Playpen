@@ -84,7 +84,7 @@
 			
 			const down = drawDir === 'in';
 			
-			for(let j = down ? 500 : 0; (down && j > 0) || (!down && j < 500); j += down ? -1 : 1){
+			for(let j = down ? indexes.length : 0; (down && j > 0) || (!down && j < indexes.length); j += down ? -1 : 1){
 				const i = indexes[j];
 				const angle = i * goldenAngleRad + rotation;
 				const offset = sqrt ? Math.sqrt(i) * w * 0.023 : i * w * 0.001;

@@ -7,17 +7,23 @@
 	<link rel="stylesheet" href="../css/styles.css">
 	<style>
 		.colorBlock{
-			width: 100%;
-			height: 20px;
-			margin: 5px;
+			min-width: 10px;
+			height: 15px;
+			margin: 0;
+			flex-grow: 1;
+		}
+		
+		#resultHolder{
+			display: flex;
+			flex-wrap: wrap;
 		}
 	</style>
 	<script>
 		const golden_ratio= 0.618033988749895;
-		let goldenOffset = golden_ratio;
 		let randh = Math.random();
-		let rands = Math.random();
-
+		let width = Math.random();
+		
+		let animationID = null;
 
 		function getRandomInt(min, max) {
 			min = Math.ceil(min);
@@ -26,86 +32,69 @@
 		}
 		
 
-		function goldenRand(minSat, maxSat){
-			randh += goldenOffset;
+		function goldenRand(minSat, maxSat, minLight, maxLight){
+			randh += golden_ratio;
 			randh %= 1;
 			
-			rands += goldenOffset  *0.5;
-			rands %= 1;
+			let sat = getRandomInt(minSat, maxSat);
+			let light = getRandomInt(minLight, maxLight);
 			
-			let sat = (maxSat - minSat) * rands + minSat;
-			
-			return 'hsl(' + (randh * 360) + ', ' + sat + '%, 50%)';
+			return 'hsl(' + (randh * 360) + ', ' + sat + '%, ' + light + '%)';
 		}
 		
-		function hsvToRGB(h, s, v){
-			let h_i = ~~(h*6);
-			let f = h*6 - h_i;
-			let p = v * (1-s);
-			let q = v * (1 - f*s);
-			let t = v * (1 - (1 -f) * s);
-			
-			let r = 0;
-			let g = 0;
-			let b = 0;
-			
-			switch (h_i){
-				case 0:
-					r = v; g = t; b = p;
-					break;
-				case 1:
-					r = q, g = v; b = p;
-					break;
-				case 2:
-					r = p; g = v; b = t;
-					break;
-				case 3:
-					r = p; g = q; b = v;
-					break;
-				case 4:
-					r = t; g = p; b = v;
-					break;
-				case 5:
-					r = v; g = p; b = q;
-			}
-			
-			r = ~~(r * 255);
-			g = ~~(g * 255);
-			b = ~~(b * 255);
-			
-			let color = '#';
-			if(r < 16)
-				color += '0';
-			color += r.toString(16);
-			if(g < 16)
-				color += '0';
-			color += g.toString(16);
-			if(b < 16)
-				color += '0';
-			color += b.toString(16);
-			
-			return color;
-		}
-		
-
 		function drawPattern(){
+			window.cancelAnimationFrame(animationID);
 			const holder = document.getElementById('resultHolder');
+			
+			const animate = document.getElementById('animateInput').checked;
+			
 			const sat1 = parseInt(document.getElementById('satMinInput').value);
 			const sat2 = parseInt(document.getElementById('satMaxInput').value);
+			
+			const light1 = parseInt(document.getElementById('lightMinInput').value);
+			const light2 = parseInt(document.getElementById('lightMaxInput').value);
 			
 			const satMin = Math.min(sat1, sat2);
 			const satMax = Math.max(sat1, sat2);
 			
-			console.log(rands);
+			const lightMin = Math.min(light1, light2);
+			const lightMax = Math.max(light1, light2);
 			
-			
+			const rows = parseInt(document.getElementById('rowInput').value)
 			holder.innerHTML = '';
-			//goldenOffset *= (Math.random() > 0.5 ? 1 : -1);
-			for(let i = 0; i < 50; i++){
-				const block = document.createElement('div');
-				block.setAttribute('class', 'colorBlock');
-				block.setAttribute('style', 'background-color:' + goldenRand(satMin, satMax));
-				holder.appendChild(block);
+			
+			const drawings = [];
+			for(let i = 0; i < rows; i++){
+				drawings.push(() => {
+					const block = document.createElement('div');
+					
+					//width += golden_ratio;
+					//width %= 1;
+
+					block.setAttribute('class', 'colorBlock');
+					block.setAttribute('style', 'background-color:' + goldenRand(satMin, satMax, lightMin, lightMax) + '; width:' + (Math.floor(Math.random() * 50 + 5)) + '%');
+					holder.appendChild(block);
+				});
+			}
+			if(animate){
+				animationID = window.requestAnimationFrame(() => {
+					drawBlock(drawings, 0);
+				});
+			}
+			else{
+				for(let i = 0; i < drawings.length; i++){
+					drawings[i]();
+				}
+			}
+			
+		}
+		
+		function drawBlock(drawings, index){
+			if(index < drawings.length){
+				drawings[index]();
+				animationID = window.requestAnimationFrame(() => {
+					drawBlock(drawings, index + 1);
+				});
 			}
 		}
 		
@@ -138,15 +127,32 @@
 			<h1>Pentagram</h1>
 		</header>
 		<section>
-			<input id="satMinInput" type="range" min="1" max="100" value="95">
+			<input id="animateInput" type="checkbox" checked>
+			<label for="animateInput">Animate</label>
+			<br>
+			<input id="satMinInput" type="range" min="1" max="100" value="75">
 			<label id="satMinLbl" for="satMinInput">Min Saturation</label>
 			<br>
-			<input id="satMaxInput" type="range" min="1" max="100" value="85">
-			<label id="satMaxLbl" for="satMaxInput">Max Saturation</label>
+			<input id="satMaxInput" type="range" min="1" max="100" value="95">
+			<label id="satMaxLbl" for="satMaxInput">Max Saturation</label>			
 			<br>
+			
+			<input id="lightMinInput" type="range" min="1" max="100" value="35">
+			<label id="lightMinLbl" for="lightMinInput">Min Lightness</label>
+			<br>
+			<input id="lightMaxInput" type="range" min="1" max="100" value="65">
+			<label id="lightMaxLbl" for="lightMaxInput">Max Lightness</label>
+			<br>
+			
+			<input id="rowInput" type="number" min="1" value="200">
+			<label for="rowInput">Number of Blocks</label>
+			<br>
+			
 			<button id="drawBtn">Draw!</button>
 			<button id="stopDrawingBtn" style="display:none">STOP</button>
 
+			
+			
 			<div id="resultHolder">
 			
 			</div>
