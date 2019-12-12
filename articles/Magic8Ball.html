@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Magic 8 Ball - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<style>
+	#MagicResultHolder{
+		font-size: 24px;
+		text-align: center;
+	}
+	
+	#askBtn{
+		font-size: 24px;
+	}
+	
+	</style>
+	<script>
+		const answers =
+		[
+			[
+				"It is certain.",
+				"It is decidedly so.",
+				"Without a doubt.",
+				"Yes - definitely.",
+				"You may rely on it.",
+				"As I see it, yes.",
+				"Most likely.",
+				"Outlook good.",
+				"Yes.",
+				"Signs point to yes."
+			],
+			[
+				"Reply hazy, try again.",
+				"Ask again later.",
+				"Better not tell you now.",
+				"Cannot predict now.",
+				"Concentrate and ask again."
+			],
+			[
+				"Don't count on it.",
+				"My reply is no.",
+				"My sources say no.",
+				"Outlook not so good.",
+				"Very doubtful."
+			]
+		];
+		
+		function guess(){
+			const holder = document.getElementById('MagicResultHolder');
+			holder.innerHTML = '';
+			
+			const block = Math.floor(Math.random() * 3);
+			const answer = answers[block][Math.floor(Math.random() * answers[block].length)];
+			
+			const answerEl = document.createElement('span');
+			answerEl.innerText = answer;
+			let color = '#000';
+			switch(block){
+				case 0:
+					color = 'green';
+					break;
+				case 1:
+					color = 'goldenrod';
+					break;
+				case 2:
+					color = 'red';
+					break;
+			}
+			answerEl.setAttribute('style', 'color:' + color);
+			holder.appendChild(answerEl);
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			document.getElementById('askBtn').addEventListener('click', guess);
+		});
+	</script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Magic 8 Ball</h1>
+			<p>Yes, I know it's not a REST API, but idgaf</p>
+		</header>
+		<section>
+			<button id="askBtn">Ask!</button>
+			<br>
+			<div id="MagicResultHolder"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
