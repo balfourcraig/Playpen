@@ -16,6 +16,23 @@
 			return color;
 		}
 		
+		function getRandomInt(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+		
+
+		function goldenRand(minSat, maxSat, minLight, maxLight){
+			randh += golden_ratio;
+			randh %= 1;
+			
+			let sat = getRandomInt(minSat, maxSat);
+			let light = getRandomInt(minLight, maxLight);
+			
+			return 'hsl(' + (randh * 360) + ', ' + sat + '%, ' + light + '%)';
+		}
+		
 		function gcd(a, b){
 			if(b == 0)
 				return a;
@@ -23,8 +40,9 @@
 				return gcd(b, a % b);
 		}
 
-		
+		let randh = Math.random();
 		const goldenAngleRad = 2.39996322972865332;
+		const golden_ratio= 0.618033988749895;
 		let animationID = null;
 
 		function drawPattern(){
@@ -66,7 +84,7 @@
 			const colors = [];
 			
 			for(let i = 0; i < points; i++){
-				colors.push(useColor ? randomColor() : 'black');
+				colors.push(useColor ? goldenRand(75, 95, 40, 60) : 'black');
 				spokes.push([]);
 				spokes[i][0] = pointOnCircle(center, radius, points, i, rotation);
 				
