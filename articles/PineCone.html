@@ -6,6 +6,25 @@
 	<title>Golden Angle - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<script>
+		const golden_ratio= 0.618033988749895;
+		let randh = Math.random();
+		
+		function getRandomInt(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+		
+		function goldenRand(sat, light){
+			randh += golden_ratio;
+			randh %= 1;
+			
+			//let sat = getRandomInt(minSat, maxSat);
+			//let light = getRandomInt(minLight, maxLight);
+			
+			return 'hsl(' + (randh * 360) + ', ' + sat + '%, ' + light + '%)';
+		}
+		
 		function randomColor() {
 			var letters = '0123456789ABC';
 			var color = '#';
@@ -66,21 +85,23 @@
 			const colors = [];
 			if(colorType === 'fib'){
 				for(let i = 0; i < 10; i++){
-					colors.push(randomColor());
+					//colors.push(randomColor());
+					colors.push(goldenRand(80,55));
 				}
 			}
 			
 			let flatColor = 'black';
 			if (colorType ==='mono')
-				flatColor = randomColor();
+				flatColor = goldenRand(80,55);
+				//flatColor = randomColor();
 			
 			const indexes = [];
 			for(let i = 0; i < 500; i++){
 				indexes.push(i);
 			}
 			
-			if(drawDir === 'rand')
-			shuffleInplace(indexes);
+			//if(drawDir === 'rand')
+			//shuffleInplace(indexes);
 			
 			const down = drawDir === 'in';
 			
@@ -120,7 +141,10 @@
 					else
 						color = colors[0];
 				}
+				else if (colorType == 'wheel')
+					color = goldenRand(90,50);
 				else if (colorType === 'rand')
+					//color = goldenRand(30,70,30,70);
 					color = randomColor();
 				else
 					color = flatColor;
@@ -128,6 +152,9 @@
 				drawings.push(() => drawCircle(ctx, p, radius, color));
 			}
 			
+			if(drawDir === 'rand')
+				shuffleInplace(drawings);
+				
 			if(animate){
 				animateLine(drawings, 0);
 			}
@@ -192,6 +219,7 @@
 				<option value="black">Black</option>
 				<option value="mono">Flat Color</option>
 				<option value="rand">Random</option>
+				<option value="wheel">Color Wheel</option>
 				<option value="fib" selected="selected">Fibonacci</option>
 			</select>
 			<label for="colorModeSelect">Color Scheme</label>
