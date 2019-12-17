@@ -7,15 +7,6 @@
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script>
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
-		
 		function getRandomInt(min, max) {
 			min = Math.ceil(min);
 			max = Math.floor(max);
@@ -23,12 +14,12 @@
 		}
 		
 
-		function goldenRand(minSat, maxSat, minLight, maxLight){
+		function goldenRand(sat, light){
 			randh += golden_ratio;
 			randh %= 1;
 			
-			let sat = getRandomInt(minSat, maxSat);
-			let light = getRandomInt(minLight, maxLight);
+			//let sat = getRandomInt(minSat, maxSat);
+			//let light = getRandomInt(minLight, maxLight);
 			
 			return 'hsl(' + (randh * 360) + ', ' + sat + '%, ' + light + '%)';
 		}
@@ -41,7 +32,6 @@
 		}
 
 		let randh = Math.random();
-		const goldenAngleRad = 2.39996322972865332;
 		const golden_ratio= 0.618033988749895;
 		let animationID = null;
 
@@ -62,14 +52,12 @@
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			ctx.lineWidth = 2;
-			//ctx.fillStyle = 'white';
-			//ctx.strokeStyle = 'none';
-			//ctx.beginPath();
-			//ctx.rect(0, 0, w, w);
-			//ctx.fill();
-			//ctx.globalAlpha = 0.2;
-
+			ctx.lineWidth = 1;
+			ctx.fillStyle = 'white';
+			ctx.strokeStyle = 'none';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, w);
+			ctx.fill();
 			
 			
 			const animate = document.getElementById('animateInput').checked;
@@ -78,20 +66,59 @@
 
 
 			const subdivisions = parseInt(document.getElementById('subInput').value);
-			const points = parseInt(document.getElementById('pointsInput').value);
-			const skip = parseInt(document.getElementById('skipInput').value);
-			const rotation = Math.random();
+			const points = 8;
+			const skip = 3;
 			const drawings = [];
 			
 			ctx.globalCompositeOperation = blendMode;
 			
 			let spokes = [];
-			const colors = [];
+			
+			const cardinalColor = useColor ? goldenRand(75,50) : 'black';
+			const subCardinalColor = useColor ? goldenRand(75,50) : 'black';
+			const northColor = useColor ? goldenRand(75,50) : 'black';
+
+			const colors = [
+				cardinalColor,//S
+				subCardinalColor,//SE
+				cardinalColor,//E
+				subCardinalColor,//NE
+				northColor,//N
+				subCardinalColor,//NW
+				cardinalColor,//W
+				subCardinalColor//SW
+			];
+			
+			const cardinalLength = 0.6;
+			const subCardinalLength = 0.35;
+			const northLength = 0.9;
+			const spokeLengths = [
+				cardinalLength,//S
+				subCardinalLength,//SE
+				cardinalLength,//E
+				subCardinalLength,//NE
+				northLength,//N
+				subCardinalLength,//NW
+				cardinalLength,//W
+				subCardinalLength//SW
+			];
+			
+			drawings.push(() => drawCircle(ctx, center, radius * 0.3, colors[1]));
+			drawings.push(() => ctx.globalAlpha = 0.7);
+			for(let i = 0; i < 8; i++){
+				const p1 = pointOnCircle(center, w, points * 2, i, 0);
+				const p2 = pointOnCircle(center, w, points * 2, i + 8, 0);
+				
+				drawings.push(() => drawLineFlat(ctx, p1, p2, colors[(i + 1) % 4]));
+			}
+			
+			drawings.push(() => ctx.globalAlpha = 1);
 			
 			for(let i = 0; i < points; i++){
-				colors.push(useColor ? goldenRand(75, 95, 40, 60) : 'black');
+				if(!useColor)
+					colors[i] = 'black';
 				spokes.push([]);
-				spokes[i][0] = pointOnCircle(center, radius, points, i, rotation);
+				spokes[i][0] = pointOnCircle(center, radius * spokeLengths[i], points, i, 0);
 				
 				for(let j = 1; j < subdivisions; j++){
 					spokes[i][j] = subdivideLine(spokes[i][0], center, subdivisions, j);
@@ -100,13 +127,12 @@
 			
 			const shift = skip % points;
 			const divisor = gcd(skip, points) - 1;
-			
+
 			for(let p = 0; p < points * skip; p += skip){
 				let i = (p + (divisor * ~~(p/points))) % points;//this is tempremental af, do not touch it unless you want to spend hours of pain
 				if(p !== 0 && i === 0)
 					i++;
-				//console.log('p = ' + p);
-				//console.log('i = ' + i);
+
 				drawings.push(() => drawLineFlat(ctx, spokes[i][0], center, colors[i]));
 					
 				for(let j = 0; j < subdivisions; j++){
@@ -119,6 +145,18 @@
 				}
 			}
 			
+			const cardinalDirections = ['S','E','N','W'];
+			const fontSize = ~~(w / 20);
+			
+			ctx.font = fontSize + 'px Arial';
+			ctx.textAlign = "center";
+			drawings.push(() => {ctx.globalCompositeOperation = 'source-over';});
+			for(let i = 0; i < 4; i++){
+				drawings.push(() => ctx.fillStyle = colors[i*2]);
+				const p = pointOnCircle(center, radius * spokeLengths[i * 2] + fontSize, 4, i, 0);
+				drawings.push(() => ctx.fillText(cardinalDirections[i], p.x, i % 2 == 0 ? p.y : p.y + fontSize *0.35));
+			}
+			
 			if(animate){
 				animateLine(drawings, 0);
 			}
@@ -127,8 +165,7 @@
 					drawings[i]();
 				}
 			}
-			
-			
+
 			document.getElementById('drawBtn').removeAttribute('style');
 			document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 		}
@@ -169,6 +206,13 @@
 			ctx.beginPath();
 			ctx.moveTo(start.x, start.y);
 			ctx.lineTo(end.x,end.y);
+			ctx.stroke();
+		}
+		
+		function drawCircle(ctx, center, radius, color){
+			ctx.strokeStyle = color;
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
 			ctx.stroke();
 		}
 		
@@ -220,19 +264,10 @@
 			<br>
 			<select id="blendModeSelect">
 				<option value="source-over">Source Over (Default)</option>
-				<option value="screen">Screen</option>
-				<option value="multiply">Multiply</option>
+				<option value="multiply" selected>Multiply</option>
 				<option value="darken">Darken</option>
-				<option value="hue">Hue</option>
-				<option value="color">Color</option>
 			</select>
 			<label for="blendModeSelect">Blend Mode</label>
-			<br>
-			<input id="pointsInput" type="number" min="0" value="13">
-			<label for="pointsInput">Number of points</label>
-			<br>
-			<input id="skipInput" type="number" min="0" value="2">
-			<label for="skipInput">Points to skip (should be co-prime with number of points)</label>
 			<br>
 			<input id="subInput" type="number" min="0" value="17">
 			<label for="subInput">Number of segments on each point</label>
