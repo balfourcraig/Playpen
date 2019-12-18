@@ -18,54 +18,66 @@
 	
 	</style>
 	<script>
-		const answers =
-		[
-			[
-				"It is certain.",
-				"It is decidedly so.",
-				"Without a doubt.",
-				"Yes - definitely.",
-				"You may rely on it.",
-				"As I see it, yes.",
-				"Most likely.",
-				"Outlook good.",
-				"Yes.",
-				"Signs point to yes."
-			],
-			[
-				"Reply hazy, try again.",
-				"Ask again later.",
-				"Better not tell you now.",
-				"Cannot predict now.",
-				"Concentrate and ask again."
-			],
-			[
-				"Don't count on it.",
-				"My reply is no.",
-				"My sources say no.",
-				"Outlook not so good.",
-				"Very doubtful."
-			]
+		const golden_ratio= 0.618033988749895;
+		let randh = Math.random();
+		
+		function goldenRand(max){
+			randh += golden_ratio;
+			randh %= 1;
+			
+			const noise = Math.random() * 0.2;
+			
+			return ~~(((randh + noise) % 1) * max);
+		}
+		
+		
+		const answers = [
+			{ text: "It is certain.", type: "Affermative" },
+			{ text: "Without a doubt.", type: "Affermative" },
+			{ text: "It is decidedly so.", type: "Affermative" },
+			{ text: "Yes—definitely.", type: "Affermative" },
+			{ text: "You may rely on it.", type: "Affermative" },
+			{ text: "As I see it, yes.", type: "Affermative" },
+			{ text: "Most likely.", type: "Affermative" },
+			{ text: "Outlook good.", type: "Affermative" },
+			{ text: "Yes.", type: "Affermative" },
+			{ text: "Signs point to yes.", type: "Affermative" },
+
+			{ text: "Reply hazy, try again.", type: "NonCommital" },
+			{ text: "Ask again later.", type: "NonCommital" },
+			{ text: "Better not tell you now.", type: "NonCommital" },
+			{ text: "Cannot predict now.", type: "NonCommital" },
+			{ text: "Concentrate and ask again.", type: "NonCommital" },
+
+			{ text: "Don't count on it.", type: "Negative" },
+			{ text: "My reply is no.", type: "Negative" },
+			{ text: "My sources say no.", type: "Negative" },
+			{ text: "Outlook not so good.", type: "Negative" },
+			{ text: "Very doubtful.", type: "Negative" },
 		];
 		
 		function guess(){
 			const holder = document.getElementById('MagicResultHolder');
 			holder.innerHTML = '';
+			const useGoldenRand = document.getElementById('goldenInput').checked;
 			
-			const block = Math.floor(Math.random() * 3);
-			const answer = answers[block][Math.floor(Math.random() * answers[block].length)];
+			//const answer = answers[Math.floor(Math.random() * answers.length)];
+			const index = useGoldenRand ? goldenRand(answers.length) : ~~(Math.random() * answers.length);
+			//console.log(index);
+			const answer = answers[index];
 			
 			const answerEl = document.createElement('span');
-			answerEl.innerText = answer;
+			answerEl.innerText = answer.text;
+			answerEl.title = answer.type;
 			let color = '#000';
-			switch(block){
-				case 0:
+			switch(answer.type){
+				case 'Affermative':
 					color = 'green';
 					break;
-				case 1:
+				case 'NonCommital':
 					color = 'goldenrod';
 					break;
-				case 2:
+				case 'Negative':
 					color = 'red';
 					break;
 			}
@@ -93,6 +105,10 @@
 			<p>Yes, I know it's not a REST API, but idgaf</p>
 		</header>
 		<section>
+			<input id="goldenInput" type="checkbox">
+			<label for="goldenInput">Use Golden Rand</label>
+			<br>
+			<br>
 			<button id="askBtn">Ask!</button>
 			<br>
 			<div id="MagicResultHolder"></div>
