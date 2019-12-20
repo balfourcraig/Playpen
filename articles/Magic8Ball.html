@@ -35,7 +35,7 @@
 			{ text: "It is certain.", type: "Affermative" },
 			{ text: "Without a doubt.", type: "Affermative" },
 			{ text: "It is decidedly so.", type: "Affermative" },
-			{ text: "Yes—definitely.", type: "Affermative" },
+			{ text: "Yes&mdash;definitely.", type: "Affermative" },
 			{ text: "You may rely on it.", type: "Affermative" },
 			{ text: "As I see it, yes.", type: "Affermative" },
 			{ text: "Most likely.", type: "Affermative" },
@@ -67,7 +67,7 @@
 			const answer = answers[index];
 			
 			const answerEl = document.createElement('span');
-			answerEl.innerText = answer.text;
+			answerEl.innerHTML = answer.text;
 			answerEl.title = answer.type;
 			let color = '#000';
 			switch(answer.type){
