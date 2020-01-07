@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Pie - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script>
+		const golden_ratio= 0.618033988749895;
+		let randh = Math.random();
+		let w = 0;
+		
+		function nextGoldenRand(){
+			randh += golden_ratio;
+			randh %= 1;
+			return randh;
+		}
+		
+		function nextGoldenColor(sat, light){
+			const num = nextGoldenRand();
+			return 'hsl(' + (num * 360) + ', ' + sat + '%, ' + light + '%)';
+		}
+		
+		function getRandomInt(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+	
+		function randomColor() {
+			var letters = '0123456789ABC';
+			var color = '#';
+			for (var i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * letters.length)];
+			}
+			return color;
+		}
+		
+		function shuffleInplace(arr){
+			let n = arr.length;
+			while(n > 0){
+				const r = Math.floor(Math.random() * n);
+				const temp = arr[r];
+				arr[r] = arr[n-1];
+				arr[n-1] = temp;
+				n--;
+			}
+		}
+		
+		const goldenAngleRad = 2.39996322972865332;
+		let animationID = null;
+
+		const angles = [];
+		const colors = [];
+
+		function setUp(){
+			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			for(let a = Math.random() * 0.3 + 0.1; a < Math.PI * 2; a += Math.random() * 0.7 + 0.2) {
+				angles.push(a);
+				const colorNum = nextGoldenRand();
+				const colBright = 'hsl(' + (colorNum * 360) + ', 80%, 60%)';
+				const colDim = 'hsl(' + (colorNum * 360) + ', 10%, 60%)';
+				colors.push({dim: colDim, bright: colBright});
+			}
+		}
+
+		function drawPattern(e){
+			const c = document.createElement('canvas');
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			const ctx = c.getContext('2d');
+			const center = {x: w/2.0, y: w/2.0};
+			const radius = w * 0.4;
+			
+			const canvResult = document.getElementById('canvResult');
+			const rect = canvResult.getBoundingClientRect();
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			ctx.fillStyle = 'white';
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, w);
+			ctx.fill();
+
+
+			for(let i = 0; i < angles.length; i++){
+				ctx.beginPath();
+				ctx.moveTo(center.x, center.y);
+				const point = pointByAngle(center, radius, angles[i]);
+				const lastPoint = pointByAngle(center, radius, angles[(i + angles.length - 1) % angles.length]);
+				ctx.lineTo(point.x, point.y);
+				
+				const mid = midpoint(point, lastPoint);
+				let halfAngle = (angles[i] + angles[(i + angles.length - 1) % angles.length]) /2;
+				if(i === 0)
+					halfAngle += Math.PI;
+					
+				const circlePoint = pointByAngle(center, radius, halfAngle);
+				const reflected = pointReflect(circlePoint, mid,1);
+				
+				ctx.quadraticCurveTo(reflected.x, reflected.y, lastPoint.x, lastPoint.y);
+				ctx.fillStyle = colors[i].dim;
+				ctx.fill();
+			}
+			
+			if(e) {
+				const mouseX = e.clientX - rect.left;
+				const mouseY = e.clientY - rect.top;
+				const mousePoint = {x:mouseX, y:mouseY};
+
+				if(distance(mousePoint, center) < radius){
+					let xDiff = mouseX - center.x ;
+					let yDiff = mouseY - center.y;
+
+					let mouseAngle = Math.atan2(xDiff, yDiff);
+					mouseAngle += Math.PI * 2;
+					mouseAngle %= Math.PI * 2;
+					for(let i = 0; i < angles.length; i++){
+						if(mouseAngle <= angles[i] || mouseAngle >= angles[angles.length-1]){						
+							ctx.fillStyle = colors[i].bright;
+							ctx.beginPath();
+							ctx.moveTo(center.x, center.y);
+							const point = pointByAngle(center, radius, angles[i]);
+							const lastPoint = pointByAngle(center, radius, angles[(i + angles.length - 1) % angles.length]);
+							ctx.lineTo(point.x, point.y);
+							
+							const mid = midpoint(point, lastPoint);
+							let halfAngle = (angles[i] + angles[(i + angles.length - 1) % angles.length]) /2;
+							if(i === 0)
+								halfAngle += Math.PI;
+								
+							const circlePoint = pointByAngle(center, radius, halfAngle);
+							const reflected = pointReflect(circlePoint, mid, 1);
+							
+							ctx.quadraticCurveTo(reflected.x, reflected.y, lastPoint.x, lastPoint.y);
+							ctx.fill();
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		function pointReflect(origin, point, multiplier){
+			const xDiff = origin.x - point.x;
+			const yDiff = origin.y - point.y;
+
+			const x = origin.x + xDiff * multiplier;
+			const y = origin.y + yDiff * multiplier;
+			return {x:x, y:y};
+		}
+		
+		function pointByAngle(center, radius, angle){
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+		
+		function pointOnCircle(center, radius, totalPoints, pointNum){
+			const angle = pointNum / totalPoints * Math.PI * 2;
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+
+		function distance(p1, p2){
+			const xDiff = Math.abs(p1.x - p2.x);
+			const yDiff = Math.abs(p1.y - p2.y);
+			
+			const dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+			return dist;
+		}
+		
+		function midpoint(p1, p2){
+			const x = (p1.x + p2.x) / 2;
+			const y = (p1.y + p2.y) / 2;
+			return {x:x, y:y};
+		}
+		
+		function drawCircle(ctx, center, radius, color){
+			ctx.fillStyle = color;
+			
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+			ctx.fill();
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			setUp();
+			drawPattern();
+			document.getElementById('canvResult').addEventListener('mousemove',drawPattern);
+		});
+	</script>
+	
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Triangles</h1>
+		</header>
+		<section>
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>

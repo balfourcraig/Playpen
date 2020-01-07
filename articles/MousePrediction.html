@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Mouse prediction - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script>
+		const golden_ratio= 0.618033988749895;
+		let randh = Math.random();
+		let w = 0;
+		let lastMousePoint;
+		let lastDist = 0;
+		
+		function nextGoldenRand(){
+			randh += golden_ratio;
+			randh %= 1;
+			return randh;
+		}
+		
+		function nextGoldenColor(sat, light){
+			const num = nextGoldenRand();
+			return 'hsl(' + (num * 360) + ', ' + sat + '%, ' + light + '%)';
+		}
+		
+		function getRandomInt(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min + 1)) + min;
+		}
+	
+		function randomColor() {
+			var letters = '0123456789ABC';
+			var color = '#';
+			for (var i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * letters.length)];
+			}
+			return color;
+		}
+		
+		function shuffleInplace(arr){
+			let n = arr.length;
+			while(n > 0){
+				const r = Math.floor(Math.random() * n);
+				const temp = arr[r];
+				arr[r] = arr[n-1];
+				arr[n-1] = temp;
+				n--;
+			}
+		}
+		
+		const goldenAngleRad = 2.39996322972865332;
+		let animationID = null;
+
+		const angles = [];
+		const colors = [];
+
+		function setUp(){
+			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+		}
+
+		function drawPattern(e){
+			const c = document.createElement('canvas');
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			const ctx = c.getContext('2d');
+
+			const canvResult = document.getElementById('canvResult');
+			const rect = canvResult.getBoundingClientRect();
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			ctx.fillStyle = 'white';
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, w);
+			ctx.fill();
+
+			if(e) {
+				const mouseX = e.clientX - rect.left;
+				const mouseY = e.clientY - rect.top;
+				const mousePoint = {x:mouseX, y:mouseY};				
+				
+
+				let mouseDrawPoint = mousePoint;
+				if(lastMousePoint){
+					const movedDist = distance(mousePoint, lastMousePoint);
+					const avgDist = (movedDist + lastDist) / 2;
+					lastDist = movedDist;
+					mouseDrawPoint = pointReflect(mousePoint, lastMousePoint, 2);
+				}
+
+				drawCircle(ctx, mouseDrawPoint, 4, 'red');
+				
+				lastMousePoint = mousePoint;
+			}
+		}
+
+		function pointReflect(origin, point, multiplier){
+			const xDiff = origin.x - point.x;
+			const yDiff = origin.y - point.y;
+
+			const x = origin.x + xDiff * multiplier;
+			const y = origin.y + yDiff * multiplier;
+			return {x:x, y:y};
+		}
+		
+		function pointByAngle(center, radius, angle){
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+		
+		function pointOnCircle(center, radius, totalPoints, pointNum){
+			const angle = pointNum / totalPoints * Math.PI * 2;
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+
+		function distance(p1, p2){
+			const xDiff = Math.abs(p1.x - p2.x);
+			const yDiff = Math.abs(p1.y - p2.y);
+			
+			const dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+			return dist;
+		}
+		
+		function midpoint(p1, p2){
+			const x = (p1.x + p2.x) / 2;
+			const y = (p1.y + p2.y) / 2;
+			return {x:x, y:y};
+		}
+		
+		function drawCircle(ctx, center, radius, color){
+			ctx.fillStyle = color;
+			
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+			ctx.fill();
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			setUp();
+			drawPattern();
+			document.getElementById('canvResult').addEventListener('mousemove',drawPattern);
+		});
+	</script>
+	
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Mouse prediction</h1>
+		</header>
+		<section>
+			<p>Trying to draw a red circle where the mouse is expected to be next frame. This is a horrible idea, and doesn't work well. Just kind of interesting.</p>
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
