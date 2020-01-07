@@ -18,19 +18,11 @@
 			flex-wrap: wrap;
 		}
 	</style>
+	<script src="../scripts/utils.js"></script>
 	<script>
-		const golden_ratio= 0.618033988749895;
-		let randh = Math.random();
 		let width = Math.random();
 		
 		let animationID = null;
-
-		function getRandomInt(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min + 1)) + min;
-		}
-		
 
 		function goldenRand(minSat, maxSat, minLight, maxLight){
 			randh += golden_ratio;

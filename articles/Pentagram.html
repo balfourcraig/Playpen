@@ -5,31 +5,16 @@
 	<meta charset="UTF-8">
 	<title>Pentagram - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
+	<script src="../scripts/utils.js"></script>
 	<script>
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
-	
-		function pointOnCircle(center, radius, totalPoints, pointNum, rotation){
+		function pointOnCircle(center, radius, totalPoints, pointNum, rotation){//Re-defined to include rotation. Should probably just use the same one really, but I'm lazy
 			const angle = (pointNum / totalPoints * Math.PI * 2) + rotation;
 			const x = Math.sin(angle) * radius + center.x;
 			const y = Math.cos(angle) * radius + center.y;
 			return {x:x, y:y};
 		}
-		
-		function midpoint(p1, p2){
-			const x = (p1.x + p2.x) / 2;
-			const y = (p1.y + p2.y) / 2;
-			return {x:x, y:y};
-		}
-		
+
 		let animationID = null;
-		
 
 		function drawPattern(){
 			document.getElementById('drawBtn').setAttribute('style','display:none');

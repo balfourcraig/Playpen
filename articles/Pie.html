@@ -6,49 +6,9 @@
 	<title>Pie - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
 	<script>
-		const golden_ratio= 0.618033988749895;
-		let randh = Math.random();
 		let w = 0;
-		
-		function nextGoldenRand(){
-			randh += golden_ratio;
-			randh %= 1;
-			return randh;
-		}
-		
-		function nextGoldenColor(sat, light){
-			const num = nextGoldenRand();
-			return 'hsl(' + (num * 360) + ', ' + sat + '%, ' + light + '%)';
-		}
-		
-		function getRandomInt(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min + 1)) + min;
-		}
-	
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-				color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
-		
-		function shuffleInplace(arr){
-			let n = arr.length;
-			while(n > 0){
-				const r = Math.floor(Math.random() * n);
-				const temp = arr[r];
-				arr[r] = arr[n-1];
-				arr[n-1] = temp;
-				n--;
-			}
-		}
-		
-		const goldenAngleRad = 2.39996322972865332;
 		let animationID = null;
 
 		const angles = [];
@@ -118,22 +78,20 @@
 					mouseAngle += Math.PI * 2;
 					mouseAngle %= Math.PI * 2;
 					for(let i = 0; i < angles.length; i++){
-						if(mouseAngle <= angles[i] || mouseAngle >= angles[angles.length-1]){						
+						if(mouseAngle <= angles[i] || mouseAngle >= angles[angles.length-1]){
 							ctx.fillStyle = colors[i].bright;
 							ctx.beginPath();
 							ctx.moveTo(center.x, center.y);
 							const point = pointByAngle(center, radius, angles[i]);
 							const lastPoint = pointByAngle(center, radius, angles[(i + angles.length - 1) % angles.length]);
 							ctx.lineTo(point.x, point.y);
-							
 							const mid = midpoint(point, lastPoint);
 							let halfAngle = (angles[i] + angles[(i + angles.length - 1) % angles.length]) /2;
-							if(i === 0)
+							if(i === 0){
 								halfAngle += Math.PI;
-								
+							}
 							const circlePoint = pointByAngle(center, radius, halfAngle);
 							const reflected = pointReflect(circlePoint, mid, 1);
-							
 							ctx.quadraticCurveTo(reflected.x, reflected.y, lastPoint.x, lastPoint.y);
 							ctx.fill();
 							break;
@@ -143,42 +101,6 @@
 			}
 		}
 
-		function pointReflect(origin, point, multiplier){
-			const xDiff = origin.x - point.x;
-			const yDiff = origin.y - point.y;
-
-			const x = origin.x + xDiff * multiplier;
-			const y = origin.y + yDiff * multiplier;
-			return {x:x, y:y};
-		}
-		
-		function pointByAngle(center, radius, angle){
-			const x = Math.sin(angle) * radius + center.x;
-			const y = Math.cos(angle) * radius + center.y;
-			return {x:x, y:y};
-		}
-		
-		function pointOnCircle(center, radius, totalPoints, pointNum){
-			const angle = pointNum / totalPoints * Math.PI * 2;
-			const x = Math.sin(angle) * radius + center.x;
-			const y = Math.cos(angle) * radius + center.y;
-			return {x:x, y:y};
-		}
-
-		function distance(p1, p2){
-			const xDiff = Math.abs(p1.x - p2.x);
-			const yDiff = Math.abs(p1.y - p2.y);
-			
-			const dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
-			return dist;
-		}
-		
-		function midpoint(p1, p2){
-			const x = (p1.x + p2.x) / 2;
-			const y = (p1.y + p2.y) / 2;
-			return {x:x, y:y};
-		}
-		
 		function drawCircle(ctx, center, radius, color){
 			ctx.fillStyle = color;
 			

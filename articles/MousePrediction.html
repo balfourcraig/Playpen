@@ -23,13 +23,7 @@
 			const num = nextGoldenRand();
 			return 'hsl(' + (num * 360) + ', ' + sat + '%, ' + light + '%)';
 		}
-		
-		function getRandomInt(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min + 1)) + min;
-		}
-	
+
 		function randomColor() {
 			var letters = '0123456789ABC';
 			var color = '#';
@@ -52,10 +46,7 @@
 		
 		const goldenAngleRad = 2.39996322972865332;
 		let animationID = null;
-
-		const angles = [];
-		const colors = [];
-
+		
 		function setUp(){
 			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 		}

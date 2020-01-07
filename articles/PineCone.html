@@ -5,49 +5,10 @@
 	<meta charset="UTF-8">
 	<title>Golden Angle - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
+	<script src="../scripts/utils.js"></script>
 	<script>
-		const golden_ratio= 0.618033988749895;
-		let randh = Math.random();
+	    let animationID = null;
 		
-		function getRandomInt(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min + 1)) + min;
-		}
-		
-		function goldenRand(sat, light){
-			randh += golden_ratio;
-			randh %= 1;
-			
-			//let sat = getRandomInt(minSat, maxSat);
-			//let light = getRandomInt(minLight, maxLight);
-			
-			return 'hsl(' + (randh * 360) + ', ' + sat + '%, ' + light + '%)';
-		}
-		
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
-		
-		function shuffleInplace(arr){
-			let n = arr.length;
-			while(n > 0){
-				const r = Math.floor(Math.random() * n);
-				const temp = arr[r];
-				arr[r] = arr[n-1];
-				arr[n-1] = temp;
-				n--;
-			}
-		}
-		
-		const goldenAngleRad = 2.39996322972865332;
-		let animationID = null;
-
 		function drawPattern(){
 			document.getElementById('drawBtn').setAttribute('style','display:none');
 			document.getElementById('stopDrawingBtn').removeAttribute('style');
@@ -85,23 +46,18 @@
 			const colors = [];
 			if(colorType === 'fib'){
 				for(let i = 0; i < 10; i++){
-					//colors.push(randomColor());
-					colors.push(goldenRand(80,55));
+					colors.push(nextGoldenColor(80,55));
 				}
 			}
 			
 			let flatColor = 'black';
 			if (colorType ==='mono')
-				flatColor = goldenRand(80,55);
-				//flatColor = randomColor();
+				flatColor = nextGoldenColor(80,55);
 			
 			const indexes = [];
 			for(let i = 0; i < 500; i++){
 				indexes.push(i);
 			}
-			
-			//if(drawDir === 'rand')
-			//shuffleInplace(indexes);
 			
 			const down = drawDir === 'in';
 			
@@ -142,9 +98,8 @@
 						color = colors[0];
 				}
 				else if (colorType == 'wheel')
-					color = goldenRand(90,50);
+					color = nextGoldenColor(90,50);
 				else if (colorType === 'rand')
-					//color = goldenRand(30,70,30,70);
 					color = randomColor();
 				else
 					color = flatColor;

@@ -5,23 +5,8 @@
 	<meta charset="UTF-8">
 	<title>From Chaos, Order - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
+	<script src="../scripts/utils.js"></script>
 	<script>
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
-	
-		function pointOnCircle(center, radius, totalPoints, pointNum){
-			const angle = pointNum / totalPoints * Math.PI * 2;
-			const x = Math.sin(angle) * radius + center.x;
-			const y = Math.cos(angle) * radius + center.y;
-			return {x:x, y:y};
-		}
-		
 		let animationID = null;
 		
 		function drawLine(ctx, center, radius, multiplier, points, i, iterations, useColor, color){

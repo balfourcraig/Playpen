@@ -6,23 +6,8 @@
 	<title>Line Star - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
 	<script>
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
-		
-		function getRandomInt(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min + 1)) + min;
-		}
-		
-
 		function goldenRand(minSat, maxSat, minLight, maxLight){
 			randh += golden_ratio;
 			randh %= 1;
@@ -32,17 +17,7 @@
 			
 			return 'hsl(' + (randh * 360) + ', ' + sat + '%, ' + light + '%)';
 		}
-		
-		function gcd(a, b){
-			if(b == 0)
-				return a;
-			else
-				return gcd(b, a % b);
-		}
 
-		let randh = Math.random();
-		const goldenAngleRad = 2.39996322972865332;
-		const golden_ratio= 0.618033988749895;
 		let animationID = null;
 
 		function drawPattern(){
@@ -62,15 +37,7 @@
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			ctx.lineWidth = 2;
-			//ctx.fillStyle = 'white';
-			//ctx.strokeStyle = 'none';
-			//ctx.beginPath();
-			//ctx.rect(0, 0, w, w);
-			//ctx.fill();
-			//ctx.globalAlpha = 0.2;
-
-			
+			ctx.lineWidth = 2;			
 			
 			const animate = document.getElementById('animateInput').checked;
 			const useColor = document.getElementById('colorInput').checked;
@@ -144,19 +111,7 @@
 			ctx.lineTo(end.x,end.y);
 			ctx.stroke();
 		}
-		
-		function subdivideLine(p1, p2, totalSegments, seg){
-			const xDiff = p2.x - p1.x;
-			const yDiff = p2.y - p1.y;
-			
-			const ratio = (1/totalSegments) * seg;
-			
-			const x = xDiff * ratio + p1.x;
-			const y = yDiff * ratio + p1.y;
-			
-			return {x:x, y:y};
-		}
-		
+
 		function pointOnCircle(center, radius, totalPoints, pointNum, rotation){
 			const angle = (pointNum / totalPoints * Math.PI * 2) + rotation;
 			const x = Math.sin(angle) * radius + center.x;

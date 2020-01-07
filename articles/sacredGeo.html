@@ -5,16 +5,8 @@
 	<meta charset="UTF-8">
 	<title>Seed of Life - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
-	<script>
-		function randomColor() {
-		  var letters = '0123456789ABCDEF';
-		  var color = '#';
-		  for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * 16)];
-		  }
-		  return color;
-		}
-		
+	<script src="../scripts/utils.js"></script>
+	<script>		
 		let w;
 		let h;
 		
@@ -38,9 +30,7 @@
 
 			c.setAttribute('width', w);
 			c.setAttribute('height', h);
-			
-			
-			
+
 			const center = {x: w/2.0, y: h/2.0};
 			const radius = Math.min(w,h) / (Math.random() * 10 + 8);
 			

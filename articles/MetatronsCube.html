@@ -5,25 +5,9 @@
 	<meta charset="UTF-8">
 	<title>Metatron - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
-	<script>
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
-	
-		function pointOnCircle(center, radius, totalPoints, pointNum){
-			const angle = pointNum / totalPoints * Math.PI * 2;
-			const x = Math.sin(angle) * radius + center.x;
-			const y = Math.cos(angle) * radius + center.y;
-			return {x:x, y:y};
-		}
-		
+	<script src="../scripts/utils.js"></script>
+	<script>		
 		let animationID = null;
-		
 
 		function drawMetatron(){
 			document.getElementById('drawBtn').setAttribute('style','display:none');

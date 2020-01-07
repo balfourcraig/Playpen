@@ -6,46 +6,8 @@
 	<title>Gauss - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
 	<script>
-		function randomColor(lightness) {
-			//const lightness = 255;
-			const arr = [];
-			arr[0] = Math.floor(Math.random() * lightness);
-			arr[1] = Math.floor(Math.random() * (lightness - arr[0]));
-			arr[2] = Math.floor(Math.random() * (lightness - arr[1] - arr[0]));
-			shuffleInplace(arr);
-			
-			let color = '#';
-			for(let i = 0; i < 3; i++){
-				if(arr[i] >= 16){
-					color += arr[i].toString(16);
-				}
-				else{
-					color += '0' + arr[i].toString(16);
-				}
-			}
-			return color;
-			
-			//var letters = '0123456789ABC';
-			//var color = '#';
-			//for (var i = 0; i < 6; i++) {
-			//color += letters[Math.floor(Math.random() * letters.length)];
-			//}
-			//return color;
-		}
-		
-		function shuffleInplace(arr){
-			let n = arr.length;
-			while(n > 0){
-				const r = Math.floor(Math.random() * n);
-				const temp = arr[r];
-				arr[r] = arr[n-1];
-				arr[n-1] = temp;
-				n--;
-			}
-		}
-		
-		const goldenAngleRad = 2.39996322972865332;
 		let animationID = null;
 
 		function drawPattern(){
@@ -70,7 +32,6 @@
 			ctx.beginPath();
 			ctx.rect(0, 0, w, w);
 			ctx.fill();
-			//ctx.globalAlpha = 0.2;
 
 			ctx.globalCompositeOperation = 'screen';
 			
@@ -85,7 +46,7 @@
 			
 			for(let i = 0; i < 900; i++){
 				const radius = Math.random() * 0.01 + 0.01;
-				drawings.push(() => drawCircle(ctx, gaussianPoint(center.x, center.x/3), w*radius, useColor ? randomColor(200) : 'grey', useGradient, gradMultiplier));
+				drawings.push(() => drawCircle(ctx, gaussianPoint(center.x, center.x/3), w*radius, useColor ? randomColor() : 'grey', useGradient, gradMultiplier));
 			}
 
 			if(animate){

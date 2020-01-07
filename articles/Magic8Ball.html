@@ -17,16 +17,13 @@
 	}
 	
 	</style>
-	<script>
-		const golden_ratio= 0.618033988749895;
-		let randh = Math.random();
-		
-		function goldenRand(max){
+	<script src="../scripts/utils.js"></script>
+	<script>		
+		function pickNumberGolden(max){
 			randh += golden_ratio;
 			randh %= 1;
 			
 			const noise = Math.random() * 0.2;
-			
 			return ~~(((randh + noise) % 1) * max);
 		}
 		
@@ -62,7 +59,7 @@
 			const useGoldenRand = document.getElementById('goldenInput').checked;
 			
 			//const answer = answers[Math.floor(Math.random() * answers.length)];
-			const index = useGoldenRand ? goldenRand(answers.length) : ~~(Math.random() * answers.length);
+			const index = useGoldenRand ? pickNumberGolden(answers.length) : ~~(Math.random() * answers.length);
 			//console.log(index);
 			const answer = answers[index];
 			

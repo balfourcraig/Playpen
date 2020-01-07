@@ -5,17 +5,8 @@
 	<meta charset="UTF-8">
 	<title>Golden Spirals - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
+	<script src="../scripts/utils.js"></script>
 	<script>
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
-		
-		const goldenAngleRad = 2.39996322972865332;
 		let animationID = null;
 
 		function drawPattern(){

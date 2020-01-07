@@ -6,35 +6,9 @@
 	<title>Line Star - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
-	<script>
-		function getRandomInt(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min + 1)) + min;
-		}
-		
-
-		function goldenRand(sat, light){
-			randh += golden_ratio;
-			randh %= 1;
-			
-			//let sat = getRandomInt(minSat, maxSat);
-			//let light = getRandomInt(minLight, maxLight);
-			
-			return 'hsl(' + (randh * 360) + ', ' + sat + '%, ' + light + '%)';
-		}
-		
-		function gcd(a, b){
-			if(b == 0)
-				return a;
-			else
-				return gcd(b, a % b);
-		}
-
-		let randh = Math.random();
-		const golden_ratio= 0.618033988749895;
+	<script src="../scripts/utils.js"></script>
+	<script>		
 		let animationID = null;
-
 		function drawPattern(){
 			document.getElementById('drawBtn').setAttribute('style','display:none');
 			document.getElementById('stopDrawingBtn').removeAttribute('style');
@@ -74,8 +48,8 @@
 			
 			let spokes = [];
 			
-			const cardinalColor = useColor ? goldenRand(75,50) : 'black';
-			const subCardinalColor = useColor ? goldenRand(75,50) : 'black';
+			const cardinalColor = useColor ? nextGoldenColor(75,50) : 'black';
+			const subCardinalColor = useColor ? nextGoldenColor(75,50) : 'black';
 			const northColor = cardinalColor; // useColor ? goldenRand(75,50) : 'black';
 
 			const colors = [
@@ -106,8 +80,8 @@
 			drawings.push(() => drawCircle(ctx, center, radius * 0.3, colors[1]));
 			drawings.push(() => ctx.globalAlpha = 0.7);
 			for(let i = 0; i < 8; i++){
-				const p1 = pointOnCircle(center, w, points * 2, i, 0);
-				const p2 = pointOnCircle(center, w, points * 2, i + 8, 0);
+				const p1 = pointOnCircle(center, w, points * 2, i);
+				const p2 = pointOnCircle(center, w, points * 2, i + 8);
 				
 				drawings.push(() => drawLineFlat(ctx, p1, p2, colors[(i + 1) % 4]));
 			}
@@ -118,7 +92,7 @@
 				if(!useColor)
 					colors[i] = 'black';
 				spokes.push([]);
-				spokes[i][0] = pointOnCircle(center, radius * spokeLengths[i], points, i, 0);
+				spokes[i][0] = pointOnCircle(center, radius * spokeLengths[i], points, i);
 				
 				for(let j = 1; j < subdivisions; j++){
 					spokes[i][j] = subdivideLine(spokes[i][0], center, subdivisions, j);
@@ -153,7 +127,7 @@
 			drawings.push(() => {ctx.globalCompositeOperation = 'source-over';});
 			for(let i = 0; i < 4; i++){
 				drawings.push(() => ctx.fillStyle = colors[i*2]);
-				const p = pointOnCircle(center, radius * spokeLengths[i * 2] + fontSize, 4, i, 0);
+				const p = pointOnCircle(center, radius * spokeLengths[i * 2] + fontSize, 4, i);
 				drawings.push(() => ctx.fillText(cardinalDirections[i], p.x, i % 2 == 0 ? p.y : p.y + fontSize *0.35));
 			}
 			
@@ -180,25 +154,6 @@
 			ctx.moveTo(start.x, start.y);
 			ctx.lineTo(end.x,end.y);
 			ctx.stroke();
-		}
-		
-		function subdivideLine(p1, p2, totalSegments, seg){
-			const xDiff = p2.x - p1.x;
-			const yDiff = p2.y - p1.y;
-			
-			const ratio = (1/totalSegments) * seg;
-			
-			const x = xDiff * ratio + p1.x;
-			const y = yDiff * ratio + p1.y;
-			
-			return {x:x, y:y};
-		}
-		
-		function pointOnCircle(center, radius, totalPoints, pointNum, rotation){
-			const angle = (pointNum / totalPoints * Math.PI * 2) + rotation;
-			const x = Math.sin(angle) * radius + center.x;
-			const y = Math.cos(angle) * radius + center.y;
-			return {x:x, y:y};
 		}
 		
 		function drawLineFlat(ctx, start, end, color){
