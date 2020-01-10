@@ -9,13 +9,18 @@
 	<script src="../scripts/utils.js"></script>
 	<script>
 		let w = 0;
-		let animationID = null;
-
+		let center;
+		let radius;
+		
 		const angles = [];
 		const colors = [];
+		
 
 		function setUp(){
 			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			center = {x: w/2.0, y: w/2.0};
+			radius = w * 0.4;
+			
 			for(let a = Math.random() * 0.3 + 0.1; a < Math.PI * 2; a += Math.random() * 0.7 + 0.2) {
 				angles.push(a);
 				const colorNum = nextGoldenRand();
@@ -23,96 +28,94 @@
 				const colDim = 'hsl(' + (colorNum * 360) + ', 10%, 60%)';
 				colors.push({dim: colDim, bright: colBright});
 			}
+			const c = document.createElement('canvas');
+			c.id = 'pieCanvas';
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			
+			const canvResult = document.getElementById('canvResult');
+			canvResult.appendChild(c);
+			
+			canvResult.addEventListener('mousemove',drawPattern);
 		}
 
 		function drawPattern(e){
-			const c = document.createElement('canvas');
+			const baseExplodeAmount = parseInt(document.getElementById('baseExplodeInput').value);
+			const hoverExplodeAmount = parseInt(document.getElementById('hoverExplodeInput').value);
+			const baseBulgeAmount = parseFloat(document.getElementById('baseBulgeInput').value);
+			const hoverBulgeAmount = parseFloat(document.getElementById('hoverBulgeInput').value);
+
+			const c = document.getElementById('pieCanvas');
+			c.id = 'pieCanvas';
 			c.setAttribute('width', w);
 			c.setAttribute('height', w);
 			const ctx = c.getContext('2d');
-			const center = {x: w/2.0, y: w/2.0};
-			const radius = w * 0.4;
-			
-			const canvResult = document.getElementById('canvResult');
-			const rect = canvResult.getBoundingClientRect();
-			canvResult.innerHTML = '';
-			canvResult.appendChild(c);
+
+			const rect = c.getBoundingClientRect();
 			
 			ctx.fillStyle = 'white';
 			ctx.strokeStyle = 'black';
+			ctx.strokeWidth = 0;
 			ctx.beginPath();
 			ctx.rect(0, 0, w, w);
 			ctx.fill();
-
-
+			
+			const mouseX = e ? e.clientX - rect.left : 0;
+			const mouseY = e ? e.clientY - rect.top : 0;
+			const mousePoint = {x:mouseX, y:mouseY};
+			const mouseDist = distance(mousePoint, center) - baseExplodeAmount;
+			const xDiff = mouseX - center.x ;
+			const yDiff = mouseY - center.y;
+			const mouseAngle = mouseDist < radius ? (Math.atan2(xDiff, yDiff) + Math.PI * 2) % (Math.PI * 2) : 0;
+			let mouseFound = false;
 			for(let i = 0; i < angles.length; i++){
-				ctx.beginPath();
-				ctx.moveTo(center.x, center.y);
 				const point = pointByAngle(center, radius, angles[i]);
-				const lastPoint = pointByAngle(center, radius, angles[(i + angles.length - 1) % angles.length]);
-				ctx.lineTo(point.x, point.y);
+				const lastPoint = pointByAngle(center, radius, angles[(i + angles.length - 1) % angles.length]); //store from last round
 				
 				const mid = midpoint(point, lastPoint);
 				let halfAngle = (angles[i] + angles[(i + angles.length - 1) % angles.length]) /2;
-				if(i === 0)
+				if(i === 0){
 					halfAngle += Math.PI;
-					
+				}
 				const circlePoint = pointByAngle(center, radius, halfAngle);
-				const reflected = pointReflect(circlePoint, mid,1);
+				let reflected;
+
+				let xOffset = Math.sin(halfAngle);
+				let yOffset = Math.cos(halfAngle);
+
+				if(mouseDist < radius && !mouseFound && (mouseAngle <= angles[i] || mouseAngle >= angles[angles.length-1])){
+					mouseFound = true;
+					ctx.fillStyle = colors[i].bright;
+					reflected = pointReflect(circlePoint, mid, hoverBulgeAmount);
+					xOffset *= baseExplodeAmount + hoverExplodeAmount;
+					yOffset *= baseExplodeAmount + hoverExplodeAmount;
+					ctx.shadowColor = 'rgba(0,0,0,0.5)';
+					ctx.shadowBlur = 15;
+				}
+				else{						
+					reflected = pointReflect(circlePoint, mid, baseBulgeAmount);
+					ctx.fillStyle = colors[i].dim;
+					ctx.shadowColor = 'transparent';
+					ctx.shadowBlur = 0;
+					xOffset *= baseExplodeAmount;
+					yOffset *= baseExplodeAmount;
+				}
+				ctx.shadowOffsetX = -xOffset;
+				ctx.shadowOffsetY = -yOffset;
 				
-				ctx.quadraticCurveTo(reflected.x, reflected.y, lastPoint.x, lastPoint.y);
-				ctx.fillStyle = colors[i].dim;
+				ctx.beginPath();
+				ctx.moveTo(center.x + xOffset, center.y + yOffset);
+				ctx.lineTo(point.x + xOffset, point.y + yOffset);
+				ctx.quadraticCurveTo(reflected.x + xOffset, reflected.y + yOffset, lastPoint.x + xOffset, lastPoint.y + yOffset);
 				ctx.fill();
 			}
-			
-			if(e) {
-				const mouseX = e.clientX - rect.left;
-				const mouseY = e.clientY - rect.top;
-				const mousePoint = {x:mouseX, y:mouseY};
-
-				if(distance(mousePoint, center) < radius){
-					let xDiff = mouseX - center.x ;
-					let yDiff = mouseY - center.y;
-
-					let mouseAngle = Math.atan2(xDiff, yDiff);
-					mouseAngle += Math.PI * 2;
-					mouseAngle %= Math.PI * 2;
-					for(let i = 0; i < angles.length; i++){
-						if(mouseAngle <= angles[i] || mouseAngle >= angles[angles.length-1]){
-							ctx.fillStyle = colors[i].bright;
-							ctx.beginPath();
-							ctx.moveTo(center.x, center.y);
-							const point = pointByAngle(center, radius, angles[i]);
-							const lastPoint = pointByAngle(center, radius, angles[(i + angles.length - 1) % angles.length]);
-							ctx.lineTo(point.x, point.y);
-							const mid = midpoint(point, lastPoint);
-							let halfAngle = (angles[i] + angles[(i + angles.length - 1) % angles.length]) /2;
-							if(i === 0){
-								halfAngle += Math.PI;
-							}
-							const circlePoint = pointByAngle(center, radius, halfAngle);
-							const reflected = pointReflect(circlePoint, mid, 1);
-							ctx.quadraticCurveTo(reflected.x, reflected.y, lastPoint.x, lastPoint.y);
-							ctx.fill();
-							break;
-						}
-					}
-				}
-			}
 		}
 
-		function drawCircle(ctx, center, radius, color){
-			ctx.fillStyle = color;
-			
-			ctx.beginPath();
-			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
-			ctx.fill();
-		}
-		
 		window.addEventListener('DOMContentLoaded', () => {
 			setUp();
 			drawPattern();
-			document.getElementById('canvResult').addEventListener('mousemove',drawPattern);
+			document.getElementById('baseExplodeInput').addEventListener('input', drawPattern);
+			document.getElementById('baseBulgeInput').addEventListener('input', drawPattern);
 		});
 	</script>
 	
@@ -129,9 +132,22 @@
 <main>
 	<div class="pageWidth">
 		<header>
-			<h1>Triangles</h1>
+			<h1>Pie</h1>
 		</header>
 		<section>
+			<input id="baseExplodeInput" type="number" value="3" min="0">
+			<label for="baseExplodeInput">Base Explode Amount</label>
+			<br>
+			<input id="hoverExplodeInput" type="number" value="20" min="0">
+			<label for="hoverExplodeInput">Hover Explode Amount</label>
+			
+			<hr>
+			<input id="baseBulgeInput" type="number" value="1" step="0.5">
+			<label for="baseBulgeInput">Base Bulge Amount</label>
+			<br>
+			<input id="hoverBulgeInput" type="number" value="1" step="0.5">
+			<label for="hoverBulgeInput">Hover Bulge Amount</label>
+			<br>
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
 			<div id="canvResult"></div>

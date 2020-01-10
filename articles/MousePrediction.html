@@ -10,7 +10,8 @@
 		const golden_ratio= 0.618033988749895;
 		let randh = Math.random();
 		let w = 0;
-		let lastMousePoint;
+		let lastMousePoint = null;
+		let prev2MousePoint = null;
 		let lastDist = 0;
 		
 		function nextGoldenRand(){
@@ -45,45 +46,96 @@
 		}
 		
 		const goldenAngleRad = 2.39996322972865332;
-		let animationID = null;
+		let ctx;
 		
 		function setUp(){
 			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			console.log('setup');
+			const c = document.createElement('canvas');
+			c.id = 'pieCanvas';
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			ctx = c.getContext('2d');
+			const canvResult = document.getElementById('canvResult');
+			canvResult.appendChild(c);
+			
+			canvResult.addEventListener('mousemove',drawPattern);
 		}
 
 		function drawPattern(e){
-			const c = document.createElement('canvas');
-			c.setAttribute('width', w);
-			c.setAttribute('height', w);
-			const ctx = c.getContext('2d');
+			const c = document.getElementById('pieCanvas');
+			//c.id = 'pieCanvas';
+			//c.setAttribute('width', w);
+			//c.setAttribute('height', w);
+			//const ctx = c.getContext('2d');
 
-			const canvResult = document.getElementById('canvResult');
-			const rect = canvResult.getBoundingClientRect();
-			canvResult.innerHTML = '';
-			canvResult.appendChild(c);
-			
-			ctx.fillStyle = 'white';
-			ctx.strokeStyle = 'black';
-			ctx.beginPath();
-			ctx.rect(0, 0, w, w);
-			ctx.fill();
+			ctx.clearRect(0,0,w,w);
+			const rect = c.getBoundingClientRect();
 
 			if(e) {
 				const mouseX = e.clientX - rect.left;
 				const mouseY = e.clientY - rect.top;
 				const mousePoint = {x:mouseX, y:mouseY};				
-				
 
-				let mouseDrawPoint = mousePoint;
-				if(lastMousePoint){
+				//let mouseDrawPoint = mousePoint;
+				if(lastMousePoint && prev2MousePoint){
 					const movedDist = distance(mousePoint, lastMousePoint);
 					const avgDist = (movedDist + lastDist) / 2;
 					lastDist = movedDist;
-					mouseDrawPoint = pointReflect(mousePoint, lastMousePoint, 2);
+					
+					mouseDrawPoint = pointReflect(mousePoint, lastMousePoint, 1);
+					
+					const grad = ctx.createLinearGradient(prev2MousePoint.x, prev2MousePoint.y, mousePoint.x, mousePoint.y);
+					grad.addColorStop(0, 'transparent');
+					grad.addColorStop(1, 'dodgerblue');
+					ctx.strokeStyle = grad;
+					
+					ctx.beginPath();
+					ctx.moveTo(prev2MousePoint.x, prev2MousePoint.y);
+					ctx.quadraticCurveTo(lastMousePoint.x, lastMousePoint.y, mousePoint.x, mousePoint.y);
+					ctx.stroke();
+					
+					//ctx.beginPath();
+					//ctx.moveTo(mousePoint.x, mousePoint.y);
+					//ctx.lineTo(mouseDrawPoint.x, mouseDrawPoint.y);
+					//ctx.strokeStyle = 'red';
+					//ctx.stroke();
+					
+					const perp = perpendicular(lastMousePoint, mouseDrawPoint);
+					
+					let angle = angleOfC(
+						distance(prev2MousePoint, mousePoint, true),
+						distance(perp.start,mousePoint, true),
+						distance(prev2MousePoint, perp.start, true)
+					);
+					
+					angle = Math.PI * 2 - angle;
+					
+					const offsetAngle = angleOfC(
+						distance(perp.start,mousePoint, true),
+						w-mousePoint.y,//really?
+						distance(perp.start, {x: mousePoint.x, y: w}, true)
+					);
+					console.log(offsetAngle);
+					angle+= offsetAngle;
+					
+					const predX = Math.sin(angle) * distance(prev2MousePoint, mousePoint) + mousePoint.x;
+					const predY = Math.cos(angle) * distance(prev2MousePoint, mousePoint) + mousePoint.y;
+					
+					ctx.beginPath();
+					//ctx.moveTo(mousePoint.x, mousePoint.y);
+					ctx.moveTo(mouseDrawPoint.x, mouseDrawPoint.y);
+					ctx.lineTo(predX, predY);
+					ctx.strokeStyle = 'red';
+					ctx.stroke();
+					
+					//console.log(angle);
+					//drawCircle(ctx, perp.end, 4, 'blue');
 				}
 
-				drawCircle(ctx, mouseDrawPoint, 4, 'red');
+				//drawCircle(ctx, mousePoint, 4, 'blue');
 				
+				prev2MousePoint = lastMousePoint;
 				lastMousePoint = mousePoint;
 			}
 		}
@@ -110,11 +162,24 @@
 			return {x:x, y:y};
 		}
 
-		function distance(p1, p2){
-			const xDiff = Math.abs(p1.x - p2.x);
-			const yDiff = Math.abs(p1.y - p2.y);
-			
-			const dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+		function distance(p1, p2, signed){
+			let xDiff;
+			let yDiff;
+			if(signed){
+				xDiff = p2.x - p1.x;
+				yDiff = p2.y - p1.y;
+				
+				console.log('X: ' + xDiff);
+				console.log('Y:' + yDiff);
+			}
+			else{
+				xDiff = Math.abs(p1.x - p2.x);
+				yDiff = Math.abs(p1.y - p2.y);
+			}
+
+			let dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+			if(xDiff > 0 && yDiff > 0)
+				dist *= -1;
 			return dist;
 		}
 		
@@ -132,10 +197,31 @@
 			ctx.fill();
 		}
 		
+		function angleOfC(a, b, c){
+			const numerator = a * a + b * b - c * c;
+			const deno = 2 * a * b;
+			
+			const arc = numerator / deno;
+			
+			return Math.acos(arc);
+		}
+		
+		function perpendicular(p1, p2){
+			const deltaX = p2.x - p1.x;
+			const deltaY = p2.y - p1.y;
+			
+			const mid = midpoint(p1,p2);
+			
+			const start = {x: mid.x + deltaY/2, y: mid.y - deltaX/2};
+			const end = {x: mid.x - deltaY/2, y: mid.y + deltaY/2};
+			
+			return {start: start, end: end};
+		}
+		
 		window.addEventListener('DOMContentLoaded', () => {
 			setUp();
 			drawPattern();
-			document.getElementById('canvResult').addEventListener('mousemove',drawPattern);
+			//document.getElementById('canvResult').addEventListener('mousemove',drawPattern);
 		});
 	</script>
 	
@@ -155,7 +241,9 @@
 			<h1>Mouse prediction</h1>
 		</header>
 		<section>
-			<p>Trying to draw a red circle where the mouse is expected to be next frame. This is a horrible idea, and doesn't work well. Just kind of interesting.</p>
+			<p>Trying to draw a line circle where the mouse is expected to be next frame. This is a horrible idea, and doesn't work well. Just kind of interesting.</p>
+			<p>The blue section is bezier between the last three points. The red segment is the next expected place. Due to speed issues and animation frames being slower than mouse events, the mouse is almost always ahead of even the end of the predicted place.</p>
+			<input id="reflectDistInput" type="number">
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
 			<div id="canvResult"></div>
