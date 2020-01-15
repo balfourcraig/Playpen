@@ -100,3 +100,14 @@ function gcd(a, b){
 	else
 		return gcd(b, a % b);
 }
+
+function mapLinear(val, fromStart, fromEnd, toStart, toEnd){
+	let fromDiff = fromEnd - fromStart;
+	let toDiff = toEnd - toStart;
+
+	let mapped = val - fromStart;
+	mapped = mapped / fromDiff * toDiff;
+	mapped += toStart;
+
+	return mapped;
+}
