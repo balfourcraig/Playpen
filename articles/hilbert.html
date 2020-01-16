@@ -25,7 +25,9 @@
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			ctx.lineWidth = 2;
+			const lineWidth = parseInt(document.getElementById('lineWidthInput').value);
+			
+			ctx.lineWidth = lineWidth;
 			ctx.fillStyle = 'white';
 			ctx.strokeStyle = 'none';
 			ctx.beginPath();
@@ -38,6 +40,7 @@
 			const useCircles =document.getElementById('circleInput').checked;
 			const useCurves = document.getElementById('curveInput').checked;
 
+			const circleRadius = useCircles ? lineWidth : lineWidth/2;
 			const drawings = [];
 
 			let prev = null;
@@ -63,12 +66,12 @@
 						drawings.push(() => drawLineFlat(ctx, previous, curr, color ));
 					}
 
-					if(useCircles){
+					//if(useCircles){
 						if(useCurves)
-							drawings.push(() => drawCircle(ctx, mid1, 3, color));
+							drawings.push(() => drawCircle(ctx, mid1, circleRadius, color));
 						else
-							drawings.push(() => drawCircle(ctx, curr, 3, color));
-					}
+							drawings.push(() => drawCircle(ctx, curr, circleRadius, color));
+					//}
 				}
 
 				prev2 = prev;
@@ -208,6 +211,9 @@
 			<br>
 			<input id="curveInput" type="checkbox" checked>
 			<label for="curveInput">Round Edges</label>
+			<br>
+			<input id="lineWidthInput" type="number" value="3" min="0">
+			<label for="lineWidthInput">Line width</label>
 			<br>
 			<input id="orderInput" type="number" min="0" max="8" value="5">
 			<label for="orderInput">Hilbert Curve Order. Each step doubles</label>
