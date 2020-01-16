@@ -36,7 +36,8 @@
 
 			const animate = document.getElementById('animateInput').checked;
 			const useColor = document.getElementById('colorInput').checked;
-			const N = 1 << parseInt(document.getElementById('orderInput').value);
+			const order = document.getElementById('orderInput').value;
+			const N = 1 << order;
 			const useCircles =document.getElementById('circleInput').checked;
 			const useCurves = document.getElementById('curveInput').checked;
 
@@ -51,7 +52,9 @@
 				
 				curr = {x: mapLinear(curr.x, -0.5, N -0.5, 0, w), y: mapLinear(curr.y, -0.5, N -0.5, 0, w)};
 				
-				const color = useColor ? 'hsl(' + mapLinear(i, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
+				const colorFrom = useColor ? 'hsl(' + mapLinear(i, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
+				const colorTo = useColor ? 'hsl(' + mapLinear(i+1, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
+				
 				
 				if(prev && (!useCurves || prev2)){
 					const previous = prev;
@@ -60,17 +63,17 @@
 						mid1 = midpoint(prev, prev2);
 						const previous2 = prev2;
 						const mid2 = midpoint(curr, prev);
-						drawings.push(() => drawQuadLineFlat(ctx, mid1, previous, mid2, color));
+						drawings.push(() => drawQuadLineFlat(ctx, mid1, previous, mid2, colorFrom, order < 4 ? colorTo : colorFrom)); //If using high order, don't bother with gradient, it will just slow things down
 					}
 					else{
-						drawings.push(() => drawLineFlat(ctx, previous, curr, color ));
+						drawings.push(() => drawLineFlat(ctx, previous, curr, colorFrom, order < 4 ? colorTo : colorFrom));
 					}
 
 					//if(useCircles){
 						if(useCurves)
-							drawings.push(() => drawCircle(ctx, mid1, circleRadius, color));
+							drawings.push(() => drawCircle(ctx, mid1, circleRadius, colorTo));
 						else
-							drawings.push(() => drawCircle(ctx, curr, circleRadius, color));
+							drawings.push(() => drawCircle(ctx, curr, circleRadius, colorTo));
 					//}
 				}
 
@@ -137,8 +140,16 @@
 			return {x:x, y:y};
 		}
 		
-		function drawQuadLineFlat(ctx, start, mid, end, color){
-			ctx.strokeStyle = color;
+		function drawQuadLineFlat(ctx, start, mid, end, colorFrom, colorTo){
+			if(colorFrom === colorTo){
+				ctx.strokeStyle = colorFrom;
+			}
+			else{
+				const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+				grad.addColorStop(0, colorFrom);
+				grad.addColorStop(1, colorTo);
+				ctx.strokeStyle = grad;
+			}
 			ctx.beginPath();
 			ctx.moveTo(start.x, start.y);
 			ctx.quadraticCurveTo(mid.x, mid.y, end.x, end.y);
@@ -146,8 +157,16 @@
 		}
 		
 		
-		function drawLineFlat(ctx, start, end, color){
-			ctx.strokeStyle = color;
+		function drawLineFlat(ctx, start, end, colorFrom, colorTo){
+			if(colorFrom === colorTo){
+				ctx.strokeStyle = colorFrom;
+			}
+			else{
+				const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+				grad.addColorStop(0, colorFrom);
+				grad.addColorStop(1, colorTo);
+				ctx.strokeStyle = grad;
+			}
 			ctx.beginPath();
 			ctx.moveTo(start.x, start.y);
 			ctx.lineTo(end.x,end.y);
