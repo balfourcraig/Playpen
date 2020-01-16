@@ -35,29 +35,42 @@
 			const animate = document.getElementById('animateInput').checked;
 			const useColor = document.getElementById('colorInput').checked;
 			const N = 1 << parseInt(document.getElementById('orderInput').value);
-			const useCircles =document.getElementById('circleInput').checked; 
+			const useCircles =document.getElementById('circleInput').checked;
+			const useCurves = document.getElementById('curveInput').checked;
 
 			const drawings = [];
-			
-			
+
 			let prev = null;
+			let prev2 = null;
 			
-			for(let i = 0; i < N * N; i++){
+			for(let i = 0; i < N * N; i += 1){
 				let curr = hIndex2xy(i, N);
 				
 				curr = {x: mapLinear(curr.x, -0.5, N -0.5, 0, w), y: mapLinear(curr.y, -0.5, N -0.5, 0, w)};
 				
 				const color = useColor ? 'hsl(' + mapLinear(i, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
 				
-				if(prev != null){
+				if(prev && prev2){
 					const previous = prev;
-					drawings.push(() => drawLineFlat(ctx, previous, curr, color ));
-				}
-				
-				if(useCircles){
-					drawings.push(() => drawCircle(ctx, curr, 3, color));
+					const mid1 = midpoint(prev, prev2);
+					if(useCurves){
+						const previous2 = prev2;
+						const mid2 = midpoint(curr, prev);
+						drawings.push(() => drawQuadLineFlat(ctx, mid1, previous, mid2, color));
+					}
+					else{
+						drawings.push(() => drawLineFlat(ctx, previous, curr, color ));
+					}
+
+					if(useCircles){
+						if(useCurves)
+							drawings.push(() => drawCircle(ctx, mid1, 3, color));
+						else
+							drawings.push(() => drawCircle(ctx, curr, 3, color));
+					}
 				}
 
+				prev2 = prev;
 				prev = curr;
 			}
 			
@@ -120,6 +133,14 @@
 			return {x:x, y:y};
 		}
 		
+		function drawQuadLineFlat(ctx, start, mid, end, color){
+			ctx.strokeStyle = color;
+			ctx.beginPath();
+			ctx.moveTo(start.x, start.y);
+			ctx.quadraticCurveTo(mid.x, mid.y, end.x, end.y);
+			ctx.stroke();
+		}
+		
 		
 		function drawLineFlat(ctx, start, end, color){
 			ctx.strokeStyle = color;
@@ -178,11 +199,14 @@
 			<input id="animateInput" type="checkbox" checked>
 			<label for="animateInput">Animate</label>
 			<br>
-			<input id="circleInput" type="checkbox" checked>
+			<input id="circleInput" type="checkbox">
 			<label for="circleInput">Draw nodes</label>
 			<br>
 			<input id="colorInput" type="checkbox" checked>
 			<label for="colorInput">Use color</label>
+			<br>
+			<input id="curveInput" type="checkbox" checked>
+			<label for="curveInput">Round Edges</label>
 			<br>
 			<input id="orderInput" type="number" min="0" max="8" value="5">
 			<label for="orderInput">Hilbert Curve Order. Each step doubles</label>
