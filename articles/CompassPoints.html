@@ -7,7 +7,7 @@
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
-	<script>		
+	<script>
 		let animationID = null;
 		function drawPattern(){
 			document.getElementById('drawBtn').setAttribute('style','display:none');
@@ -138,10 +138,9 @@
 				for(let i = 0; i < drawings.length; i++){
 					drawings[i]();
 				}
-			}
-
-			document.getElementById('drawBtn').removeAttribute('style');
-			document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+				document.getElementById('drawBtn').removeAttribute('style');
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+			}			
 		}
 		
 		function drawLineGradient(ctx, start, end, colorFrom, colorTo){

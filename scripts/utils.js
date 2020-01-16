@@ -14,6 +14,11 @@ function nextGoldenColor(sat, light){
 	return 'hsl(' + (num * 360) + ', ' + sat + '%, ' + light + '%)';
 }
 
+function roundToPrecision(val, precision){
+	const multiplier = Math.pow(10, precision || 0);
+	return Math.round(val * multiplier) / multiplier;
+}
+
 function getRandomInt(min, max) {
 	min = Math.ceil(min);
 	max = Math.floor(max);
