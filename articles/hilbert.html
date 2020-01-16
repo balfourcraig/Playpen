@@ -50,10 +50,11 @@
 				
 				const color = useColor ? 'hsl(' + mapLinear(i, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
 				
-				if(prev && prev2){
+				if(prev && (!useCurves || prev2)){
 					const previous = prev;
-					const mid1 = midpoint(prev, prev2);
+					let mid1;
 					if(useCurves){
+						mid1 = midpoint(prev, prev2);
 						const previous2 = prev2;
 						const mid2 = midpoint(curr, prev);
 						drawings.push(() => drawQuadLineFlat(ctx, mid1, previous, mid2, color));
