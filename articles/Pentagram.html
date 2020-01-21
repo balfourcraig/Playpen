@@ -48,7 +48,8 @@
 			
 			const colors = [];
 			for(let i = 0; i < 6; i++){
-				colors.push(randomColor());
+				//colors.push(randomColor());
+				colors.push('hsl(' + ((i/5) * 360) + ', 80%, 50%)');
 			}
 			
 			const pathPoints = [];
@@ -58,28 +59,31 @@
 			}
 
 			const drawings = [];
-			
+			const randAngle = Math.random() * 360;
 			for(let i = 0; i < 5; i++){
 				const p = pathPoints[i];
 				if(gradient){
-					drawings.push(() => drawLineGradient(ctx, p, midpoint(p, pathPoints[(i + 2) % 5]), p, pathPoints[(i + 2) % 5], useColor ? colors[i] : 'black'));
+					const colorStart = 'hsl(' + ((((i/5) * 360) + randAngle) % 360) + ', 80%, 50%)';
+					const colorEnd = 'hsl(' + (((((i)/5) * 360) + 144 + randAngle) % 360) + ', 80%, 50%)';
+					drawings.push(() => drawLineGradient(ctx, p, midpoint(p, pathPoints[(i + 2) % 5]), p, pathPoints[(i + 2) % 5], useColor ? colorStart : 'black', useColor ? colorEnd : 'black'));
 				}
 				else{
 					drawings.push(() => drawLineFlat(ctx, p, midpoint(p, pathPoints[(i + 2) % 5]), useColor ? colors[i] : 'black'));
 				}
 			}
 			
-			drawings.push(() => drawCircle(ctx, center, radius * 0.9, useColor ? colors[5] : 'black'));
+			drawings.push(() => drawCircle(ctx, center, radius * 0.9, useColor ? ('hsl(' + (Math.random() * 360 ) + ', 60%, 50%') : 'black'));
 			
 			for(let i = 0; i < 5; i++){
 				const p = pathPoints[(i + 2) % 5];
 				if(gradient){
-					drawings.push(() => drawLineGradient(ctx, p, midpoint(p, pathPoints[i]), p, pathPoints[i], useColor ? colors[i] : 'black'));
+					const colorEnd = 'hsl(' + ((((i/5) * 360) + randAngle) % 360) + ', 80%, 50%)';
+					const colorStart = 'hsl(' + (((((i)/5) * 360) + 144 + randAngle) % 360) + ', 80%, 50%)';
+					drawings.push(() => drawLineGradient(ctx, p, midpoint(p, pathPoints[i]), p, pathPoints[i], useColor ? colorStart : 'black', useColor ? colorEnd : 'black'));
 				}
 				else{
 					drawings.push(() => drawLineFlat(ctx, p, midpoint(p, pathPoints[i]), useColor ? colors[i] : 'black'));
 				}
-				
 			}
 			
 			if(animate){
@@ -101,7 +105,7 @@
 					animationID = window.requestAnimationFrame(() => {
 						animateLine(allActions, index + 1);
 					});
-				},150)
+				},50)
 			}
 			else{
 				document.getElementById('drawBtn').removeAttribute('style');
@@ -109,11 +113,10 @@
 			}
 		}
 		
-		function drawLineGradient(ctx, start, end, gradStart, gradEnd, color){
+		function drawLineGradient(ctx, start, end, gradStart, gradEnd, colorStart, colorEnd){
 			const grad = ctx.createLinearGradient(gradStart.x, gradStart.y, gradEnd.x, gradEnd.y);
-			grad.addColorStop(0, 'transparent');
-			grad.addColorStop(0.5, color);
-			grad.addColorStop(1, 'transparent');
+			grad.addColorStop(0, colorStart);
+			grad.addColorStop(1, colorEnd);
 			ctx.strokeStyle = grad;
 
 			ctx.beginPath();
@@ -169,7 +172,7 @@
 			<input id="colorInput" type="checkbox" checked>
 			<label for="colorInput">Use color</label>
 			<br>
-			<input id="gradInput" type="checkbox">
+			<input id="gradInput" type="checkbox" checked>
 			<label for="gradInput">Use Gradient</label>
 			<br>
 			<input id="rotInput" type="checkbox" checked>

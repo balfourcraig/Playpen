@@ -9,16 +9,26 @@
 	<script>
 		let animationID = null;
 		
-		function drawLine(ctx, center, radius, multiplier, points, i, iterations, useColor, color){
+		function drawLine(ctx, center, radius, multiplier, points, i, iterations, useColor, color, useGradient){
 			if(iterations > 0){
 				const pointFrom = pointOnCircle(center, radius, points, i % points);
 				const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
 				
 				if(useColor){
 					const grad = ctx.createLinearGradient(pointFrom.x, pointFrom.y, pointTo.x, pointTo.y);
-					grad.addColorStop(0, 'transparent');
-					grad.addColorStop(0.5, color);
-					grad.addColorStop(1, 'transparent');
+					if(useGradient){
+						const iFrom = ((i % points)/points) * 360;
+						const iTo = (((i * multiplier) % points)/points) * 360;
+						grad.addColorStop(0, 'transparent');
+						grad.addColorStop(0.4, 'hsl(' + iFrom + ', 80%, 50%)');
+						grad.addColorStop(0.6, 'hsl(' + iTo + ', 80%, 50%)');
+						grad.addColorStop(1, 'transparent');
+					}
+					else{
+						grad.addColorStop(0, 'transparent');
+						grad.addColorStop(0.5, color);
+						grad.addColorStop(1, 'transparent');
+					}
 					ctx.strokeStyle = grad;
 				}
 
@@ -28,7 +38,7 @@
 				ctx.stroke();
 				
 				animationID = window.requestAnimationFrame(() =>{
-					drawLine(ctx, center, radius,multiplier, points, i+1, iterations -1, useColor, color);
+					drawLine(ctx, center, radius,multiplier, points, i+1, iterations -1, useColor, color, useGradient);
 				});
 			}
 			else{
@@ -69,16 +79,21 @@
 			let winding = parseInt(document.getElementById('windingInput').value);
 			if(winding && winding > 1){
 				iterations *= winding;
-				multiplier += (1/winding);
+				multiplier += (1 / winding);
 			}
-				
 			
 			const color = randomColor();
 			
 			const animate = document.getElementById('animateInput').checked;
-			const useColor = document.getElementById('colorInput').checked;
+			//const useColor = document.getElementById('colorInput').checked;
+			//const useGradient = document.getElementById('gradInput').checked;
+			
+			const colorMode = document.getElementById('colorModeSelect').value;
+			const useColor = colorMode === 'mono' || colorMode === 'wheel';
+			const useGradient = colorMode === 'wheel';
+			
 			if(animate){
-				drawLine(ctx, center, radius, multiplier, points, 0, iterations,useColor, color);
+				drawLine(ctx, center, radius, multiplier, points, 0, iterations, useColor, color, useGradient);
 			}
 			else{
 				for(let i = 1; i < iterations; i++){
@@ -86,9 +101,19 @@
 					const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
 					if(useColor){
 						const grad = ctx.createLinearGradient(pointFrom.x, pointFrom.y, pointTo.x, pointTo.y);
-						grad.addColorStop(0, 'transparent');
-						grad.addColorStop(0.5, color);
-						grad.addColorStop(1, 'transparent');
+						if(useGradient){
+							const iFrom = ((i % points)/points) * 360;
+							const iTo = (((i * multiplier) % points)/points) * 360;
+							grad.addColorStop(0, 'transparent');
+							grad.addColorStop(0.4, 'hsl(' + iFrom + ', 80%, 50%)');
+							grad.addColorStop(0.6, 'hsl(' + iTo + ', 80%, 50%)');
+							grad.addColorStop(1, 'transparent');
+						}
+						else{
+							grad.addColorStop(0, 'transparent');
+							grad.addColorStop(0.5, color);
+							grad.addColorStop(1, 'transparent');
+						}
 						ctx.strokeStyle = grad;
 					}
 					
@@ -150,12 +175,15 @@
 			<input id="animateInput" type="checkbox" checked>
 			<label for="animateInput">Animate</label>
 			<br>
-			<input id="colorInput" type="checkbox" checked>
-			<label for="colorInput">Use color</label>
+			<select id="colorModeSelect">
+				<option value="black">Black</option>
+				<option value="mono">Monochrome</option>
+				<option value="wheel" selected>Wheel</option>
+			</select>
+			<label for="colorModeSelect">Color Mode</label>
 			<br>
 			<button id="drawBtn">Draw!</button>
 			<button id="stopDrawingBtn" style="display:none">STOP</button>
-			
 			<br>
 			<button id="luckBtn">I'm feeling lucky!</button>
 			

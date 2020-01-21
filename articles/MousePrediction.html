@@ -64,10 +64,6 @@
 
 		function drawPattern(e){
 			const c = document.getElementById('pieCanvas');
-			//c.id = 'pieCanvas';
-			//c.setAttribute('width', w);
-			//c.setAttribute('height', w);
-			//const ctx = c.getContext('2d');
 
 			ctx.clearRect(0,0,w,w);
 			const rect = c.getBoundingClientRect();
@@ -77,13 +73,12 @@
 				const mouseY = e.clientY - rect.top;
 				const mousePoint = {x:mouseX, y:mouseY};				
 
-				//let mouseDrawPoint = mousePoint;
 				if(lastMousePoint && prev2MousePoint){
 					const movedDist = distance(mousePoint, lastMousePoint);
 					const avgDist = (movedDist + lastDist) / 2;
 					lastDist = movedDist;
 					
-					mouseDrawPoint = pointReflect(mousePoint, lastMousePoint, 1);
+					//mouseDrawPoint = pointReflect(mousePoint, lastMousePoint, 1);
 					
 					const grad = ctx.createLinearGradient(prev2MousePoint.x, prev2MousePoint.y, mousePoint.x, mousePoint.y);
 					grad.addColorStop(0, 'transparent');
@@ -95,46 +90,16 @@
 					ctx.quadraticCurveTo(lastMousePoint.x, lastMousePoint.y, mousePoint.x, mousePoint.y);
 					ctx.stroke();
 					
-					//ctx.beginPath();
-					//ctx.moveTo(mousePoint.x, mousePoint.y);
-					//ctx.lineTo(mouseDrawPoint.x, mouseDrawPoint.y);
-					//ctx.strokeStyle = 'red';
-					//ctx.stroke();
-					
-					const perp = perpendicular(lastMousePoint, mouseDrawPoint);
-					
-					let angle = angleOfC(
-						distance(prev2MousePoint, mousePoint, true),
-						distance(perp.start,mousePoint, true),
-						distance(prev2MousePoint, perp.start, true)
-					);
-					
-					angle = Math.PI * 2 - angle;
-					
-					const offsetAngle = angleOfC(
-						distance(perp.start,mousePoint, true),
-						w-mousePoint.y,//really?
-						distance(perp.start, {x: mousePoint.x, y: w}, true)
-					);
-					console.log(offsetAngle);
-					angle+= offsetAngle;
-					
-					const predX = Math.sin(angle) * distance(prev2MousePoint, mousePoint) + mousePoint.x;
-					const predY = Math.cos(angle) * distance(prev2MousePoint, mousePoint) + mousePoint.y;
+					const mult = 1;
+					const predict1 = pointReflect(mousePoint, lastMousePoint, mult);
+					const predict2 = pointReflect(predict1, pointReflect(lastMousePoint, prev2MousePoint, mult), mult);
 					
 					ctx.beginPath();
-					//ctx.moveTo(mousePoint.x, mousePoint.y);
-					ctx.moveTo(mouseDrawPoint.x, mouseDrawPoint.y);
-					ctx.lineTo(predX, predY);
+					ctx.moveTo(mousePoint.x, mousePoint.y);
+					ctx.quadraticCurveTo(predict1.x, predict1.y, predict2.x, predict2.y);
 					ctx.strokeStyle = 'red';
 					ctx.stroke();
-					
-					//console.log(angle);
-					//drawCircle(ctx, perp.end, 4, 'blue');
 				}
-
-				//drawCircle(ctx, mousePoint, 4, 'blue');
-				
 				prev2MousePoint = lastMousePoint;
 				lastMousePoint = mousePoint;
 			}
@@ -221,7 +186,6 @@
 		window.addEventListener('DOMContentLoaded', () => {
 			setUp();
 			drawPattern();
-			//document.getElementById('canvResult').addEventListener('mousemove',drawPattern);
 		});
 	</script>
 	
