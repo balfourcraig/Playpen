@@ -9,6 +9,11 @@ function nextGoldenRand(){
 	return randh;
 }
 
+function cosineInterpolate(start, end, position){
+	const mapped = 0.5 * (-Math.cos(Math.PI * position)) + 0.5;
+	return (mapped * (end - start)) + start;
+}
+
 function nextGoldenColor(sat, light){
 	const num = nextGoldenRand();
 	return 'hsl(' + (num * 360) + ', ' + sat + '%, ' + light + '%)';
