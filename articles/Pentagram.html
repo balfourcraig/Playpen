@@ -53,7 +53,7 @@
 			}
 			
 			const pathPoints = [];
-			const rotation = Math.random() * Math.PI * 2;
+			const rotation = randRot ? Math.random() * Math.PI * 2 : 0;
 			for(let i = 0; i < 5; i++){
 				pathPoints.push(pointOnCircle(center, radius, 5, i, rotation));
 			}
