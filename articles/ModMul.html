@@ -61,7 +61,7 @@
 			ctx.lineWidth = 1;
 			const center = {x: w/2.0, y: w/2.0};
 			const radius = w * 0.45;
-			
+			ctx.globalCompositeOperation = 'multiply';
 			const canvResult = document.getElementById('canvResult');
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);

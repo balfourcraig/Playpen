@@ -26,15 +26,6 @@ body{
 	position: relative;
 }
 
-.scrollOverflow::after{
-	content: '~';
-	font-size: 144px;
-	width: 100%;
-	position: absolute;
-	text-align: center;
-	bottom: 0;
-}
-
 main{
 	flex-grow: 1;
 }
