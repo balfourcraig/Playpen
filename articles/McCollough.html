@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>McCollough - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<script src="../scripts/utils.js"></script>
+	<script>
+		let barTimeout = null;
+	
+		function setup(){
+			const c = document.createElement('canvas');
+			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			const h = w;
+			c.setAttribute('width', w);
+			c.setAttribute('height', h);
+			const ctx = c.getContext('2d');
+			
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			const words = 'The quick brown fox jumps over the lazy dog';
+			let wordIndex = 0;
+			
+			let eyeAngle = Math.PI;
+			const eyeRadius = ~~(w/8);
+			const eyeSwapsPerBarSwap = 2;
+			const updateDelay = 1000;
+			let eyeChangeOnly = 0;
+			const eyeDotRadius =  ~~(w/80);
+			ctx.font = eyeDotRadius + 'px Arial';
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			
+			column();
+
+			function column(){
+				ctx.fillStyle = '#f0f';
+				ctx.strokeStyle = 'none';
+				ctx.fillRect(0, 0, w, w);
+				
+				const colWidth = parseInt(document.getElementById('barSizeInput').value);
+				let colPos = 0;
+				
+				ctx.fillStyle = 'black';
+				while(colPos < w){
+					ctx.fillRect(colPos, 0, colWidth, h);
+					colPos += colWidth * 2;
+				}
+				
+				drawEyePoint();
+				eyeChangeOnly += 1;
+				eyeChangeOnly %= eyeSwapsPerBarSwap;
+				
+				if(eyeChangeOnly === 0){
+					barTimeout = setTimeout(row, updateDelay);
+				}
+				else{
+					barTimeout = setTimeout(column, updateDelay);
+				}
+			}
+			
+			function row(){
+				ctx.fillStyle = '#0f0';
+				ctx.strokeStyle = 'none';
+				ctx.fillRect(0, 0, w, w);
+				
+				const rowHeight = parseInt(document.getElementById('barSizeInput').value);
+				let rowPos = 0;
+				
+				ctx.fillStyle = 'black';
+				while(rowPos < h){
+					ctx.fillRect(0, rowPos, w, rowHeight);
+					rowPos += rowHeight * 2;
+				}
+				
+				drawEyePoint();
+				eyeChangeOnly += 1;
+				eyeChangeOnly %= eyeSwapsPerBarSwap;
+				
+				if(eyeChangeOnly === 0){
+					barTimeout = setTimeout(column, updateDelay);
+				}
+				else{
+					barTimeout = setTimeout(row, updateDelay);
+				}
+			}
+			
+			function drawEyePoint(){
+				ctx.fillStyle = 'black';
+				ctx.strokeStyle = 'white';
+				const x = Math.sin(eyeAngle) * eyeRadius + w/2;
+				const y = Math.cos(eyeAngle) * eyeRadius + h/2;
+				ctx.beginPath();
+				ctx.arc(x, y, eyeDotRadius, 0, 2 * Math.PI);
+				ctx.fill(); 
+				ctx.stroke();
+				ctx.fillStyle = 'white';
+				ctx.fillText(words[wordIndex++], x ,y);
+				eyeAngle += 0.6;
+			}
+		}
+
+		window.addEventListener('DOMContentLoaded', () => {
+			document.getElementById('drawBtn').addEventListener('click', setup);
+		});
+	</script>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>McCollough Effect</h1>
+		</header>
+		<section>
+			<input id="barSizeInput" type="number" value="10">
+			<label for="barSizeInput">Bar Size</label>
+			<br>
+			<button id="drawBtn">Draw!</button>
+			<div id="sizeCalc"></div>
+			<div id="canvResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
