@@ -8,6 +8,7 @@
 	<script src="../scripts/utils.js"></script>
 	<script>
 		function drawPattern(){
+			const zoomLevel = parseFloat(document.getElementById('zoomInput').value);
 			document.getElementById('drawBtn').setAttribute('style','display:none');
 			const c = document.createElement('canvas');
 			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
@@ -28,8 +29,8 @@
 			const lnMax = Math.log(maxIteration);
 			for(let px = 0; px < w; px++){
 				for(let py = 0; py < h / 2 + 1; py++){
-					const x0 = mapLinear(px, 0, w, -2.5, 1);
-					const y0 = mapLinear(py, 0, h, -1, 1);
+					const x0 = mapLinear(px, 0, w, -2.5 / zoomLevel, 1 / zoomLevel);
+					const y0 = mapLinear(py, 0, h, -1 / zoomLevel, 1 / zoomLevel);
 					
 					let x = x0;
 					let y = y0;
@@ -83,6 +84,9 @@
 			<h1>Mandelbrot Set</h1>
 		</header>
 		<section>
+			<input id="zoomInput" type="number" value="1" step="0.1">
+			<label for="zoomInput">Zoom</label>
+			<br>
 			<button id="drawBtn">Draw!</button>
 			<div id="sizeCalc"></div>
 			<div id="canvResult"></div>
