@@ -121,3 +121,10 @@ function mapLinear(val, fromStart, fromEnd, toStart, toEnd){
 
 	return mapped;
 }
+
+function MapPointSpace(point, xFromStart, xFromEnd, xToStart, xToEnd, yFromStart, yFromEnd, yToStart, yToEnd){
+	return {
+		x: mapLinear(point.x, xFromStart, xFromEnd, xToStart, xToEnd),
+		y: mapLinear(point.y, yFromStart, yFromEnd, yToStart, yToEnd),
+	};
+}
