@@ -18,6 +18,7 @@
 			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			
 			const animate = document.getElementById('animateInput').checked;
+			const showSolutions = document.getElementById('solutionsInput').checked;
 			const lineWidth = Math.max(1, parseInt(document.getElementById('lineWidthInput').value));
 			xNodes = Math.max(1, parseInt(document.getElementById('xNodesInput').value));;
 			yNodes = Math.max(1, parseInt(document.getElementById('yNodesInput').value));;
@@ -127,28 +128,31 @@
 							});
 						}
 					}
-					drawings.push(() => {
-						ctx.fillStyle = 'hsl(' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 140, 0) + ', 60%, 50%)';
-						ctx.beginPath();
-						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w),mapLinear(n.location.y,-2,yNodes+1,0,h),lineWidth, 0, Math.PI * 2);
-						ctx.fill();
-					});
-					
-					if(n.parent != null){
+
+					if(showSolutions){
 						drawings.push(() => {
-							ctx.strokeStyle = ctx.fillStyle;
-							ctx.lineWidth = n.onHotPath ? lineWidth * 1.5 : lineWidth / 2;
+							ctx.fillStyle = 'hsl(' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 140, 0) + ', 60%, 50%)';
 							ctx.beginPath();
-							ctx.moveTo(mapLinear(n.location.x, -2, xNodes + 1, 0, w), mapLinear(n.location.y, -2, yNodes + 1, 0, h));
-							ctx.lineTo(mapLinear(n.parent.location.x, -2, xNodes + 1, 0, w), mapLinear(n.parent.location.y, -2, yNodes + 1, 0, h));
-							ctx.stroke();
+							ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w),mapLinear(n.location.y,-2,yNodes+1,0,h),lineWidth, 0, Math.PI * 2);
+							ctx.fill();
+						});
+					
+						if(n.parent != null){
+							drawings.push(() => {
+								ctx.strokeStyle = ctx.fillStyle;
+								ctx.lineWidth = n.onHotPath ? lineWidth * 1.5 : lineWidth / 2;
+								ctx.beginPath();
+								ctx.moveTo(mapLinear(n.location.x, -2, xNodes + 1, 0, w), mapLinear(n.location.y, -2, yNodes + 1, 0, h));
+								ctx.lineTo(mapLinear(n.parent.location.x, -2, xNodes + 1, 0, w), mapLinear(n.parent.location.y, -2, yNodes + 1, 0, h));
+								ctx.stroke();
+							});
+						}
+						drawings.push(() => {
+							ctx.lineWidth = lineWidth;
+							ctx.strokeStyle = 'black';
+							ctx.fillStyle = 'black';
 						});
 					}
-					drawings.push(() => {
-						ctx.lineWidth = lineWidth;
-						ctx.strokeStyle = 'black';
-						ctx.fillStyle = 'black';
-					});
 				}
 			}
 			drawings.push(() => {
@@ -250,10 +254,14 @@
 	<div class="pageWidth">
 		<header>
 			<h1>Maze</h1>
+			<p>Start at the green circle, and find your way to the red circle</p>
 		</header>
 		<section>
 			<input id="animateInput" type="checkbox">
 			<label for="animateInput">Animate</label>
+			<br>
+			<input id="solutionsInput" type="checkbox">
+			<label for="solutionsInput">Show solutions</label>
 			<br>
 			<input id="lineWidthInput" type="number" value="2" min="1" step="0.5">
 			<label for="lineWidthInput">Line width</label>
