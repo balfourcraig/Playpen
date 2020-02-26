@@ -150,3 +150,15 @@ button:hover{
 .secBlock h3 a:hover{
 	color: deepskyblue;
 }
+
+.optionsArea{
+	display: flex;
+	flex-wrap: wrap;
+	border-bottom: 1px solid gray;
+}
+
+.optionsArea .op{
+	margin: 10px 0;
+	min-width: 50%;
+	flex-grow: 1;
+}

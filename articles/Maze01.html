@@ -17,8 +17,12 @@
 			const c = document.createElement('canvas');
 			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			
+			const multipleEnds = document.getElementById('multipleEndsInput').checked;
 			const animate = document.getElementById('animateInput').checked;
-			const showSolutions = document.getElementById('solutionsInput').checked;
+			//const showSolutions = document.getElementById('solutionsInput').checked;
+			
+			const solutionType = document.getElementById('solutionTypeSelect').value;
+			
 			const lineWidth = Math.max(1, parseInt(document.getElementById('lineWidthInput').value));
 			xNodes = Math.max(1, parseInt(document.getElementById('xNodesInput').value));;
 			yNodes = Math.max(1, parseInt(document.getElementById('yNodesInput').value));;
@@ -41,7 +45,6 @@
 			
 			ctx.lineWidth = lineWidth;
 
-			
 			ctx.fillStyle = 'black';
 			ctx.strokeStyle = 'black';
 			
@@ -77,9 +80,12 @@
 			stack.push(start);
 			let maxDepth = 0;
 			
+			orderedNodes = [];
+			
 			while(stack.length > 0){
 				const current = stack.pop();
 				current.visited = true;
+				orderedNodes.push(current);
 				if(current.solutionDepth > maxDepth){
 					maxDepth = current.solutionDepth;
 					end = current;
@@ -105,75 +111,83 @@
 			}
 			
 			const drawings = [];
-			
-			for (let col = 0; col < xNodes; col++) {
-                for (let row = 0; row < yNodes; row++) {
-					const n = nodes[row * xNodes + col];
-					
-					for(let i = 0; i < n.walls.length; i++){
-						const wall = n.walls[i];
-						if((wall.walledOff && wall.mirror.walledOff) && (!wall.drawn && !wall.mirror.drawn)) {
-							const mid = midpoint(n.location, wall.to.location);
-							const xDiff = (n.location.x - wall.to.location.x) / 2;
-							const yDiff = (n.location.y - wall.to.location.y) / 2;
-							const lineStart = {x: mid.x + yDiff, y: mid.y + xDiff};
-							const lineEnd = {x: mid.x - yDiff, y: mid.y - xDiff};
-							wall.drawn = true;
-							wall.mirror.drawn = true;
-							drawings.push(() => {
-								ctx.beginPath();
-								ctx.moveTo(mapLinear(lineStart.x, -2, xNodes + 1, 0, w), mapLinear(lineStart.y, -2, yNodes + 1, 0, h));
-								ctx.lineTo(mapLinear(lineEnd.x, -2, xNodes + 1, 0, w), mapLinear(lineEnd.y, -2, yNodes + 1, 0, h));
-								ctx.stroke();
-							});
-						}
-					}
 
-					if(showSolutions){
-						drawings.push(() => {
-							ctx.fillStyle = 'hsl(' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 140, 0) + ', 60%, 50%)';
-							ctx.beginPath();
-							ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w),mapLinear(n.location.y,-2,yNodes+1,0,h),lineWidth, 0, Math.PI * 2);
-							ctx.fill();
-						});
-					
+			let endDrawn = false;
+			for(let j = 0; j < orderedNodes.length; j++){
+				const n = orderedNodes[j];
+				if(solutionType === 'all' || (solutionType === 'main' && n.onHotPath)){
+					drawings.push(() => {
+						ctx.fillStyle = 'hsl(' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 140, 0) + ', 60%, 50%)';
+						ctx.beginPath();
+						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w),mapLinear(n.location.y,-2,yNodes+1,0,h),lineWidth, 0, Math.PI * 2);
+						ctx.fill();
+						
 						if(n.parent != null){
-							drawings.push(() => {
-								ctx.strokeStyle = ctx.fillStyle;
-								ctx.lineWidth = n.onHotPath ? lineWidth * 1.5 : lineWidth / 2;
-								ctx.beginPath();
-								ctx.moveTo(mapLinear(n.location.x, -2, xNodes + 1, 0, w), mapLinear(n.location.y, -2, yNodes + 1, 0, h));
-								ctx.lineTo(mapLinear(n.parent.location.x, -2, xNodes + 1, 0, w), mapLinear(n.parent.location.y, -2, yNodes + 1, 0, h));
-								ctx.stroke();
-							});
+							ctx.strokeStyle = ctx.fillStyle;
+							ctx.lineWidth = n.onHotPath ? lineWidth * 1.5 : lineWidth / 2;
+							ctx.beginPath();
+							ctx.moveTo(mapLinear(n.location.x, -2, xNodes + 1, 0, w), mapLinear(n.location.y, -2, yNodes + 1, 0, h));
+							ctx.lineTo(mapLinear(n.parent.location.x, -2, xNodes + 1, 0, w), mapLinear(n.parent.location.y, -2, yNodes + 1, 0, h));
+							ctx.stroke();
 						}
+
+						ctx.lineWidth = lineWidth;
+						ctx.strokeStyle = 'black';
+						ctx.fillStyle = 'black';
+					});
+
+				}
+				if(multipleEnds && n.solutionDepth === maxDepth){
+					drawings.push(() => {
+						ctx.fillStyle = 'red';
+						ctx.beginPath();
+						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w), mapLinear(n.location.y,-2,yNodes+1, 0, h), lineWidth * 2, 0, Math.PI * 2);
+						ctx.fill();
+					});
+					endDrawn = true;
+				}
+				else if (!multipleEnds && n === end){
+					drawings.push(() => {
+						ctx.fillStyle = 'red';
+						ctx.beginPath();
+						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w), mapLinear(n.location.y,-2,yNodes+1, 0, h), lineWidth * 2, 0, Math.PI * 2);
+						ctx.fill();
+					});
+					endDrawn = true;
+				}
+				if(n === start){
+					drawings.push(() => {
+						ctx.fillStyle = 'green';
+						ctx.beginPath();
+						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w), mapLinear(n.location.y,-2,yNodes+1, 0, h), lineWidth * 2, 0, Math.PI * 2);
+						ctx.fill();
+					});
+				}
+			}
+			
+			for(let j = orderedNodes.length-1; j >=0; j--){
+				const n = orderedNodes[j];
+				for(let i = 0; i < n.walls.length; i++){
+					const wall = n.walls[i];
+					if((wall.walledOff && wall.mirror.walledOff) && (!wall.drawn && !wall.mirror.drawn)) {
+						const mid = midpoint(n.location, wall.to.location);
+						const xDiff = (n.location.x - wall.to.location.x) / 2;
+						const yDiff = (n.location.y - wall.to.location.y) / 2;
+						const lineStart = {x: mid.x + yDiff, y: mid.y + xDiff};
+						const lineEnd = {x: mid.x - yDiff, y: mid.y - xDiff};
+						wall.drawn = true;
+						wall.mirror.drawn = true;
+						
 						drawings.push(() => {
-							ctx.lineWidth = lineWidth;
-							ctx.strokeStyle = 'black';
-							ctx.fillStyle = 'black';
+							ctx.beginPath();
+							ctx.moveTo(mapLinear(lineStart.x, -2, xNodes + 1, 0, w), mapLinear(lineStart.y, -2, yNodes + 1, 0, h));
+							ctx.lineTo(mapLinear(lineEnd.x, -2, xNodes + 1, 0, w), mapLinear(lineEnd.y, -2, yNodes + 1, 0, h));
+							ctx.stroke();
 						});
 					}
 				}
 			}
-			drawings.push(() => {
-				ctx.fillStyle = 'green';
-				ctx.beginPath();
-				ctx.arc(mapLinear(start.location.x,-2,xNodes+1,0,w),mapLinear(start.location.y,-2,yNodes+1,0,h),lineWidth * 2, 0, Math.PI * 2);
-				ctx.fill();
-			});
-			
-			drawings.push(() => {
-				ctx.fillStyle = 'red';
-				ctx.beginPath();
-				ctx.arc(mapLinear(end.location.x,-2,xNodes+1,0,w),mapLinear(end.location.y,-2,yNodes+1,0,h),lineWidth * 2, 0, Math.PI * 2);
-				ctx.fill();
-			});
-			
-			if(animate){
-			
-			
-			}
-			
+
 			if(animate){
 				animateLine(drawings, 0);
 			}
@@ -257,25 +271,41 @@
 			<p>Start at the green circle, and find your way to the red circle</p>
 		</header>
 		<section>
-			<input id="animateInput" type="checkbox">
-			<label for="animateInput">Animate</label>
-			<br>
-			<input id="solutionsInput" type="checkbox">
-			<label for="solutionsInput">Show solutions</label>
-			<br>
-			<input id="lineWidthInput" type="number" value="2" min="1" step="0.5">
-			<label for="lineWidthInput">Line width</label>
-			<br>
-			<input id="xNodesInput" type="number" value="20" min="2">
-			<label for="xNodesInput">X Nodes</label>
-			<br>
-			<input id="yNodesInput" type="number" value="20" min="2">
-			<label for="yNodesInput">Y Nodes</label>
-			<br>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="animateInput" type="checkbox" checked>
+					<label for="animateInput">Animate</label>
+				</div>
+				<div class="op">
+					<select id="solutionTypeSelect">
+						<option value="none">None</option>
+						<option value="all" selected>All</option>
+						<option value="main">Main Only</option>
+					</select>
+					<label for="solutionTypeSelect">Solution type to draw</label>
+				</div>
+				<div class="op">
+					<input id="multipleEndsInput" type="checkbox" checked>
+					<label for="multipleEndsInput">Allow multiple ends</label>
+				</div>
+				<div class="op">
+					<input id="lineWidthInput" type="number" value="2" min="1" step="0.5">
+					<label for="lineWidthInput">Line width</label>
+				</div>
+				<div class="op">
+					<input id="xNodesInput" type="number" value="30" min="2">
+					<label for="xNodesInput">X Nodes</label>
+				</div>
+				<div class="op">
+					<input id="yNodesInput" type="number" value="30" min="2">
+					<label for="yNodesInput">Y Nodes</label>
+				</div>
+				<div class="op">
+					<button id="drawBtn">Draw!</button>
+					<button id="stopDrawingBtn" style="display:none">STOP</button>
+				</div>
+			</div>
 			
-			<button id="drawBtn">Draw!</button>
-			<button id="stopDrawingBtn" style="display:none">STOP</button>
-
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
 			<div id="canvResult"></div>
