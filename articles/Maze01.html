@@ -44,6 +44,7 @@
 			canvResult.appendChild(c);
 			
 			ctx.lineWidth = lineWidth;
+			ctx.lineCap = 'round';
 
 			ctx.fillStyle = 'black';
 			ctx.strokeStyle = 'black';
@@ -118,9 +119,12 @@
 				if(solutionType === 'all' || (solutionType === 'main' && n.onHotPath)){
 					drawings.push(() => {
 						ctx.fillStyle = 'hsl(' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 140, 0) + ', 60%, 50%)';
-						ctx.beginPath();
-						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w),mapLinear(n.location.y,-2,yNodes+1,0,h),lineWidth, 0, Math.PI * 2);
-						ctx.fill();
+						if(!n.onHotPath){
+							ctx.beginPath();
+							ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w),mapLinear(n.location.y,-2,yNodes+1,0,h),lineWidth, 0, Math.PI * 2);
+							ctx.fill();
+						}
+						
 						
 						if(n.parent != null){
 							ctx.strokeStyle = ctx.fillStyle;
@@ -155,11 +159,11 @@
 					});
 					endDrawn = true;
 				}
-				if(n === start){
+				if(n.parent !== null && n.parent === start){
 					drawings.push(() => {
 						ctx.fillStyle = 'green';
 						ctx.beginPath();
-						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w), mapLinear(n.location.y,-2,yNodes+1, 0, h), lineWidth * 2, 0, Math.PI * 2);
+						ctx.arc(mapLinear(start.location.x,-2,xNodes+1,0,w), mapLinear(start.location.y,-2,yNodes+1, 0, h), lineWidth * 2, 0, Math.PI * 2);
 						ctx.fill();
 					});
 				}
