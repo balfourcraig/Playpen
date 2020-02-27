@@ -20,8 +20,7 @@
 			const animate = document.getElementById('animateInput').checked;
 			xNodes = Math.max(1, parseInt(document.getElementById('xNodesInput').value));
 			yNodes = Math.max(1, parseInt(document.getElementById('yNodesInput').value));
-			const waterLevel = Math.max(0, Math.min(1, parseFloat(document.getElementById('waterLevelInput').value)));
-			console.log(waterLevel);
+			const waterLevel = Math.max(0, Math.min(1, parseFloat(document.getElementById('waterLevelInput').value))) /2;
 			const h = w * (yNodes/xNodes);
 			
 			c.setAttribute('width', w);
@@ -105,11 +104,14 @@
 				const n = orderedNodes[j];
 				drawings.push(() => {
 					const landHeight = n.solutionDepth / maxDepth;
-					if(landHeight > waterLevel){
-						ctx.fillStyle = 'hsl(' + mapLinear(landHeight, waterLevel, 1, 55, 144) + ', 80%, 50%)';
+					if(landHeight < waterLevel){
+						ctx.fillStyle = 'hsl(' + mapLinear(landHeight, 0, waterLevel, 190, 210) + ', 80%, 50%)';
+					}
+					else if (landHeight > (1- waterLevel)){//Check either extremes
+						ctx.fillStyle = 'hsl(' + mapLinear(landHeight, 1, 1-waterLevel, 190, 210) + ', 80%, 50%)';
 					}
 					else{
-						ctx.fillStyle = 'hsl(' + mapLinear(landHeight, 0, waterLevel, 190, 210) + ', 70%, 50%)';
+						ctx.fillStyle = 'hsl(' + mapLinear(landHeight, waterLevel, 1, 55, 144) + ', 65%, 50%)';
 					}
 
 					ctx.fillRect(
