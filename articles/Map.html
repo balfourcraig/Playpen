@@ -3,7 +3,7 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
-	<title>Maze - Craig's Playpen</title>
+	<title>Map - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
@@ -17,13 +17,7 @@
 			const c = document.createElement('canvas');
 			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			
-			const multipleEnds = document.getElementById('multipleEndsInput').checked;
 			const animate = document.getElementById('animateInput').checked;
-			//const showSolutions = document.getElementById('solutionsInput').checked;
-			
-			const solutionType = document.getElementById('solutionTypeSelect').value;
-			
-			const lineWidth = Math.max(1, parseInt(document.getElementById('lineWidthInput').value));
 			xNodes = Math.max(1, parseInt(document.getElementById('xNodesInput').value));;
 			yNodes = Math.max(1, parseInt(document.getElementById('yNodesInput').value));;
 			
@@ -43,7 +37,6 @@
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			ctx.lineWidth = lineWidth;
 			ctx.lineCap = 'round';
 
 			ctx.fillStyle = 'black';
@@ -55,16 +48,11 @@
 			ctx.beginPath();
 			ctx.rect(topLeft.x, topLeft.y, rectWidth, rectHeight);
 			ctx.stroke();
-			
-			console.log(topLeft);
-			console.log(rectWidth);
-			console.log(rectHeight);
-			
+
 			const nodes = [];
 			for(let col = 0; col < xNodes; col++){
 				for(let row = 0; row < yNodes; row++){
 					nodes[row * xNodes + col] = mazeNode({x: col, y: row});
-					
 					if(col > 0){
 						addWall(nodes[row * xNodes + col], nodes[row * xNodes + (col-1)]);
 					}
@@ -74,7 +62,7 @@
 				}
 			}
 			
-			const start = nodes[getRandomInt(0, xNodes)];
+			const start = nodes[getRandomInt(0, xNodes * yNodes)];
 			let end = start;
 			
 			let stack = [];
@@ -94,13 +82,11 @@
 				shuffleInplace(current.walls);
 				for(let i = 0; i < current.walls.length; i++){
 					const wall = current.walls[i];
-					if(!wall.to.visited){
-						wall.to.visited = true;
-						wall.walledOff = false;
-						wall.mirror.walledOff = false;
-						stack.push(wall.to);
-						wall.to.parent = current;
-						wall.to.solutionDepth = current.solutionDepth + 1;
+					if(!wall.visited){
+						wall.visited = true;
+						stack.push(wall);
+						wall.parent = current;
+						wall.solutionDepth = current.solutionDepth + 1;
 					}
 				}
 			}
@@ -111,85 +97,35 @@
 				backtrack = backtrack.parent;
 			}
 			
+			const colors = [
+				'#1ca2e6',
+				'#0976ba',
+				'#034685',
+				'#0976ba',
+				'#1ca2e6',
+				'#53ceed',//sea
+				'#dbca5c',//sand
+				'#4f9e13',//grass
+				'#2fa822',
+				'#40b35b',
+				'#bda56f',//dirt
+			];
+			
 			const drawings = [];
-
-			for(let j = orderedNodes.length-1; j >=0; j--){
-				const n = orderedNodes[j];
-				for(let i = 0; i < n.walls.length; i++){
-					const wall = n.walls[i];
-					if((wall.walledOff && wall.mirror.walledOff) && (!wall.drawn && !wall.mirror.drawn)) {
-						const mid = midpoint(n.location, wall.to.location);
-						const xDiff = (n.location.x - wall.to.location.x) / 2;
-						const yDiff = (n.location.y - wall.to.location.y) / 2;
-						const lineStart = {x: mid.x + yDiff, y: mid.y + xDiff};
-						const lineEnd = {x: mid.x - yDiff, y: mid.y - xDiff};
-						wall.drawn = true;
-						wall.mirror.drawn = true;
-						
-						drawings.push(() => {
-							ctx.beginPath();
-							ctx.moveTo(mapLinear(lineStart.x, -2, xNodes + 1, 0, w), mapLinear(lineStart.y, -2, yNodes + 1, 0, h));
-							ctx.lineTo(mapLinear(lineEnd.x, -2, xNodes + 1, 0, w), mapLinear(lineEnd.y, -2, yNodes + 1, 0, h));
-							ctx.stroke();
-						});
-					}
-				}
-			}
 
 			let endDrawn = false;
 			for(let j = 0; j < orderedNodes.length; j++){
 				const n = orderedNodes[j];
-				if(solutionType === 'all' || (solutionType === 'main' && n.onHotPath)){
-					drawings.push(() => {
-						ctx.fillStyle = 'hsl(' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 140, 0) + ', 60%, 50%)';
-						if(!n.onHotPath){
-							ctx.beginPath();
-							ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w),mapLinear(n.location.y,-2,yNodes+1,0,h),lineWidth, 0, Math.PI * 2);
-							ctx.fill();
-						}
-						
-						
-						if(n.parent != null){
-							ctx.strokeStyle = ctx.fillStyle;
-							ctx.lineWidth = n.onHotPath ? lineWidth * 1.5 : lineWidth / 2;
-							ctx.beginPath();
-							ctx.moveTo(mapLinear(n.location.x, -2, xNodes + 1, 0, w), mapLinear(n.location.y, -2, yNodes + 1, 0, h));
-							ctx.lineTo(mapLinear(n.parent.location.x, -2, xNodes + 1, 0, w), mapLinear(n.parent.location.y, -2, yNodes + 1, 0, h));
-							ctx.stroke();
-						}
+				drawings.push(() => {
+					ctx.fillStyle = 'hsl(' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 100, 220) + ', ' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 50, 70) + '%, 50%)';
 
-						ctx.lineWidth = lineWidth;
-						ctx.strokeStyle = 'black';
-						ctx.fillStyle = 'black';
-					});
-
-				}
-				if(multipleEnds && n.solutionDepth === maxDepth){
-					drawings.push(() => {
-						ctx.fillStyle = 'red';
-						ctx.beginPath();
-						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w), mapLinear(n.location.y,-2,yNodes+1, 0, h), lineWidth * 2, 0, Math.PI * 2);
-						ctx.fill();
-					});
-					endDrawn = true;
-				}
-				else if (!multipleEnds && n === end){
-					drawings.push(() => {
-						ctx.fillStyle = 'red';
-						ctx.beginPath();
-						ctx.arc(mapLinear(n.location.x,-2,xNodes+1,0,w), mapLinear(n.location.y,-2,yNodes+1, 0, h), lineWidth * 2, 0, Math.PI * 2);
-						ctx.fill();
-					});
-					endDrawn = true;
-				}
-				if(n.parent !== null && n.parent === start){
-					drawings.push(() => {
-						ctx.fillStyle = 'green';
-						ctx.beginPath();
-						ctx.arc(mapLinear(start.location.x,-2,xNodes+1,0,w), mapLinear(start.location.y,-2,yNodes+1, 0, h), lineWidth * 2, 0, Math.PI * 2);
-						ctx.fill();
-					});
-				}
+					ctx.fillRect(
+						mapLinear(n.location.x - 0.5, -2, xNodes + 1, 0, w),
+						mapLinear(n.location.y - 0.5, -2, yNodes + 1, 0, h),
+						mapLinear(1.1, 0, xNodes, 0, w),
+						mapLinear(1.1, 0, yNodes, 0, h),
+					);
+				});
 			}
 			
 			if(animate){
@@ -227,14 +163,8 @@
 		});
 		
 		function addWall(node1, node2){
-			const to = mazeWall(node2);
-			const from = mazeWall(node1);
-			
-			to.mirror = from;
-			from.mirror = to;
-			
-			node1.walls.push(to);
-			node2.walls.push(from);
+			node1.walls.push(node2);
+			node2.walls.push(node1);
 		}
 		
 		function mazeNode(location){
@@ -245,15 +175,6 @@
 				parent: null,
 				onHotPath: false,
 				solutionDepth: 0
-			};
-		}
-		
-		function mazeWall(to){
-			return {
-				to: to,
-				walledOff: true,
-				drawn: false,
-				mirror: null
 			};
 		}
 	</script>
@@ -271,42 +192,25 @@
 <main>
 	<div class="pageWidth">
 		<header>
-			<h1>Maze</h1>
-			<p>Start at the green circle, and find your way to the red circle</p>
+			<h1>Map</h1>
 		</header>
 		<section>
 			<div class="optionsArea">
 				<div class="op">
-					<input id="animateInput" type="checkbox" checked>
+					<input id="animateInput" type="checkbox">
 					<label for="animateInput">Animate</label>
 				</div>
-				<div class="op">
-					<select id="solutionTypeSelect">
-						<option value="none">None</option>
-						<option value="all" selected>All</option>
-						<option value="main">Main Only</option>
-					</select>
-					<label for="solutionTypeSelect">Solution type to draw</label>
-				</div>
-				<div class="op">
-					<input id="multipleEndsInput" type="checkbox" checked>
-					<label for="multipleEndsInput">Allow multiple ends</label>
-				</div>
-				<div class="op">
-					<input id="lineWidthInput" type="number" value="2" min="1" step="0.5">
-					<label for="lineWidthInput">Line width</label>
-				</div>
-				<div class="op">
-					<input id="xNodesInput" type="number" value="30" min="2">
+				<div class="op fullwidth">
+					<input id="xNodesInput" type="number" value="80" min="2">
 					<label for="xNodesInput">X Nodes</label>
 				</div>
-				<div class="op">
-					<input id="yNodesInput" type="number" value="30" min="2">
+				<div class="op fullwidth">
+					<input id="yNodesInput" type="number" value="80" min="2">
 					<label for="yNodesInput">Y Nodes</label>
 				</div>
 				
 			</div>
-			<div >
+			<div>
 				<button id="drawBtn">Draw!</button>
 				<button id="stopDrawingBtn" style="display:none">STOP</button>
 			</div>
