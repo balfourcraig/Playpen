@@ -18,9 +18,10 @@
 			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			
 			const animate = document.getElementById('animateInput').checked;
-			xNodes = Math.max(1, parseInt(document.getElementById('xNodesInput').value));;
-			yNodes = Math.max(1, parseInt(document.getElementById('yNodesInput').value));;
-			
+			xNodes = Math.max(1, parseInt(document.getElementById('xNodesInput').value));
+			yNodes = Math.max(1, parseInt(document.getElementById('yNodesInput').value));
+			const waterLevel = Math.max(0, Math.min(1, parseFloat(document.getElementById('waterLevelInput').value)));
+			console.log(waterLevel);
 			const h = w * (yNodes/xNodes);
 			
 			c.setAttribute('width', w);
@@ -97,27 +98,19 @@
 				backtrack = backtrack.parent;
 			}
 			
-			const colors = [
-				'#1ca2e6',
-				'#0976ba',
-				'#034685',
-				'#0976ba',
-				'#1ca2e6',
-				'#53ceed',//sea
-				'#dbca5c',//sand
-				'#4f9e13',//grass
-				'#2fa822',
-				'#40b35b',
-				'#bda56f',//dirt
-			];
-			
 			const drawings = [];
 
 			let endDrawn = false;
 			for(let j = 0; j < orderedNodes.length; j++){
 				const n = orderedNodes[j];
 				drawings.push(() => {
-					ctx.fillStyle = 'hsl(' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 100, 220) + ', ' + mapLinear(n.solutionDepth / maxDepth, 0, 1, 50, 70) + '%, 50%)';
+					const landHeight = n.solutionDepth / maxDepth;
+					if(landHeight > waterLevel){
+						ctx.fillStyle = 'hsl(' + mapLinear(landHeight, waterLevel, 1, 55, 144) + ', 80%, 50%)';
+					}
+					else{
+						ctx.fillStyle = 'hsl(' + mapLinear(landHeight, 0, waterLevel, 190, 210) + ', 70%, 50%)';
+					}
 
 					ctx.fillRect(
 						mapLinear(n.location.x - 0.5, -2, xNodes + 1, 0, w),
@@ -208,7 +201,10 @@
 					<input id="yNodesInput" type="number" value="80" min="2">
 					<label for="yNodesInput">Y Nodes</label>
 				</div>
-				
+				<div class="op fullwidth">
+					<input id="waterLevelInput" type="number" value="0.5" min="0" max="1" step="0.05">
+					<label for="waterLevelInput">Water Level</label>
+				</div>
 			</div>
 			<div>
 				<button id="drawBtn">Draw!</button>
