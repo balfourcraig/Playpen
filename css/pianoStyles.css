@@ -1,0 +1,20 @@
+.keyBlack, .keyWhite{
+	border: 1px solid black;
+	padding: 0.5em;
+}
+
+.keyBlack:hover, .keyWhite:hover{
+	background-color: lightgrey;
+}
+
+.keyBlack{
+	background-color: black;
+	color: white;
+	height: 50px;
+}
+
+.keyWhite{
+	background-color: white;
+	color: black;
+	height: 100px;
+}

@@ -5,6 +5,7 @@
 	<meta charset="UTF-8">
 	<title>Piano - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="stylesheet" href="../css/pianoStyles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
 	<script>
@@ -14,29 +15,29 @@
 			const C1 = 32.703;
 			const A1 = 55;
 			
-			const noteNames = [
-				'C',
-				'C#',
-				'D',
-				'D#',
-				'E',
-				'F',
-				'F#',
-				'G',
-				'G#',
-				'A',
-				'A#',
-				'B',
-				'C\'',
+			const notes = [
+				{name: 'C', isBlack: false},
+				{name: 'C#', isBlack: true},
+				{name: 'D', isBlack: false},
+				{name: 'D#', isBlack: true},
+				{name: 'E', isBlack: false},
+				{name: 'F', isBlack: false},
+				{name: 'F#', isBlack: true},
+				{name: 'G', isBlack: false},
+				{name: 'G#', isBlack: true},
+				{name: 'A', isBlack: false},
+				{name: 'A#', isBlack: true},
+				{name: 'B', isBlack: false},
+				//{name: 'C\'', isBlack: true}
 			];
 			
 			const octaves = [];
 			
-			for(let i = 0; i < 8; i++){
+			for(let i = 1; i < 8; i++){
 				const oct = [];
 				const baseNote = C1 * Math.pow(2,i);
-				for(let x = 0; x < noteNames.length; x++){
-					const note = {name: noteNames[x] + i, freq: baseNote * Math.pow(2, x/12)};
+				for(let x = 0; x < notes.length; x++){
+					const note = {name: notes[x].name + i, freq: baseNote * Math.pow(2, x/12), isBlack: notes[x].isBlack};
 					oct.push(note);
 				}
 				octaves.push(oct);
@@ -54,6 +55,7 @@
 					key.addEventListener('click', () => {
 						playNote(note.freq, 0.2);
 					});
+					key.setAttribute('class', note.isBlack ? 'keyBlack' : 'keyWhite');
 					piano.appendChild(key);
 				}
 				piano.appendChild(document.createElement('br'));				
