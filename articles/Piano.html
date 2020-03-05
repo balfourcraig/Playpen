@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Piano - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<script>
+		let animationID = null;
+		
+		function setUp(){
+			const C1 = 32.703;
+			const A1 = 55;
+			
+			const noteNames = [
+				'C',
+				'C#',
+				'D',
+				'D#',
+				'E',
+				'F',
+				'F#',
+				'G',
+				'G#',
+				'A',
+				'A#',
+				'B',
+				'C\'',
+			];
+			
+			const octaves = [];
+			
+			for(let i = 0; i < 8; i++){
+				const oct = [];
+				const baseNote = C1 * Math.pow(2,i);
+				for(let x = 0; x < noteNames.length; x++){
+					const note = {name: noteNames[x] + i, freq: baseNote * Math.pow(2, x/12)};
+					oct.push(note);
+				}
+				octaves.push(oct);
+			}
+
+			
+			const piano = document.getElementById('piano');
+			
+			
+			for(let i = 0; i < octaves.length; i++){
+				for(let x = 0; x < octaves[i].length; x++){
+					const note = octaves[i][x];
+					const key = document.createElement('button');
+					key.innerText = note.name;
+					key.addEventListener('click', () => {
+						playNote(note.freq, 0.2);
+					});
+					piano.appendChild(key);
+				}
+				piano.appendChild(document.createElement('br'));				
+			}
+		}
+		
+		function playNote(frequency, time){
+			const aCtx = new AudioContext(); 
+			
+			const gainNode = aCtx.createGain();
+			gainNode.gain.value = 0.3; // setting it to 10%
+			gainNode.connect(aCtx.destination);
+			
+			const osc = aCtx.createOscillator();
+			osc.frequency.value = frequency;
+			osc.connect(gainNode);
+			osc.start();
+			osc.stop(aCtx.currentTime + time);
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			setUp();
+		});
+	</script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Piano</h1>
+		</header>
+		<section>
+			<div id="piano">
+			</div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
