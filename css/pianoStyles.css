@@ -1,20 +1,38 @@
+#piano{
+	display: flex;
+	flex-direction: column;
+}
+
 .keyBlack, .keyWhite{
 	border: 1px solid black;
-	padding: 0.5em;
+	padding: 0;
+	margin: 1px;
+	border-radius: 2px;
+	text-align: left;
 }
 
 .keyBlack:hover, .keyWhite:hover{
-	background-color: lightgrey;
+	background-color: yellow;
+	color: black;
+	transition: width 0.05s;
 }
 
 .keyBlack{
 	background-color: black;
 	color: white;
-	height: 50px;
+	width: 50px;
 }
 
 .keyWhite{
 	background-color: white;
 	color: black;
-	height: 100px;
+	width: 100px;
+}
+
+.keyWhite:hover{
+	width: 110px;
+}
+
+.keyBlack:hover{
+	width: 60px;
 }
