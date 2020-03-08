@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Theramin - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script>
+		const golden_ratio= 0.618033988749895;
+		let randh = Math.random();
+		let w = 0;
+		let osc;
+		let gainNode;
+		
+		function nextGoldenRand(){
+			randh += golden_ratio;
+			randh %= 1;
+			return randh;
+		}
+		
+		function nextGoldenColor(sat, light){
+			const num = nextGoldenRand();
+			return 'hsl(' + (num * 360) + ', ' + sat + '%, ' + light + '%)';
+		}
+
+		function randomColor() {
+			var letters = '0123456789ABC';
+			var color = '#';
+			for (var i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * letters.length)];
+			}
+			return color;
+		}
+		
+		function shuffleInplace(arr){
+			let n = arr.length;
+			while(n > 0){
+				const r = Math.floor(Math.random() * n);
+				const temp = arr[r];
+				arr[r] = arr[n-1];
+				arr[n-1] = temp;
+				n--;
+			}
+		}
+		
+		const goldenAngleRad = 2.39996322972865332;
+		let ctx;
+		
+		function setUp(){
+			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			console.log('setup');
+			const c = document.createElement('canvas');
+			c.id = 'pieCanvas';
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			ctx = c.getContext('2d');
+			const canvResult = document.getElementById('canvResult');
+			canvResult.appendChild(c);
+			
+			
+			const aCtx = new AudioContext(); 
+			
+			gainNode = aCtx.createGain();
+			gainNode.gain.value = 0.3;
+			gainNode.connect(aCtx.destination);
+			
+
+			osc = aCtx.createOscillator();
+			osc.frequency.value = 0;
+			osc.type = 'sine';
+			osc.connect(gainNode);
+			osc.start();
+			
+			canvResult.addEventListener('mousemove',drawPattern);
+		}
+
+		function drawPattern(e){
+			const c = document.getElementById('pieCanvas');
+			
+			const xLabel = document.getElementById('xLabel');
+			const yLabel = document.getElementById('yLabel');
+			
+			ctx.clearRect(0,0,w,w);
+			ctx.strokeRect(0,0,w,w);
+			
+			const rect = c.getBoundingClientRect();
+
+			if(e) {
+				const mouseX = e.clientX - rect.left;
+				const mouseY = e.clientY - rect.top;
+				
+				const xMapped = (0.9 * Math.pow(mouseX / rect.width, 1.5)) + 0.1;
+				const yMapped = mouseY / rect.height;
+				
+				xLabel.innerText = 'X: ' + xMapped;
+				yLabel.innerText = 'Y: ' + yMapped;
+				
+				osc.frequency.value = xMapped * 1000;
+				gainNode.gain.value = yMapped;
+				const mousePoint = {x:mouseX, y:mouseY};
+				drawCircle(ctx, mousePoint, 5, 'red');
+			}
+		}
+
+		function playNote(frequency, time){
+			const aCtx = new AudioContext(); 
+			
+			const gainNode = aCtx.createGain();
+			gainNode.gain.value = 0.3;
+			gainNode.connect(aCtx.destination);
+			
+			const distortion = aCtx.createWaveShaper();
+			distortion.curve = makeDistortionCurve(50);
+			//distortion.oversample = '4x';
+			distortion.connect(gainNode)
+			
+			
+			const osc = aCtx.createOscillator();
+			osc.frequency.value = frequency;
+			osc.type = 'sine';
+			osc.connect(distortion);
+			osc.start();
+			osc.stop(aCtx.currentTime + time);
+		}
+		
+		function pointReflect(origin, point, multiplier){
+			const xDiff = origin.x - point.x;
+			const yDiff = origin.y - point.y;
+
+			const x = origin.x + xDiff * multiplier;
+			const y = origin.y + yDiff * multiplier;
+			return {x:x, y:y};
+		}
+		
+		function pointByAngle(center, radius, angle){
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+		
+		function pointOnCircle(center, radius, totalPoints, pointNum){
+			const angle = pointNum / totalPoints * Math.PI * 2;
+			const x = Math.sin(angle) * radius + center.x;
+			const y = Math.cos(angle) * radius + center.y;
+			return {x:x, y:y};
+		}
+
+		function distance(p1, p2, signed){
+			let xDiff;
+			let yDiff;
+			if(signed){
+				xDiff = p2.x - p1.x;
+				yDiff = p2.y - p1.y;
+				
+				console.log('X: ' + xDiff);
+				console.log('Y:' + yDiff);
+			}
+			else{
+				xDiff = Math.abs(p1.x - p2.x);
+				yDiff = Math.abs(p1.y - p2.y);
+			}
+
+			let dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+			if(xDiff > 0 && yDiff > 0)
+				dist *= -1;
+			return dist;
+		}
+		
+		function midpoint(p1, p2){
+			const x = (p1.x + p2.x) / 2;
+			const y = (p1.y + p2.y) / 2;
+			return {x:x, y:y};
+		}
+		
+		function drawCircle(ctx, center, radius, color){
+			ctx.fillStyle = color;
+			
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+			ctx.fill();
+		}
+		
+		function angleOfC(a, b, c){
+			const numerator = a * a + b * b - c * c;
+			const deno = 2 * a * b;
+			
+			const arc = numerator / deno;
+			
+			return Math.acos(arc);
+		}
+		
+		function perpendicular(p1, p2){
+			const deltaX = p2.x - p1.x;
+			const deltaY = p2.y - p1.y;
+			
+			const mid = midpoint(p1,p2);
+			
+			const start = {x: mid.x + deltaY/2, y: mid.y - deltaX/2};
+			const end = {x: mid.x - deltaY/2, y: mid.y + deltaY/2};
+			
+			return {start: start, end: end};
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			setUp();
+			drawPattern();
+		});
+	</script>
+	
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Mouse prediction</h1>
+		</header>
+		<section>
+			<p>Trying to draw a line circle where the mouse is expected to be next frame. This is a horrible idea, and doesn't work well. Just kind of interesting.</p>
+			<p>The blue section is bezier between the last three points. The red segment is the next expected place. Due to speed issues and animation frames being slower than mouse events, the mouse is almost always ahead of even the end of the predicted place.</p>
+			<p id="xLabel">X:</p>
+			<p id="yLabel">Y:</p>
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
