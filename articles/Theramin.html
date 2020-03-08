@@ -14,27 +14,7 @@
 		let gainNode;
 		let mousePosArr = [];
 		let started = false;
-		//const mousePositions = 100;
-		
-		function nextGoldenRand(){
-			randh += golden_ratio;
-			randh %= 1;
-			return randh;
-		}
-		
-		function nextGoldenColor(sat, light){
-			const num = nextGoldenRand();
-			return 'hsl(' + (num * 360) + ', ' + sat + '%, ' + light + '%)';
-		}
-
-		function randomColor() {
-			var letters = '0123456789ABC';
-			var color = '#';
-			for (var i = 0; i < 6; i++) {
-				color += letters[Math.floor(Math.random() * letters.length)];
-			}
-			return color;
-		}
+		let ctx;
 		
 		function shuffleInplace(arr){
 			let n = arr.length;
@@ -46,10 +26,7 @@
 				n--;
 			}
 		}
-		
-		const goldenAngleRad = 2.39996322972865332;
-		let ctx;
-		
+
 		function setUp(){
 			started = true;
 			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
@@ -89,12 +66,18 @@
 			const showBackColor = document.getElementById('backColorInput').checked;
 			const baseFreq = Math.max(100, Math.min(20000, parseInt(document.getElementById('baseFreqInput').value)));
 			const maxTrails = Math.max(0, parseInt(document.getElementById('maxTrailsInput').value));
+			const trailWidth = Math.max(1, parseInt(document.getElementById('lineWidthInput').value));
+			const gridLines = Math.max(0, parseInt(document.getElementById('gridLinesInput').value));
 			const showLines = document.getElementById('showLinesInput').checked && maxTrails > 0;
+			const waveType = document.getElementById('waveTypeSelect').value;
+			const baseVolume = Math.max(0, Math.min(100, parseInt(document.getElementById('baseVolumeInput').value))) / 100;
+			
+			if(waveType != osc.type)
+				osc.type = waveType;
 			
 			if(started){
 				ctx.strokeStyle = 'black';
 				const c = document.getElementById('pieCanvas');
-				//ctx.clearRect(0,0,w,w);
 
 				const rect = c.getBoundingClientRect();
 
@@ -113,7 +96,7 @@
 					ctx.fillRect(0,0,w,w);
 					
 					osc.frequency.value = xMapped * baseFreq;
-					gainNode.gain.value = yMapped;
+					gainNode.gain.value = yMapped * baseVolume;
 					const mousePoint = {x:mouseX, y:mouseY};
 					
 					if(showLines){
@@ -128,13 +111,12 @@
 						}
 
 						if(mousePosArr.length > 1 && maxTrails > 1){
-							ctx.lineWidth = 3;
+							ctx.lineWidth = trailWidth;
 							for(let i = 1; i < Math.min(mousePosArr.length, maxTrails); i++){
-								//ctx.strokeStyle = 'hsl(' + (i/mousePositions * 360) + ',50%,50%)';
 								const grad = ctx.createLinearGradient(mousePosArr[0].x, mousePosArr[0].y, mousePosArr[i].x, mousePosArr[i].y);
 								grad.addColorStop(1, 'rgba(255,255,255,0)');
-								grad.addColorStop(0, 'hsla(' + (i/Math.min(mousePosArr.length, maxTrails) * 360) + ',90%,50%,' + (i/Math.min(mousePosArr.length, maxTrails)) + ')');
-								//grad.addColorStop(1, 'rgba(255,255,255,0)');
+								grad.addColorStop(0.2, 'hsla(' + (i/Math.min(mousePosArr.length, maxTrails) * 360) + ',90%,50%,' + (i/Math.min(mousePosArr.length, maxTrails)) + ')');
+								grad.addColorStop(0, 'rgba(255,255,255,0)');
 								ctx.strokeStyle = grad;
 								
 								ctx.beginPath();
@@ -146,7 +128,7 @@
 						}
 					}
 					
-					drawCircle(ctx, mousePoint, 5, 'red');
+					drawCircle(ctx, mousePoint, trailWidth * 1.5, 'dodgerblue');
 				}
 				else{
 					ctx.fillStyle = 'white';
@@ -154,79 +136,33 @@
 				}
 				ctx.strokeStyle = 'black';
 				ctx.strokeRect(0,0,w,w);
-			}
-		}
-
-		function playNote(frequency, time){
-			const aCtx = new AudioContext(); 
-			
-			const gainNode = aCtx.createGain();
-			gainNode.gain.value = 0.3;
-			gainNode.connect(aCtx.destination);
-			
-			const distortion = aCtx.createWaveShaper();
-			distortion.curve = makeDistortionCurve(50);
-			//distortion.oversample = '4x';
-			distortion.connect(gainNode)
-			
-			
-			const osc = aCtx.createOscillator();
-			osc.frequency.value = frequency;
-			osc.type = 'sine';
-			osc.connect(distortion);
-			osc.start();
-			osc.stop(aCtx.currentTime + time);
-		}
-		
-		function pointReflect(origin, point, multiplier){
-			const xDiff = origin.x - point.x;
-			const yDiff = origin.y - point.y;
-
-			const x = origin.x + xDiff * multiplier;
-			const y = origin.y + yDiff * multiplier;
-			return {x:x, y:y};
-		}
-		
-		function pointByAngle(center, radius, angle){
-			const x = Math.sin(angle) * radius + center.x;
-			const y = Math.cos(angle) * radius + center.y;
-			return {x:x, y:y};
-		}
-		
-		function pointOnCircle(center, radius, totalPoints, pointNum){
-			const angle = pointNum / totalPoints * Math.PI * 2;
-			const x = Math.sin(angle) * radius + center.x;
-			const y = Math.cos(angle) * radius + center.y;
-			return {x:x, y:y};
-		}
-
-		function distance(p1, p2, signed){
-			let xDiff;
-			let yDiff;
-			if(signed){
-				xDiff = p2.x - p1.x;
-				yDiff = p2.y - p1.y;
+				if(gridLines > 0){
+					drawGrid(ctx, w,w,gridLines,gridLines);
+				}
 				
-				console.log('X: ' + xDiff);
-				console.log('Y:' + yDiff);
 			}
-			else{
-				xDiff = Math.abs(p1.x - p2.x);
-				yDiff = Math.abs(p1.y - p2.y);
+		}
+		
+		function drawGrid(ctx, w, h, numColumns, numRows){
+			const oldStrokeStyle = ctx.strokeStyle;
+			ctx.strokeStyle = 'black';
+			for(let i = 1; i < numColumns; i++){
+				ctx.beginPath();
+				const xPoint = (w/numColumns) * i;
+				ctx.moveTo(xPoint, 0);
+				ctx.lineTo(xPoint, h);
+				ctx.stroke();
 			}
+			for(let i = 1; i < numColumns; i++){
+				ctx.beginPath();
+				const yPoint = (h/numRows) * i;
+				ctx.moveTo(0, yPoint);
+				ctx.lineTo(w, yPoint);
+				ctx.stroke();
+			}
+			ctx.strokeStyle = oldStrokeStyle;
+		}
 
-			let dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
-			if(xDiff > 0 && yDiff > 0)
-				dist *= -1;
-			return dist;
-		}
-		
-		function midpoint(p1, p2){
-			const x = (p1.x + p2.x) / 2;
-			const y = (p1.y + p2.y) / 2;
-			return {x:x, y:y};
-		}
-		
 		function drawCircle(ctx, center, radius, color){
 			ctx.fillStyle = color;
 			
@@ -234,28 +170,7 @@
 			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
 			ctx.fill();
 		}
-		
-		function angleOfC(a, b, c){
-			const numerator = a * a + b * b - c * c;
-			const deno = 2 * a * b;
-			
-			const arc = numerator / deno;
-			
-			return Math.acos(arc);
-		}
-		
-		function perpendicular(p1, p2){
-			const deltaX = p2.x - p1.x;
-			const deltaY = p2.y - p1.y;
-			
-			const mid = midpoint(p1,p2);
-			
-			const start = {x: mid.x + deltaY/2, y: mid.y - deltaX/2};
-			const end = {x: mid.x - deltaY/2, y: mid.y + deltaY/2};
-			
-			return {start: start, end: end};
-		}
-		
+
 		window.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('startBtn').addEventListener('click', setUp);
 			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
@@ -266,8 +181,6 @@
 				document.getElementById('stopDrawingBtn').style.display = 'none';
 				document.getElementById('startBtn').style.display = 'block';
 			});
-			//setUp();
-			//drawPattern();
 		});
 	</script>
 	
@@ -285,12 +198,11 @@
 	<div class="pageWidth">
 		<header>
 			<h1>Digital Theramin</h1>
+			<h2>Now with your daily recommended dose of psychedlic funk!</h2>
 		</header>
 		<section>
 			<p>Y-Axix is volume, X-Axis is frequency</p>
 			<p>Move mouse around on desktop. Tap areas on phone</p>
-			<button id="startBtn">START</button>
-			<button id="stopDrawingBtn" style="display:none">STOP</button>
 			<div class="optionsArea">
 				<div class="op">
 					<input id="backColorInput" type="checkbox">
@@ -305,11 +217,33 @@
 					<label for="baseFreqInput">Base Frequency (Hz)</label>
 				</div>
 				<div class="op">
+					<input id="baseVolumeInput" type="number" value="50" min="0" max="100">
+					<label for="baseVolumeInput">Base Volume %</label>
+				</div>
+				<div class="op">
 					<input id="maxTrailsInput" type="number" value="60" min="0">
 					<label for="maxTrailsInput">Max trails</label>
 				</div>
+				<div class="op">
+					<input id="lineWidthInput" type="number" value="5" min="1">
+					<label for="lineWidthInput">Trail Width</label>
+				</div>
+				<div class="op">
+					<input id="gridLinesInput" type="number" value="0" min="0">
+					<label for="gridLinesInput">Grid Lines</label>
+				</div>
+				<div class="op">
+					<select id="waveTypeSelect">
+						<option value="sine" selected>Sine wave</option>
+						<option value="sawtooth">Sawtooth</option>
+						<option value="square">Square</option>
+						<option value="triangle">Triangle</option>
+					</select>
+					<label for="waveTypeSelect">Waveform type</label>
+				</div>
 			</div>
-			
+			<button id="startBtn">START &#x1f50a;</button>
+			<button id="stopDrawingBtn" style="display:none">STOP &#x1f507;</button>
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
 			<div id="canvResult"></div>
