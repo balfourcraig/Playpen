@@ -12,8 +12,9 @@
 		let w = 0;
 		let osc;
 		let gainNode;
-		
+		let mousePosArr = [];
 		let started = false;
+		const mousePositions = 100;
 		
 		function nextGoldenRand(){
 			randh += golden_ratio;
@@ -59,9 +60,10 @@
 			c.setAttribute('height', w);
 			ctx = c.getContext('2d');
 			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			
+			mousePosArr = [];
 			const aCtx = new AudioContext(); 
 			
 			gainNode = aCtx.createGain();
@@ -79,11 +81,13 @@
 			canvResult.addEventListener('touchmove', drawPattern);
 			
 			document.getElementById('startBtn').style.display = 'none';
-			
+			document.getElementById('stopDrawingBtn').style.display = 'block';
+			drawPattern();
 		}
 
 		function drawPattern(e){
 			if(started){
+				ctx.strokeStyle = 'black';
 				const c = document.getElementById('pieCanvas');
 				ctx.clearRect(0,0,w,w);
 				ctx.strokeRect(0,0,w,w);
@@ -101,6 +105,38 @@
 					osc.frequency.value = xMapped * 1000;
 					gainNode.gain.value = yMapped;
 					const mousePoint = {x:mouseX, y:mouseY};
+					
+					if(mousePosArr.length < mousePositions){
+						mousePosArr.unshift(mousePoint);
+					}
+					else{
+						for(let i = mousePosArr.length -1; i > 0; i--){
+						console.log(i);
+							mousePosArr[i] = mousePosArr[i-1];
+						}
+						mousePosArr[0] = mousePoint;
+					}
+					console.log(JSON.stringify(mousePosArr));
+					if(mousePosArr.length > 1){
+						ctx.lineWidth = 3;
+						for(let i = 1; i < mousePosArr.length; i++){
+							//ctx.strokeStyle = 'hsl(' + (i/mousePositions * 360) + ',50%,50%)';
+							
+							const grad = ctx.createLinearGradient(mousePosArr[0].x, mousePosArr[0].y, mousePosArr[i].x, mousePosArr[i].y);
+							grad.addColorStop(0, 'rgba(255,255,255,0)');
+							grad.addColorStop(0.5, 'hsl(' + (i/mousePositions * 360) + ',90%,50%)');
+							grad.addColorStop(1, 'rgba(255,255,255,0)');
+							ctx.strokeStyle = grad;
+							
+							ctx.beginPath();
+							ctx.moveTo(mousePosArr[0].x, mousePosArr[0].y);
+							ctx.lineTo(mousePosArr[i].x, mousePosArr[i].y);
+							ctx.stroke();
+						}
+						ctx.lineWidth = 1;
+					}
+					
+					
 					drawCircle(ctx, mousePoint, 5, 'red');
 				}
 			}
@@ -207,8 +243,16 @@
 		
 		window.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('startBtn').addEventListener('click', setUp);
+			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
+				osc.stop();
+				started = false;
+				ctx.fillStyle = 'white';
+				ctx.fillRect(0,0,w,w);
+				document.getElementById('stopDrawingBtn').style.display = 'none';
+				document.getElementById('startBtn').style.display = 'block';
+			});
 			//setUp();
-			drawPattern();
+			//drawPattern();
 		});
 	</script>
 	
@@ -231,6 +275,7 @@
 			<p>Y-Axix is volume, X-Axis is frequency</p>
 			<p>Move mouse around on desktop. Tap areas on phone</p>
 			<button id="startBtn">START</button>
+			<button id="stopDrawingBtn" style="display:none">STOP</button>
 
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
