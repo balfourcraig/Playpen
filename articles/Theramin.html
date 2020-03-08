@@ -124,7 +124,7 @@
 							
 							const grad = ctx.createLinearGradient(mousePosArr[0].x, mousePosArr[0].y, mousePosArr[i].x, mousePosArr[i].y);
 							grad.addColorStop(0, 'rgba(255,255,255,0)');
-							grad.addColorStop(0.5, 'hsl(' + (i/mousePositions * 360) + ',90%,50%)');
+							grad.addColorStop(0.5, 'hsl(' + (i/mousePosArr.length * 360) + ',90%,50%)');
 							grad.addColorStop(1, 'rgba(255,255,255,0)');
 							ctx.strokeStyle = grad;
 							
