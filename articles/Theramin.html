@@ -13,6 +13,8 @@
 		let osc;
 		let gainNode;
 		
+		let started = false;
+		
 		function nextGoldenRand(){
 			randh += golden_ratio;
 			randh %= 1;
@@ -48,6 +50,7 @@
 		let ctx;
 		
 		function setUp(){
+			started = true;
 			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			console.log('setup');
 			const c = document.createElement('canvas');
@@ -74,33 +77,32 @@
 			
 			canvResult.addEventListener('mousemove', drawPattern);
 			canvResult.addEventListener('touchmove', drawPattern);
+			
+			document.getElementById('startBtn').style.display = 'none';
+			
 		}
 
 		function drawPattern(e){
-			const c = document.getElementById('pieCanvas');
-			
-			const xLabel = document.getElementById('xLabel');
-			const yLabel = document.getElementById('yLabel');
-			
-			ctx.clearRect(0,0,w,w);
-			ctx.strokeRect(0,0,w,w);
-			
-			const rect = c.getBoundingClientRect();
+			if(started){
+				const c = document.getElementById('pieCanvas');
+				ctx.clearRect(0,0,w,w);
+				ctx.strokeRect(0,0,w,w);
+				
+				const rect = c.getBoundingClientRect();
 
-			if(e) {
-				const mouseX = e.clientX - rect.left;
-				const mouseY = e.clientY - rect.top;
-				
-				const xMapped = (0.9 * Math.pow(mouseX / rect.width, 1.5)) + 0.1;
-				const yMapped = mouseY / rect.height;
-				
-				xLabel.innerText = 'X: ' + xMapped;
-				yLabel.innerText = 'Y: ' + yMapped;
-				
-				osc.frequency.value = xMapped * 1000;
-				gainNode.gain.value = yMapped;
-				const mousePoint = {x:mouseX, y:mouseY};
-				drawCircle(ctx, mousePoint, 5, 'red');
+				if(e) {
+					const mouseX = e.clientX - rect.left;
+					const mouseY = e.clientY - rect.top;
+					
+					const xMapped = (0.9 * Math.pow(mouseX / rect.width, 1.5)) + 0.1;
+					const yMapped = mouseY / rect.height;
+
+					
+					osc.frequency.value = xMapped * 1000;
+					gainNode.gain.value = yMapped;
+					const mousePoint = {x:mouseX, y:mouseY};
+					drawCircle(ctx, mousePoint, 5, 'red');
+				}
 			}
 		}
 
@@ -204,7 +206,8 @@
 		}
 		
 		window.addEventListener('DOMContentLoaded', () => {
-			setUp();
+			document.getElementById('startBtn').addEventListener('click', setUp);
+			//setUp();
 			drawPattern();
 		});
 	</script>
@@ -227,9 +230,8 @@
 		<section>
 			<p>Y-Axix is volume, X-Axis is frequency</p>
 			<p>Move mouse around on desktop. Tap areas on phone</p>
+			<button id="startBtn">START</button>
 
-			<p id="xLabel">X:</p>
-			<p id="yLabel">Y:</p>
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
 			<div id="canvResult"></div>
