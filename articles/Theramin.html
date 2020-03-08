@@ -72,7 +72,8 @@
 			osc.connect(gainNode);
 			osc.start();
 			
-			canvResult.addEventListener('mousemove',drawPattern);
+			canvResult.addEventListener('mousemove', drawPattern);
+			canvResult.addEventListener('touchmove', drawPattern);
 		}
 
 		function drawPattern(e){
