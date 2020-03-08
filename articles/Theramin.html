@@ -14,7 +14,7 @@
 		let gainNode;
 		let mousePosArr = [];
 		let started = false;
-		const mousePositions = 100;
+		//const mousePositions = 100;
 		
 		function nextGoldenRand(){
 			randh += golden_ratio;
@@ -86,12 +86,16 @@
 		}
 
 		function drawPattern(e){
+			const showBackColor = document.getElementById('backColorInput').checked;
+			const baseFreq = Math.max(100, Math.min(20000, parseInt(document.getElementById('baseFreqInput').value)));
+			const maxTrails = Math.max(0, parseInt(document.getElementById('maxTrailsInput').value));
+			const showLines = document.getElementById('showLinesInput').checked && maxTrails > 0;
+			
 			if(started){
 				ctx.strokeStyle = 'black';
 				const c = document.getElementById('pieCanvas');
-				ctx.clearRect(0,0,w,w);
-				ctx.strokeRect(0,0,w,w);
-				
+				//ctx.clearRect(0,0,w,w);
+
 				const rect = c.getBoundingClientRect();
 
 				if(e) {
@@ -100,45 +104,56 @@
 					
 					const xMapped = (0.9 * Math.pow(mouseX / rect.width, 1.5)) + 0.1;
 					const yMapped = mouseY / rect.height;
-
 					
-					osc.frequency.value = xMapped * 1000;
+					let color = 'white';
+					if(showBackColor){
+						color = 'hsl(' + (xMapped * 220) + ',' + (yMapped * 100) + '%,50%)';
+					}
+					ctx.fillStyle = color;
+					ctx.fillRect(0,0,w,w);
+					
+					osc.frequency.value = xMapped * baseFreq;
 					gainNode.gain.value = yMapped;
 					const mousePoint = {x:mouseX, y:mouseY};
 					
-					if(mousePosArr.length < mousePositions){
-						mousePosArr.unshift(mousePoint);
-					}
-					else{
-						for(let i = mousePosArr.length -1; i > 0; i--){
-						console.log(i);
-							mousePosArr[i] = mousePosArr[i-1];
+					if(showLines){
+						if(mousePosArr.length < maxTrails){
+							mousePosArr.unshift(mousePoint);
 						}
-						mousePosArr[0] = mousePoint;
-					}
-					console.log(JSON.stringify(mousePosArr));
-					if(mousePosArr.length > 1){
-						ctx.lineWidth = 3;
-						for(let i = 1; i < mousePosArr.length; i++){
-							//ctx.strokeStyle = 'hsl(' + (i/mousePositions * 360) + ',50%,50%)';
-							
-							const grad = ctx.createLinearGradient(mousePosArr[0].x, mousePosArr[0].y, mousePosArr[i].x, mousePosArr[i].y);
-							grad.addColorStop(0, 'rgba(255,255,255,0)');
-							grad.addColorStop(0.5, 'hsl(' + (i/mousePosArr.length * 360) + ',90%,50%)');
-							grad.addColorStop(1, 'rgba(255,255,255,0)');
-							ctx.strokeStyle = grad;
-							
-							ctx.beginPath();
-							ctx.moveTo(mousePosArr[0].x, mousePosArr[0].y);
-							ctx.lineTo(mousePosArr[i].x, mousePosArr[i].y);
-							ctx.stroke();
+						else{
+							for(let i = Math.min(mousePosArr.length -1, maxTrails); i > 0; i--){
+								mousePosArr[i] = mousePosArr[i-1];
+							}
+							mousePosArr[0] = mousePoint;
 						}
-						ctx.lineWidth = 1;
+
+						if(mousePosArr.length > 1 && maxTrails > 1){
+							ctx.lineWidth = 3;
+							for(let i = 1; i < Math.min(mousePosArr.length, maxTrails); i++){
+								//ctx.strokeStyle = 'hsl(' + (i/mousePositions * 360) + ',50%,50%)';
+								const grad = ctx.createLinearGradient(mousePosArr[0].x, mousePosArr[0].y, mousePosArr[i].x, mousePosArr[i].y);
+								grad.addColorStop(1, 'rgba(255,255,255,0)');
+								grad.addColorStop(0, 'hsla(' + (i/Math.min(mousePosArr.length, maxTrails) * 360) + ',90%,50%,' + (i/Math.min(mousePosArr.length, maxTrails)) + ')');
+								//grad.addColorStop(1, 'rgba(255,255,255,0)');
+								ctx.strokeStyle = grad;
+								
+								ctx.beginPath();
+								ctx.moveTo(mousePosArr[0].x, mousePosArr[0].y);
+								ctx.lineTo(mousePosArr[i].x, mousePosArr[i].y);
+								ctx.stroke();
+							}
+							ctx.lineWidth = 1;
+						}
 					}
-					
 					
 					drawCircle(ctx, mousePoint, 5, 'red');
 				}
+				else{
+					ctx.fillStyle = 'white';
+					ctx.fillRect(0,0,w,w);
+				}
+				ctx.strokeStyle = 'black';
+				ctx.strokeRect(0,0,w,w);
 			}
 		}
 
@@ -276,7 +291,25 @@
 			<p>Move mouse around on desktop. Tap areas on phone</p>
 			<button id="startBtn">START</button>
 			<button id="stopDrawingBtn" style="display:none">STOP</button>
-
+			<div class="optionsArea">
+				<div class="op">
+					<input id="backColorInput" type="checkbox">
+					<label for="backColorInput">Show Background Color</label>
+				</div>
+				<div class="op">
+					<input id="showLinesInput" type="checkbox" checked>
+					<label for="showLinesInput">Show Lines</label>
+				</div>
+				<div class="op">
+					<input id="baseFreqInput" type="number" value="1000" min="100" max="20000" step="100">
+					<label for="baseFreqInput">Base Frequency (Hz)</label>
+				</div>
+				<div class="op">
+					<input id="maxTrailsInput" type="number" value="60" min="0">
+					<label for="maxTrailsInput">Max trails</label>
+				</div>
+			</div>
+			
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
 			<div id="canvResult"></div>
