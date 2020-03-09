@@ -173,7 +173,15 @@
 			};
 		}
 	</script>
-	
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-160042243-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-160042243-1');
+	</script>
 </head>
 <body>
 <div class="navHolder">
@@ -197,11 +205,11 @@
 				</div>
 				<div class="op fullwidth">
 					<input id="xNodesInput" type="number" value="80" min="2">
-					<label for="xNodesInput">X Nodes</label>
+					<label for="xNodesInput">X Resolution</label>
 				</div>
 				<div class="op fullwidth">
 					<input id="yNodesInput" type="number" value="80" min="2">
-					<label for="yNodesInput">Y Nodes</label>
+					<label for="yNodesInput">Y Resolution</label>
 				</div>
 				<div class="op fullwidth">
 					<input id="waterLevelInput" type="number" value="0.5" min="0" max="1" step="0.05">
