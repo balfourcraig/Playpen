@@ -8,7 +8,15 @@
 	<script src="../scripts/utils.js"></script>
 	<script>
 		let animationID = null;
-		
+
+		function getUrlVars() {
+			var vars = {};
+			var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+				vars[key] = value;
+			});
+			return vars;
+		}
+
 		function drawLine(ctx, center, radius, multiplier, points, i, iterations, useColor, color, useGradient){
 			if(iterations > 0){
 				const pointFrom = pointOnCircle(center, radius, points, i % points);
@@ -45,6 +53,20 @@
 				document.getElementById('drawBtn').removeAttribute('style');
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 			}
+		}
+		
+		function updatePermalink(){
+			const mult = document.getElementById('multInput').value;
+			const mod = document.getElementById('numNails').value;
+			const winding = document.getElementById('windingInput').value;
+			const width = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			const animate = document.getElementById('animateInput').checked;
+			const colorIndex = document.getElementById('colorModeSelect').selectedIndex;
+			
+			const params = `?mult=${mult}&mod=${mod}&winding=${winding}&width=${width}&animate=${animate}&colorModeIndex=${colorIndex}`
+			//document.getElementById('imageLink').href = 'ModMulFullscreen.html' + params;
+			//document.getElementById('shareLink').href = 'ModMul.html' + params;
+			return location.protocol + '//' + location.host + location.pathname + params;
 		}
 		
 		function drawModMul(){
@@ -85,13 +107,11 @@
 			const color = randomColor();
 			
 			const animate = document.getElementById('animateInput').checked;
-			//const useColor = document.getElementById('colorInput').checked;
-			//const useGradient = document.getElementById('gradInput').checked;
 			
 			const colorMode = document.getElementById('colorModeSelect').value;
 			const useColor = colorMode === 'mono' || colorMode === 'wheel';
 			const useGradient = colorMode === 'wheel';
-			
+
 			if(animate){
 				drawLine(ctx, center, radius, multiplier, points, 0, iterations, useColor, color, useGradient);
 			}
@@ -132,8 +152,35 @@
 			document.getElementById('numNails').value = Math.floor(Math.random() * 800 + 200);
 			document.getElementById('windingInput').value = Math.floor(Math.random() * 4 + 1);
 		}
+		
+		function applyURLParams(){
+			const urlVars = getUrlVars();
+			if(urlVars['mult'])
+				document.getElementById('multInput').value = urlVars['mult'];
+			if(urlVars['mod'])
+				document.getElementById('numNails').value = urlVars['mod'];
+			if(urlVars['winding'])
+				document.getElementById('windingInput').value = urlVars['winding'];
+			if(urlVars['animate'])
+				document.getElementById('animateInput').checked = urlVars['animate'] === 'true';
+			if(urlVars['colorModeIndex'])
+				document.getElementById('colorModeSelect').selectedIndex = urlVars['colorModeIndex'];
+		}
+
+		function copyPermalink(){
+			const area = document.createElement('textarea');
+			//area.value = document.getElementById('shareLink').href;
+			area.value = updatePermalink();
+			document.body.appendChild(area);
+			area.select();
+			document.execCommand('copy');
+			document.body.removeChild(area);
+			alert('link copied');
+		}
 
 		window.addEventListener('DOMContentLoaded', () => {
+			applyURLParams();
+			updatePermalink();
 			document.getElementById('drawBtn').addEventListener('click', drawModMul);
 			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
 				cancelAnimationFrame(animationID);
@@ -142,8 +189,13 @@
 			});
 			document.getElementById('luckBtn').addEventListener('click', () => {
 				randomiseValues();
+				updatePermalink();
 				drawModMul();
 			});
+			document.getElementById('multInput').addEventListener('change',updatePermalink);
+			document.getElementById('numNails').addEventListener('change',updatePermalink);
+			document.getElementById('windingInput').addEventListener('change',updatePermalink);
+			document.getElementById('copyBtn').addEventListener('click', copyPermalink);
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
@@ -156,36 +208,54 @@
 		<a href="../about.html">About</a>
 	</nav>
 </div>
-
 <main>
 	<div class="pageWidth">
 		<header>
 			<h1>ModMul</h1>
 		</header>
 		<section>
-			<input id="multInput" type="number" min="2" value="2">
-			<label for="multInput">Multiplier</label>
-			<br>
-			<input id="numNails" type="number" min="3" value="200">
-			<label for="numNails">Modulus</label>
-			<br>
-			<input id="windingInput" type="number" min="1" value="4" max="10">
-			<label for="windingInput">Winding</label>
-			<br>
-			<input id="animateInput" type="checkbox" checked>
-			<label for="animateInput">Animate</label>
-			<br>
-			<select id="colorModeSelect">
-				<option value="black">Black</option>
-				<option value="mono">Monochrome</option>
-				<option value="wheel" selected>Wheel</option>
-			</select>
-			<label for="colorModeSelect">Color Mode</label>
-			<br>
-			<button id="drawBtn">Draw!</button>
-			<button id="stopDrawingBtn" style="display:none">STOP</button>
-			<br>
-			<button id="luckBtn">I'm feeling lucky!</button>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="animateInput" type="checkbox" checked>
+					<label for="animateInput">Animate</label>
+				</div>
+				<div class="op">
+
+				</div>
+				<div class="op">
+					<input id="multInput" type="number" min="2" value="2">
+					<label for="multInput">Multiplier</label>
+				</div>
+				<div class="op">
+					<input id="numNails" type="number" min="3" value="200">
+					<label for="numNails">Modulus</label>
+				</div>
+				<div class="op">
+					<input id="windingInput" type="number" min="1" value="4" max="10">
+					<label for="windingInput">Winding</label>
+				</div>
+				<div class="op">
+					<select id="colorModeSelect">
+						<option value="black">Black</option>
+						<option value="mono">Monochrome</option>
+						<option value="wheel" selected>Wheel</option>
+					</select>
+					<label for="colorModeSelect">Color Mode</label>
+				</div>
+			</div>
+			<div class="optionsArea">
+				<div class="op">
+					<button id="drawBtn">Draw!</button>
+					<button id="stopDrawingBtn" style="display:none">STOP</button>
+					<br>
+					<button id="luckBtn">I'm feeling lucky!</button>
+					<br>
+					<button id="copyBtn" title="Copy to clipboard a permalink to the current settings">Copy Shareable Link</button>
+				</div>
+			</div>
+
+			<!--<a href="#" id="imageLink" target="_blank">Permalink to image</a>
+			<a href="#" id="shareLink" target="_blank">Shareable Permalink</a>-->
 			
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>ModMul</title>
+	<script src="../scripts/utils.js"></script>
+	<script>
+		let urlVars = {};
+		let multValue = 0;
+		
+		function getUrlVars() {
+			var vars = {};
+			var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+				vars[key] = value;
+			});
+			return vars;
+		}
+
+		function getUrlParam(parameter, defaultvalue){
+			var urlparameter = defaultvalue;
+			if(window.location.href.indexOf(parameter) > -1){
+				urlparameter = urlVars[parameter];
+				}
+			return urlparameter;
+		}
+
+		function drawModMul(){
+			const c = document.createElement('canvas');
+			const w = getUrlParam('width', document.getElementById('sizeCalc').getBoundingClientRect().width);
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			const ctx = c.getContext('2d');
+			ctx.globalAlpha = 0.6;
+			ctx.lineWidth = 1;
+			const center = {x: w/2.0, y: w/2.0};
+			const radius = w * 0.45;
+			ctx.globalCompositeOperation = 'multiply';
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			ctx.fillStyle = 'white';
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, w);
+			ctx.fill();
+
+			let multiplier = parseFloat(getUrlParam('mult', Math.floor(Math.random() * 100 + 2).toString()));
+			const points = parseInt(getUrlParam('mod', Math.floor(Math.random() * 800 + 200).toString()));
+			
+			let iterations = points;
+			let winding = parseInt(getUrlParam('winding', Math.floor(Math.random() * 4 + 1).toString()));
+			if(winding && winding > 1){
+				iterations *= winding;
+				multiplier += (1 / winding);
+			}
+
+			for(let i = 1; i < iterations; i++){
+				const pointFrom = pointOnCircle(center, radius, points, i % points);
+				const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
+
+				const grad = ctx.createLinearGradient(pointFrom.x, pointFrom.y, pointTo.x, pointTo.y);
+
+				const iFrom = ((i % points)/points) * 360;
+				const iTo = (((i * multiplier) % points)/points) * 360;
+				grad.addColorStop(0, 'transparent');
+				grad.addColorStop(0.4, 'hsl(' + iFrom + ', 80%, 50%)');
+				grad.addColorStop(0.6, 'hsl(' + iTo + ', 80%, 50%)');
+				grad.addColorStop(1, 'transparent');
+
+				ctx.strokeStyle = grad;
+
+				ctx.beginPath();
+				ctx.moveTo(pointFrom.x, pointFrom.y);
+				ctx.lineTo(pointTo.x, pointTo.y);
+				ctx.stroke();
+			}
+		}
+
+		window.addEventListener('DOMContentLoaded', () => {
+			urlVars = getUrlVars();
+			drawModMul();
+		});
+	</script>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+</head>
+<body>	
+	<div id="sizeCalc"></div>
+	<img id="modMulResult">
+	<div id="canvResult"></div>
+</body>
+</html>
