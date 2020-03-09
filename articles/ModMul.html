@@ -61,10 +61,11 @@
 			const winding = document.getElementById('windingInput').value;
 			const width = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			const animate = document.getElementById('animateInput').checked;
+			const colorMode = document.getElementById('colorModeSelect').value;
 			const colorIndex = document.getElementById('colorModeSelect').selectedIndex;
 			
-			const params = `?mult=${mult}&mod=${mod}&winding=${winding}&width=${width}&animate=${animate}&colorModeIndex=${colorIndex}`
-			//document.getElementById('imageLink').href = 'ModMulFullscreen.html' + params;
+			const params = `?mult=${mult}&mod=${mod}&winding=${winding}&width=${width}&animate=${animate}&colorModeIndex=${colorIndex}&colorMode=${colorMode}`
+			document.getElementById('imageLink').href = 'ModMulFullscreen.html' + params;
 			//document.getElementById('shareLink').href = 'ModMul.html' + params;
 			return location.protocol + '//' + location.host + location.pathname + params;
 		}
@@ -195,6 +196,8 @@
 			document.getElementById('multInput').addEventListener('change',updatePermalink);
 			document.getElementById('numNails').addEventListener('change',updatePermalink);
 			document.getElementById('windingInput').addEventListener('change',updatePermalink);
+			document.getElementById('animateInput').addEventListener('change',updatePermalink);
+			document.getElementById('colorModeSelect').addEventListener('change',updatePermalink);
 			document.getElementById('copyBtn').addEventListener('click', copyPermalink);
 		});
 	</script>
@@ -259,16 +262,15 @@
 					<br>
 					<button id="luckBtn">I'm feeling lucky!</button>
 					<br>
-					<button id="copyBtn" title="Copy to clipboard a permalink to the current settings">Copy Shareable Link</button>
+					<button id="copyBtn" title="Copy to clipboard a permalink to the current settings">Copy Shareable Link</button>					
 				</div>
 			</div>
-
-			<!--<a href="#" id="imageLink" target="_blank">Permalink to image</a>
-			<a href="#" id="shareLink" target="_blank">Shareable Permalink</a>-->
+			<a href="#" id="imageLink" target="_blank">Direct image</a>
+			<!--<a href="#" id="shareLink" target="_blank">Shareable Permalink</a>-->
 			
 			<div id="sizeCalc"></div>
-			<img id="modMulResult">
 			<div id="canvResult"></div>
+			
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>

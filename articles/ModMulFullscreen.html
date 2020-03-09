@@ -6,6 +6,7 @@
 	<title>ModMul</title>
 	<script src="../scripts/utils.js"></script>
 	<script>
+		let animationID = null;
 		let urlVars = {};
 		let multValue = 0;
 		
@@ -25,9 +26,57 @@
 			return urlparameter;
 		}
 
+		function drawLine(ctx, center, radius, multiplier, points, i, iterations, useColor, color, useGradient){
+			if(iterations > 0){
+				const pointFrom = pointOnCircle(center, radius, points, i % points);
+				const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
+				
+				if(useColor){
+					const grad = ctx.createLinearGradient(pointFrom.x, pointFrom.y, pointTo.x, pointTo.y);
+					if(useGradient){
+						const iFrom = ((i % points)/points) * 360;
+						const iTo = (((i * multiplier) % points)/points) * 360;
+						grad.addColorStop(0, 'transparent');
+						grad.addColorStop(0.4, 'hsl(' + iFrom + ', 80%, 50%)');
+						grad.addColorStop(0.6, 'hsl(' + iTo + ', 80%, 50%)');
+						grad.addColorStop(1, 'transparent');
+					}
+					else{
+						grad.addColorStop(0, 'transparent');
+						grad.addColorStop(0.5, color);
+						grad.addColorStop(1, 'transparent');
+					}
+					ctx.strokeStyle = grad;
+				}
+
+				ctx.beginPath();
+				ctx.moveTo(pointFrom.x, pointFrom.y);
+				ctx.lineTo(pointTo.x, pointTo.y);
+				ctx.stroke();
+				
+				animationID = window.requestAnimationFrame(() =>{
+					drawLine(ctx, center, radius,multiplier, points, i+1, iterations -1, useColor, color, useGradient);
+				});
+			}
+		}
+		
+		function setUpEditLink(){
+			const mult = getUrlParam('mult','2');
+			const mod = getUrlParam('mod','200');
+			const winding = getUrlParam('winding','4');
+			const width = getUrlParam('width', document.getElementById('sizeCalc').getBoundingClientRect().width.toString);
+			const animate = getUrlParam('animate','false') === 'true';
+			const colorMode = getUrlParam('colorMode','wheel');
+			const colorIndex = getUrlParam('colorModeIndex','2');
+			
+			const params = `?mult=${mult}&mod=${mod}&winding=${winding}&width=${width}&animate=${animate}&colorModeIndex=${colorIndex}&colorMode=${colorMode}`
+			document.getElementById('editLink').href = 'ModMul.html' + params;
+		}
+		
 		function drawModMul(){
+			window.cancelAnimationFrame(animationID);
 			const c = document.createElement('canvas');
-			const w = getUrlParam('width', document.getElementById('sizeCalc').getBoundingClientRect().width);
+			const w = parseInt(getUrlParam('width', document.getElementById('sizeCalc').getBoundingClientRect().width.toString()));
 			c.setAttribute('width', w);
 			c.setAttribute('height', w);
 			const ctx = c.getContext('2d');
@@ -46,48 +95,68 @@
 			ctx.rect(0, 0, w, w);
 			ctx.fill();
 
-			let multiplier = parseFloat(getUrlParam('mult', Math.floor(Math.random() * 100 + 2).toString()));
-			const points = parseInt(getUrlParam('mod', Math.floor(Math.random() * 800 + 200).toString()));
+			let multiplier = parseFloat(getUrlParam('mult','2'));
+			const points = parseInt(getUrlParam('mod','200'));
 			
 			let iterations = points;
-			let winding = parseInt(getUrlParam('winding', Math.floor(Math.random() * 4 + 1).toString()));
+			let winding = parseInt(getUrlParam('winding','4'));
 			if(winding && winding > 1){
 				iterations *= winding;
 				multiplier += (1 / winding);
 			}
+			
+			const color = randomColor();
+			
+			const animate = getUrlParam('animate','false') === 'true';
+			
+			const colorMode = getUrlParam('colorMode','wheel');
+			const useColor = colorMode === 'mono' || colorMode === 'wheel';
+			const useGradient = colorMode === 'wheel';
 
-			for(let i = 1; i < iterations; i++){
-				const pointFrom = pointOnCircle(center, radius, points, i % points);
-				const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
-
-				const grad = ctx.createLinearGradient(pointFrom.x, pointFrom.y, pointTo.x, pointTo.y);
-
-				const iFrom = ((i % points)/points) * 360;
-				const iTo = (((i * multiplier) % points)/points) * 360;
-				grad.addColorStop(0, 'transparent');
-				grad.addColorStop(0.4, 'hsl(' + iFrom + ', 80%, 50%)');
-				grad.addColorStop(0.6, 'hsl(' + iTo + ', 80%, 50%)');
-				grad.addColorStop(1, 'transparent');
-
-				ctx.strokeStyle = grad;
-
-				ctx.beginPath();
-				ctx.moveTo(pointFrom.x, pointFrom.y);
-				ctx.lineTo(pointTo.x, pointTo.y);
-				ctx.stroke();
+			if(animate){
+				drawLine(ctx, center, radius, multiplier, points, 0, iterations, useColor, color, useGradient);
+			}
+			else{
+				for(let i = 1; i < iterations; i++){
+					const pointFrom = pointOnCircle(center, radius, points, i % points);
+					const pointTo = pointOnCircle(center, radius, points, (i * multiplier) % points);
+					if(useColor){
+						const grad = ctx.createLinearGradient(pointFrom.x, pointFrom.y, pointTo.x, pointTo.y);
+						if(useGradient){
+							const iFrom = ((i % points)/points) * 360;
+							const iTo = (((i * multiplier) % points)/points) * 360;
+							grad.addColorStop(0, 'transparent');
+							grad.addColorStop(0.4, 'hsl(' + iFrom + ', 80%, 50%)');
+							grad.addColorStop(0.6, 'hsl(' + iTo + ', 80%, 50%)');
+							grad.addColorStop(1, 'transparent');
+						}
+						else{
+							grad.addColorStop(0, 'transparent');
+							grad.addColorStop(0.5, color);
+							grad.addColorStop(1, 'transparent');
+						}
+						ctx.strokeStyle = grad;
+					}
+					
+					ctx.beginPath();
+					ctx.moveTo(pointFrom.x, pointFrom.y);
+					ctx.lineTo(pointTo.x, pointTo.y);
+					ctx.stroke();
+				}
 			}
 		}
 
 		window.addEventListener('DOMContentLoaded', () => {
 			urlVars = getUrlVars();
+			setUpEditLink();
 			drawModMul();
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 </head>
 <body>	
-	<div id="sizeCalc"></div>
-	<img id="modMulResult">
-	<div id="canvResult"></div>
+<a id="editLink" href="#">Edit</a>
+<div id="sizeCalc"></div>
+<div id="canvResult"></div>
 </body>
 </html>
