@@ -132,6 +132,20 @@
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 				document.getElementById('drawBtn').removeAttribute('style');
 			});
+			document.getElementById('nameInput').addEventListener('input', (e) => {
+				if(document.getElementById('nameInput').value){
+					document.getElementById('drawBtn').removeAttribute('style');
+				}
+				else{
+					document.getElementById('drawBtn').setAttribute('style','display:none');
+				}
+			});
+			document.getElementById('nameInput').addEventListener('keyup', (e) => {
+				if (e.keyCode === 13) {
+					e.preventDefault();
+					drawModMul();
+				}
+			});
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
@@ -164,13 +178,13 @@
 					<input id="nameInput" type="text" placeholder="Name">
 				</div>
 				<div class="op">
-					<input id="animateInput" type="checkbox" checked>
+					<input id="animateInput" type="checkbox">
 					<label for="animateInput">Animate</label>
 				</div>
 			</div>
 			<div class="optionsArea">
 				<div class="op">
-					<button id="drawBtn">Draw!</button>
+					<button id="drawBtn" style="display:none">Draw!</button>
 					<button id="stopDrawingBtn" style="display:none">STOP</button>
 				</div>
 			</div>
