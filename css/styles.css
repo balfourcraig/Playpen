@@ -166,3 +166,13 @@ button:hover{
 .fullwidth{
 	width: 100%;
 }
+
+.optionsArea .nameArea{
+	width: 100%;
+}
+
+.optionsArea .nameArea #nameInput{
+	width: 100%;
+	font-size: 2rem;
+	padding: 1rem;
+}

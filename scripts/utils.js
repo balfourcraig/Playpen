@@ -9,6 +9,15 @@ function nextGoldenRand(){
 	return randh;
 }
 
+function stringHash(s, seed){
+	const phi = 0.618033988749895;
+	let hash = seed / phi;
+	for (let i = s.length - 1; i >= 0; i--) {
+		hash += phi * (i + 1) * s.charCodeAt(i);
+	}
+	return hash % 1;
+}
+
 function cosineInterpolate(start, end, position){
 	const mapped = 0.5 * (-Math.cos(Math.PI * position)) + 0.5;
 	return (mapped * (end - start)) + start;
@@ -34,6 +43,17 @@ function shuffleInplace(arr){
 	let n = arr.length;
 	while(n > 0){
 		const r = Math.floor(Math.random() * n);
+		const temp = arr[r];
+		arr[r] = arr[n-1];
+		arr[n-1] = temp;
+		n--;
+	}
+}
+
+function shuffleInplaceGolden(arr){
+	let n = arr.length;
+	while(n > 0){
+		const r = Math.floor(nextGoldenRand() * n);
 		const temp = arr[r];
 		arr[r] = arr[n-1];
 		arr[n-1] = temp;
