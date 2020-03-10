@@ -106,11 +106,22 @@ button{
 	color: dodgerblue;
 	background-color: white;
 	border-radius: 10px;
+	cursor: pointer;
 }
 
 button:hover{
 	background-color: dodgerblue;
 	color: white;
+}
+
+button:disabled{
+	color: grey;
+	border-color: grey;
+	cursor: not-allowed;
+}
+
+button:disabled:hover{
+	background-color: white;
 }
 
 #stopDrawingBtn{

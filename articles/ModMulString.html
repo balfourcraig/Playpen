@@ -9,6 +9,14 @@
 	<script>
 		let animationID = null;
 
+		function getUrlVars() {
+			var vars = {};
+			var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+				vars[key] = value;
+			});
+			return vars;
+		}
+		
 		function drawLine(ctx, center, radius, multiplier, points, i, iterations, useColor, color, useGradient){
 			if(iterations > 0){
 				const pointFrom = pointOnCircle(center, radius, points, i % points);
@@ -124,7 +132,29 @@
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 			}
 		}
+		
+		function copyShareLink(){
+			const area = document.createElement('textarea');
+			const input = document.getElementById('nameInput').value ? '?input=' + document.getElementById('nameInput').value : '';
+			area.value = location.protocol + '//' + location.host + location.pathname + input;
+			document.body.appendChild(area);
+			area.select();
+			document.execCommand('copy');
+			document.body.removeChild(area);
+			alert('link copied');
+		}
 
+		function updateButtonEnabled(){
+			if(document.getElementById('nameInput').value){
+				document.getElementById('drawBtn').removeAttribute('disabled');
+				document.getElementById('copyBtn').removeAttribute('disabled');
+			}
+			else{
+				document.getElementById('drawBtn').setAttribute('disabled','disabled');
+				document.getElementById('copyBtn').setAttribute('disabled','disabled');
+			}
+		}
+		
 		window.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('drawBtn').addEventListener('click', drawModMul);
 			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
@@ -132,20 +162,22 @@
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 				document.getElementById('drawBtn').removeAttribute('style');
 			});
-			document.getElementById('nameInput').addEventListener('input', (e) => {
-				if(document.getElementById('nameInput').value){
-					document.getElementById('drawBtn').removeAttribute('style');
-				}
-				else{
-					document.getElementById('drawBtn').setAttribute('style','display:none');
-				}
-			});
+			document.getElementById('nameInput').addEventListener('input', updateButtonEnabled);
 			document.getElementById('nameInput').addEventListener('keyup', (e) => {
 				if (e.keyCode === 13) {
 					e.preventDefault();
 					drawModMul();
 				}
 			});
+			document.getElementById('copyBtn').addEventListener('click', copyShareLink);
+			
+			const urls = getUrlVars();
+			
+			if(urls['input']){
+				document.getElementById('nameInput').value = decodeURIComponent(urls['input']);
+				drawModMul();
+			}
+			updateButtonEnabled();
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
@@ -173,6 +205,7 @@
 			<h1>Personal Pattern</h1>
 		</header>
 		<section>
+			<p>Input any name or text and click draw to see its unique fingerprint pattern</p>
 			<div class="optionsArea">
 				<div class="nameArea">
 					<input id="nameInput" type="text" placeholder="Name">
@@ -184,8 +217,10 @@
 			</div>
 			<div class="optionsArea">
 				<div class="op">
-					<button id="drawBtn" style="display:none">Draw!</button>
+					<button id="drawBtn">Draw!</button>
 					<button id="stopDrawingBtn" style="display:none">STOP</button>
+					<br>
+					<button id="copyBtn" title="Copy to clipboard a permalink to the current settings">Copy Shareable Link</button>
 				</div>
 			</div>
 			<div id="sizeCalc"></div>
