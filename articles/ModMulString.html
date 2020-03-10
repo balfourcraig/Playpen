@@ -9,14 +9,6 @@
 	<script>
 		let animationID = null;
 
-		function getUrlVars() {
-			var vars = {};
-			var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-				vars[key] = value;
-			});
-			return vars;
-		}
-		
 		function drawLine(ctx, center, radius, multiplier, points, i, iterations, useColor, color, useGradient){
 			if(iterations > 0){
 				const pointFrom = pointOnCircle(center, radius, points, i % points);

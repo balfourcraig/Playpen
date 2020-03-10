@@ -187,3 +187,11 @@ button:disabled:hover{
 	font-size: 2rem;
 	padding: 1rem;
 }
+
+.tab{
+	display: none;
+}
+
+.tab.open{
+	display: block;
+}

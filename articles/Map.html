@@ -8,8 +8,46 @@
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
 	<script>
+		let seed = 1;
+		function random() {
+			const x = Math.sin(seed++) * 10000;
+			return x - Math.floor(x);
+		}
+		
+		function seedRandomNumber(){
+			const radioRandom = document.getElementById('radioRandom').checked;
+			const radioNumber = document.getElementById('radioNumber').checked;
+			const radioText = document.getElementById('radioText').checked;
+			
+			if(document.getElementById('radioRandom').checked)
+				seed = Math.floor(Math.random() * 100000 + 3);
+			else if (document.getElementById('radioNumber').checked){
+				const val = document.getElementById('seedNumInput').value;
+				if(val)
+					seed = parseInt(val);
+				else
+					seed = Math.floor(Math.random() * 10000 + 3);
+			}
+			else if (document.getElementById('radioText').checked)
+				seed = stringHash(document.getElementById('seedTextInput').value, 57);
+			else
+				seed = 1;
+		}
+		
+		function shuffleInplaceSeedable(arr){
+			let n = arr.length;
+			while(n > 0){
+				const r = Math.floor(random() * n);
+				const temp = arr[r];
+				arr[r] = arr[n-1];
+				arr[n-1] = temp;
+				n--;
+			}
+		}
 		let animationID = null;
 		function drawPattern(){
+			seedRandomNumber();
+			
 			document.getElementById('drawBtn').setAttribute('style','display:none');
 			document.getElementById('stopDrawingBtn').removeAttribute('style');
 			
@@ -62,7 +100,8 @@
 				}
 			}
 			
-			const start = nodes[getRandomInt(0, xNodes * yNodes)];
+			//const start = nodes[getRandomInt(0, xNodes * yNodes)];
+			const start = nodes[Math.floor(random() * xNodes * yNodes)];
 			let end = start;
 			
 			let stack = [];
@@ -79,7 +118,7 @@
 					maxDepth = current.solutionDepth;
 					end = current;
 				}
-				shuffleInplace(current.walls);
+				shuffleInplaceSeedable(current.walls);
 				for(let i = 0; i < current.walls.length; i++){
 					const wall = current.walls[i];
 					if(!wall.visited){
@@ -148,15 +187,6 @@
 			}
 		}
 
-		window.addEventListener('DOMContentLoaded', () => {
-			document.getElementById('drawBtn').addEventListener('click', drawPattern);
-			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
-				cancelAnimationFrame(animationID);
-				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
-				document.getElementById('drawBtn').removeAttribute('style');
-			});
-		});
-		
 		function addWall(node1, node2){
 			node1.walls.push(node2);
 			node2.walls.push(node1);
@@ -172,6 +202,62 @@
 				solutionDepth: 0
 			};
 		}
+		
+		function updateTabs(){
+			const radioRandom = document.getElementById('radioRandom').checked;
+			const radioNumber = document.getElementById('radioNumber').checked;
+			const radioText = document.getElementById('radioText').checked;
+			
+			const tabRandom = document.getElementById('tabRandom');
+			const tabNumber = document.getElementById('tabNumber');
+			const tabText = document.getElementById('tabText');
+			
+			if(radioRandom)
+				tabRandom.classList.add('open');
+			else
+				tabRandom.classList.remove('open');
+
+			if(radioNumber)
+				tabNumber.classList.add('open');
+			else
+				tabNumber.classList.remove('open');
+				
+			if(radioText)
+				tabText.classList.add('open');
+			else
+				tabText.classList.remove('open');
+			drawPattern();
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			document.getElementById('drawBtn').addEventListener('click', drawPattern);
+			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
+				cancelAnimationFrame(animationID);
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+				document.getElementById('drawBtn').removeAttribute('style');
+			});
+			document.getElementById('radioRandom').addEventListener('change',updateTabs);
+			document.getElementById('radioNumber').addEventListener('change',updateTabs);
+			document.getElementById('radioText').addEventListener('change',updateTabs);
+
+			document.getElementById('seedNumInput').addEventListener('input', drawPattern);
+			document.getElementById('seedTextInput').addEventListener('input', drawPattern);
+			
+			const urlParams = getUrlVars();
+			if(urlParams['waterLevel']){
+				document.getElementById('waterLevelInput').value = urlParams['waterLevel'];
+			}
+			if(urlParams['numSeed']){
+				document.getElementById('seedNumInput').value = urlParams['numSeed'];
+				document.getElementById('radioNumber').checked = true;
+			}
+			else if (urlParams['textSeed']){
+				document.getElementById('seedTextInput').value = urlParams['textSeed'];
+				document.getElementById('radioText').checked = true;
+			}
+			
+			updateTabs();
+		});
 	</script>
 	<!-- Global site tag (gtag.js) - Google Analytics -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-160042243-1"></script>
@@ -214,6 +300,23 @@
 				<div class="op fullwidth">
 					<input id="waterLevelInput" type="number" value="0.5" min="0" max="1" step="0.05">
 					<label for="waterLevelInput">Water Level</label>
+				</div>
+			</div>
+			<div class="tabHolder">
+				<div>
+					<input id="radioRandom" type="radio" name="seedType" checked> <label for="radioRandom">Random Seed</label><br>
+					<input id="radioNumber" type="radio" name="seedType"> <label for="radioNumber">Number Seed</label><br>
+					<input id="radioText" type="radio" name="seedType"> <label for="radioText">Text Seed</label>
+				</div>
+				<div class="tab" id="tabRandom">
+				</div>
+				<div class="tab" id="tabNumber">
+					<p>Seed the map with the following number:</p>
+					<input id="seedNumInput" type="number" value="1">
+				</div>
+				<div class="tab" id="tabText">
+					<p>Seed the map with some text</p>
+					<input id="seedTextInput" type="text" placeholder="Seed text">
 				</div>
 			</div>
 			<div>
