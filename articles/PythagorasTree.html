@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Pythagoras Tree - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<script src="../scripts/utils.js"></script>
+	<script>
+		const maxDepth = 11;
+		
+		let ctx;
+		let w;
+		let canvRect;
+		
+		function setUp(){
+			const c = document.createElement('canvas');
+			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			ctx = c.getContext('2d');
+			
+			ctx.lineCap = 'round';
+			
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			canvRect = c.getBoundingClientRect();
+			
+			ctx.fillStyle = 'silver';
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.rect(0, 0, w, w);
+			ctx.fill();
+			
+			canvResult.addEventListener('mousemove', drawPattern);
+			canvResult.addEventListener('touchmove', drawPattern);
+			
+			drawPattern();
+		}
+		
+		function drawPattern(e){
+			ctx.fillStyle = 'silver';
+			ctx.fillRect(0, 0, w, w);
+
+			const useColor = document.getElementById('colorInput').checked;
+			
+			const rootColor = useColor ? '#853e00' : 'black';
+			const branchColor = useColor ? '#a15a03' : 'black';
+			const leafColor = useColor ? '#1cba00' : 'black';
+			
+			const branchDepth = parseInt(document.getElementById('branchesInput').value);
+			const rootDepth = parseInt(document.getElementById('rootsInput').value);
+			
+			ctx.fillStyle = rootColor;
+			ctx.beginPath();
+			ctx.arc(w/2, w/2, 10, 0, 2 * Math.PI);
+			ctx.fill();
+			
+			let leftSwing = 0.5;
+			let rightSwing = 0.5;
+			
+			if(e) {
+				const mouseX = e.clientX - canvRect.left;
+				const mouseY = e.clientY - canvRect.top;
+				
+				const xMapped = mouseX / canvRect.width;
+				leftSwing = 1 - xMapped;
+				rightSwing = xMapped;
+				
+				const yMapped = mouseY / canvRect.height * 2 + 0.2;
+				leftSwing *= yMapped;
+				rightSwing *= yMapped;
+			}
+			
+			drawTree(ctx, w/2, w/2, leftSwing, rightSwing, 1, branchDepth, 0, w/10, Math.PI, branchColor, leafColor);
+			drawTree(ctx, w/2, w/2, rightSwing, leftSwing, 1, rootDepth, 0, w/10, 0, rootColor, rootColor);
+		}
+	
+		function drawTree(ctx, x1, y1, leftSwing, rightSwing, depth, maxDepth, angle, length, angleOffset, rootColor, leafColor){
+			if(depth > maxDepth)
+				return;
+			
+			if(depth == maxDepth)
+				ctx.strokeStyle = leafColor;
+			else
+				ctx.strokeStyle = rootColor;
+			
+			ctx.lineWidth = 10/depth + 1;
+			const x2 = Math.sin(angle + angleOffset) * length + x1;
+			const y2 = Math.cos(angle + angleOffset) * length + y1;
+			
+			ctx.beginPath();
+			ctx.moveTo(x1, y1);
+			ctx.lineTo(x2, y2);
+			ctx.stroke();
+
+			drawTree(ctx, x2, y2, leftSwing, rightSwing, depth + 1, maxDepth, angle + leftSwing, length * 0.8, angleOffset, rootColor, leafColor);
+			drawTree(ctx, x2, y2, leftSwing, rightSwing, depth + 1, maxDepth, angle - rightSwing, length * 0.8, angleOffset, rootColor, leafColor);
+			
+			document.getElementById('drawBtn').removeAttribute('style');
+
+			document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+		}
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			setUp();
+			document.getElementById('drawBtn').addEventListener('click', drawPattern);
+		});
+	</script>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-160042243-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-160042243-1');
+	</script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Pythagoras Tree</h1>
+		</header>
+		<section>
+			<input id="animateInput" type="checkbox" checked>
+			<label for="animateInput">Animate</label>
+			<br>
+			<input id="colorInput" type="checkbox" checked>
+			<label for="colorInput">Use color</label>
+			<br>
+			<input id="branchesInput" type="number" value="10" min="1">
+			<label for="branchesInput">Branch depth<label>
+			<br>
+			<input id="rootsInput" type="number" value="5" min="0">
+			<label for="rootsInput">Root depth<label>
+			<br>
+			<input id="rotInput" type="checkbox" checked>
+			<label for="rotInput">Random Rotatation</label>
+			<br>
+			<button id="drawBtn">Draw!</button>
+			<button id="stopDrawingBtn" style="display:none">STOP</button>
+
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
