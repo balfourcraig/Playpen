@@ -12,6 +12,7 @@
 		let ctx;
 		let w;
 		let canvRect;
+		let skyGrad;
 		
 		function setUp(){
 			const c = document.createElement('canvas');
@@ -27,13 +28,14 @@
 			canvResult.appendChild(c);
 			
 			canvRect = c.getBoundingClientRect();
-			
-			ctx.fillStyle = 'silver';
-			ctx.strokeStyle = 'black';
-			ctx.beginPath();
-			ctx.rect(0, 0, w, w);
-			ctx.fill();
-			
+
+			skyGrad = ctx.createLinearGradient(w / 2, 0 , w / 2 ,w);
+			skyGrad.addColorStop(0, 'lightskyblue');
+			skyGrad.addColorStop(0.48, 'silver');
+			skyGrad.addColorStop(0.499, '#1c850c');
+			skyGrad.addColorStop(0.5, '#4a2407');
+			skyGrad.addColorStop(1, '#0f0701');
+
 			canvResult.addEventListener('mousemove', drawPattern);
 			canvResult.addEventListener('touchmove', drawPattern);
 			
@@ -41,23 +43,18 @@
 		}
 		
 		function drawPattern(e){
-			ctx.fillStyle = 'silver';
-			ctx.fillRect(0, 0, w, w);
-
 			const useColor = document.getElementById('colorInput').checked;
 			
 			const rootColor = useColor ? '#853e00' : 'black';
 			const branchColor = useColor ? '#a15a03' : 'black';
-			const leafColor = useColor ? '#1cba00' : 'black';
-			
+			const leafColor = useColor ? '#169403' : 'black';
+
+			ctx.fillStyle = skyGrad;
+			ctx.fillRect(0, 0, w, w);
+
 			const branchDepth = parseInt(document.getElementById('branchesInput').value);
 			const rootDepth = parseInt(document.getElementById('rootsInput').value);
-			
-			ctx.fillStyle = rootColor;
-			ctx.beginPath();
-			ctx.arc(w/2, w/2, 10, 0, 2 * Math.PI);
-			ctx.fill();
-			
+
 			let leftSwing = 0.5;
 			let rightSwing = 0.5;
 			
@@ -75,6 +72,12 @@
 			}
 			
 			drawTree(ctx, w/2, w/2, leftSwing, rightSwing, 1, branchDepth, 0, w/10, Math.PI, branchColor, leafColor);
+			
+			ctx.fillStyle = rootColor;
+			ctx.beginPath();
+			ctx.arc(w/2, w/2, 10, 0, 2 * Math.PI);
+			ctx.fill();
+			
 			drawTree(ctx, w/2, w/2, rightSwing, leftSwing, 1, rootDepth, 0, w/10, 0, rootColor, rootColor);
 		}
 	
@@ -87,7 +90,7 @@
 			else
 				ctx.strokeStyle = rootColor;
 			
-			ctx.lineWidth = 10/depth + 1;
+			ctx.lineWidth = maxDepth / depth;
 			const x2 = Math.sin(angle + angleOffset) * length + x1;
 			const y2 = Math.cos(angle + angleOffset) * length + y1;
 			
@@ -98,15 +101,10 @@
 
 			drawTree(ctx, x2, y2, leftSwing, rightSwing, depth + 1, maxDepth, angle + leftSwing, length * 0.8, angleOffset, rootColor, leafColor);
 			drawTree(ctx, x2, y2, leftSwing, rightSwing, depth + 1, maxDepth, angle - rightSwing, length * 0.8, angleOffset, rootColor, leafColor);
-			
-			document.getElementById('drawBtn').removeAttribute('style');
-
-			document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 		}
 		
 		window.addEventListener('DOMContentLoaded', () => {
 			setUp();
-			document.getElementById('drawBtn').addEventListener('click', drawPattern);
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
@@ -135,23 +133,21 @@
 			<h1>Pythagoras Tree</h1>
 		</header>
 		<section>
-			<input id="animateInput" type="checkbox" checked>
-			<label for="animateInput">Animate</label>
-			<br>
-			<input id="colorInput" type="checkbox" checked>
-			<label for="colorInput">Use color</label>
-			<br>
-			<input id="branchesInput" type="number" value="10" min="1">
-			<label for="branchesInput">Branch depth<label>
-			<br>
-			<input id="rootsInput" type="number" value="5" min="0">
-			<label for="rootsInput">Root depth<label>
-			<br>
-			<input id="rotInput" type="checkbox" checked>
-			<label for="rotInput">Random Rotatation</label>
-			<br>
-			<button id="drawBtn">Draw!</button>
-			<button id="stopDrawingBtn" style="display:none">STOP</button>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="colorInput" type="checkbox" checked>
+					<label for="colorInput">Use color</label>
+				</div>
+				<div class="op"></div>
+				<div class="op">
+					<input id="branchesInput" type="number" value="10" min="1">
+					<label for="branchesInput">Branch depth<label>
+				</div>
+				<div class="op">
+					<input id="rootsInput" type="number" value="5" min="0">
+					<label for="rootsInput">Root depth<label>
+				</div>
+			</div>
 
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
