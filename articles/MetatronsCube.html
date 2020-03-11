@@ -6,7 +6,7 @@
 	<title>Metatron - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<script src="../scripts/utils.js"></script>
-	<script>		
+	<script>
 		let animationID = null;
 
 		function drawMetatron(){
@@ -39,7 +39,6 @@
 			
 			const animate = document.getElementById('animateInput').checked;
 			const useColor = document.getElementById('colorInput').checked;
-			const gradient = document.getElementById('gradInput').checked;
 			
 			const colors = [];
 			for(let i = 0; i < 5; i++){
@@ -56,7 +55,7 @@
 			drawings.push(() => drawCircle(ctx, center, radius,  useColor ? colors[4] : 'black'));
 			
 			for(let i = 0; i < 6; i+=2){
-				drawings.push(() => drawLine(ctx, level2[i], level2[(i + 3) % 6], gradient, useColor ? colors[0] : 'black'));
+				drawings.push(() => drawLine(ctx, level2[i], level2[(i + 3) % 6], useColor ? colors[0] : 'black'));
 			}
 			
 			for(let i = 0; i < 6; i++){
@@ -64,11 +63,11 @@
 			}
 			
 			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawLine(ctx, level1[i], level1[(i + 1) % 6], gradient,  useColor ? colors[3] : 'black'));
+				drawings.push(() => drawLine(ctx, level1[i], level1[(i + 1) % 6], useColor ? colors[3] : 'black'));
 			}
 			
 			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawLine(ctx, level1[i], level1[(i + 2) % 6], gradient,  useColor ? colors[1] : 'black'));
+				drawings.push(() => drawLine(ctx, level1[i], level1[(i + 2) % 6], useColor ? colors[1] : 'black'));
 			}
 			
 			for(let i = 0; i < 6; i++){
@@ -76,12 +75,12 @@
 			}
 			
 			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawLine(ctx, level2[i], level1[(i + 4) % 6], gradient,  useColor ? colors[2] : 'black'));
-				drawings.push(() => drawLine(ctx, level2[i], level1[(i + 2) % 6], gradient,  useColor ? colors[2] : 'black'));
+				drawings.push(() => drawLine(ctx, level2[i], level1[(i + 4) % 6], useColor ? colors[2] : 'black'));
+				drawings.push(() => drawLine(ctx, level2[i], level1[(i + 2) % 6], useColor ? colors[2] : 'black'));
 			}
 			
 			for(let i = 0; i < 6; i++){
-				drawings.push(() => drawLine(ctx, level2[i], level2[(i + 1) % 6], gradient,  useColor ? colors[3] : 'black'));				
+				drawings.push(() => drawLine(ctx, level2[i], level2[(i + 1) % 6], useColor ? colors[3] : 'black'));				
 			}
 
 			if(animate){
@@ -113,18 +112,8 @@
 			}
 		}
 		
-		function drawLine(ctx, start, end, useGradient, color){
-			if(useGradient){
-				const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
-				grad.addColorStop(0, 'transparent');
-				grad.addColorStop(0.5, color);
-				grad.addColorStop(1, 'transparent');
-				ctx.strokeStyle = grad;
-			}
-			else{
-				ctx.strokeStyle = color;
-			}
-		
+		function drawLine(ctx, start, end, color){
+			ctx.strokeStyle = color;
 			ctx.beginPath();
 			ctx.moveTo(start.x, start.y);
 			ctx.lineTo(end.x,end.y);
@@ -178,9 +167,6 @@
 			<br>
 			<input id="colorInput" type="checkbox" checked>
 			<label for="colorInput">Use color</label>
-			<br>
-			<input id="gradInput" type="checkbox">
-			<label for="gradInput">Use Gradient</label>
 			<br>
 			<button id="drawBtn">Draw!</button>
 			<button id="stopDrawingBtn" style="display:none">STOP</button>

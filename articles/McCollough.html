@@ -9,7 +9,7 @@
 	<script>
 		let barTimeout = null;
 	
-		function setup(){
+		function setup(useColor){
 			const c = document.createElement('canvas');
 			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			const h = w;
@@ -34,10 +34,10 @@
 			ctx.textAlign = 'center';
 			ctx.textBaseline = 'middle';
 			
-			column();
+			column(useColor);
 
-			function column(){
-				ctx.fillStyle = '#f0f';
+			function column(useColor){
+				ctx.fillStyle = useColor ? '#f0f' : '#fff';
 				ctx.strokeStyle = 'none';
 				ctx.fillRect(0, 0, w, w);
 				
@@ -49,21 +49,21 @@
 					ctx.fillRect(colPos, 0, colWidth, h);
 					colPos += colWidth * 2;
 				}
-				
-				drawEyePoint();
+				if(useColor)
+					drawEyePoint();
 				eyeChangeOnly += 1;
 				eyeChangeOnly %= eyeSwapsPerBarSwap;
 				
 				if(eyeChangeOnly === 0){
-					barTimeout = setTimeout(row, updateDelay);
+					barTimeout = setTimeout(() => row(useColor), updateDelay);
 				}
 				else{
-					barTimeout = setTimeout(column, updateDelay);
+					barTimeout = setTimeout(() => column(useColor), updateDelay);
 				}
 			}
 			
-			function row(){
-				ctx.fillStyle = '#0f0';
+			function row(useColor){
+				ctx.fillStyle = useColor ? '#0f0' : '#fff';
 				ctx.strokeStyle = 'none';
 				ctx.fillRect(0, 0, w, w);
 				
@@ -76,15 +76,17 @@
 					rowPos += rowHeight * 2;
 				}
 				
-				drawEyePoint();
+				if(useColor)
+					drawEyePoint();
+					
 				eyeChangeOnly += 1;
 				eyeChangeOnly %= eyeSwapsPerBarSwap;
 				
 				if(eyeChangeOnly === 0){
-					barTimeout = setTimeout(column, updateDelay);
+					barTimeout = setTimeout(() => column(useColor), updateDelay);
 				}
 				else{
-					barTimeout = setTimeout(row, updateDelay);
+					barTimeout = setTimeout(() => row(useColor), updateDelay);
 				}
 			}
 			
@@ -104,7 +106,8 @@
 		}
 
 		window.addEventListener('DOMContentLoaded', () => {
-			document.getElementById('drawBtn').addEventListener('click', setup);
+			document.getElementById('drawBtn').addEventListener('click', () => setup(true));
+			document.getElementById('testBtn').addEventListener('click', () => setup(false));
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />

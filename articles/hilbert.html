@@ -54,6 +54,14 @@
 				
 				const colorFrom = useColor ? 'hsl(' + mapLinear(i-1, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
 				const colorTo = useColor ? 'hsl(' + mapLinear(i, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
+				
+				if(i === 0 && !useCurves){
+					drawings.push(() => drawCircle(ctx, curr, circleRadius, colorTo));
+				}
+				else if (i === N * N -1 && useCurves){
+					const mid1 = midpoint(curr, prev);
+					drawings.push(() => drawCircle(ctx, mid1, circleRadius, colorTo));
+				}
 
 				if(prev && (!useCurves || prev2)){
 					const previous = prev;
@@ -68,12 +76,10 @@
 						drawings.push(() => drawLineFlat(ctx, previous, curr, colorFrom, order < 4 ? colorTo : colorFrom));
 					}
 
-					//if(useCircles){
-						if(useCurves)
-							drawings.push(() => drawCircle(ctx, mid1, circleRadius, colorFrom));
-						else
-							drawings.push(() => drawCircle(ctx, curr, circleRadius, colorFrom));
-					//}
+					if(useCurves)
+						drawings.push(() => drawCircle(ctx, mid1, circleRadius, colorFrom));
+					else
+						drawings.push(() => drawCircle(ctx, curr, circleRadius, colorTo));
 				}
 
 				prev2 = prev;
@@ -192,6 +198,24 @@
 			}
 		}
 
+		function copyShareLink(){
+			const order = document.getElementById('orderInput').value;
+			const lineWidth = document.getElementById('lineWidthInput').value;
+			const round = document.getElementById('curveInput').checked;
+			const animate = document.getElementById('animateInput').checked;
+			const color = document.getElementById('colorInput').checked;
+			const nodes = document.getElementById('circleInput').checked;
+			
+			const area = document.createElement('textarea');
+			
+			area.value = location.protocol + '//' + location.host + location.pathname + `?order=${order}&lineWidth=${lineWidth}&round=${round}&animate=${animate}&color=${color}&nodes=${nodes}`;
+			document.body.appendChild(area);
+			area.select();
+			document.execCommand('copy');
+			document.body.removeChild(area);
+			alert('link copied');
+		}
+
 		window.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('drawBtn').addEventListener('click', drawPattern);
 			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
@@ -199,6 +223,36 @@
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 				document.getElementById('drawBtn').removeAttribute('style');
 			});
+			document.getElementById('copyBtn').addEventListener('click', copyShareLink);
+			const urlVars = getUrlVars();
+			let drawNow = false;
+			if(urlVars['order']){
+				document.getElementById('orderInput').value = urlVars['order'];
+				drawNow = true;
+			}
+			if(urlVars['lineWidth']){
+				drawNow = true;
+				document.getElementById('lineWidthInput').value = urlVars['lineWidth'];
+			}
+			if(urlVars['round']){
+				drawNow = true;
+				document.getElementById('curveInput').checked = urlVars['round'] == 'true';
+			}
+			if(urlVars['animate']){
+				drawNow = true;
+				document.getElementById('animateInput').checked = urlVars['animate'] == 'true';
+			}
+			if(urlVars['color']){
+				drawNow = true;
+				document.getElementById('colorInput').checked = urlVars['color'] == 'true';
+			}
+			if(urlVars['nodes']){
+				drawNow = true;
+				document.getElementById('circleInput').checked = urlVars['nodes'] == 'true';
+			}
+			if(drawNow){
+				drawPattern();
+			}
 		});
 	</script>
 	<!-- Global site tag (gtag.js) - Google Analytics -->
@@ -226,27 +280,37 @@
 			<h1>Hilbert Curve</h1>
 		</header>
 		<section>
-			<input id="animateInput" type="checkbox" checked>
-			<label for="animateInput">Animate</label>
-			<br>
-			<input id="circleInput" type="checkbox">
-			<label for="circleInput">Draw nodes</label>
-			<br>
-			<input id="colorInput" type="checkbox" checked>
-			<label for="colorInput">Use color</label>
-			<br>
-			<input id="curveInput" type="checkbox" checked>
-			<label for="curveInput">Round Edges</label>
-			<br>
-			<input id="lineWidthInput" type="number" value="3" min="0">
-			<label for="lineWidthInput">Line width</label>
-			<br>
-			<input id="orderInput" type="number" min="0" max="8" value="5">
-			<label for="orderInput">Hilbert Curve Order. Each step doubles</label>
-			<br>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="animateInput" type="checkbox" checked>
+					<label for="animateInput">Animate</label>
+				</div>
+				<div class="op">
+					<input id="circleInput" type="checkbox">
+					<label for="circleInput">Draw nodes</label>
+				</div>
+				<div class="op">
+					<input id="colorInput" type="checkbox" checked>
+					<label for="colorInput">Use color</label>
+				</div>
+				<div class="op">
+					<input id="curveInput" type="checkbox" checked>
+					<label for="curveInput">Round Edges</label>
+				</div>
+				<div class="op">
+					<input id="lineWidthInput" type="number" value="3" min="0">
+					<label for="lineWidthInput">Line width</label>
+				</div>
+				<div class="op">
+					<input id="orderInput" type="number" min="0" max="8" value="5">
+					<label for="orderInput">Hilbert Curve Order. Each step doubles</label>
+				</div>
+			</div>
+
 			<button id="drawBtn">Draw!</button>
 			<button id="stopDrawingBtn" style="display:none">STOP</button>
-
+			<br>
+			<button id="copyBtn" title="Copy to clipboard a permalink to the current settings">Copy Shareable Link</button>
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
 			<div id="canvResult"></div>

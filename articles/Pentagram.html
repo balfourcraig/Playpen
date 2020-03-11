@@ -18,7 +18,7 @@
 
 		function drawPattern(){
 			document.getElementById('drawBtn').setAttribute('style','display:none');
-			//document.getElementById('stopDrawingBtn').removeAttribute('style');
+			document.getElementById('stopDrawingBtn').removeAttribute('style');
 			
 			window.cancelAnimationFrame(animationID);
 			const c = document.createElement('canvas');
@@ -94,7 +94,7 @@
 					drawings[i]();
 				}
 				document.getElementById('drawBtn').removeAttribute('style');
-				//document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 			}			
 		}
 		
@@ -109,7 +109,7 @@
 			}
 			else{
 				document.getElementById('drawBtn').removeAttribute('style');
-				//document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 			}
 		}
 		
@@ -142,11 +142,11 @@
 		
 		window.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('drawBtn').addEventListener('click', drawPattern);
-			//document.getElementById('stopDrawingBtn').addEventListener('click', () => {
-				//cancelAnimationFrame(animationID);
-				//document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
-				//document.getElementById('drawBtn').removeAttribute('style');
-			//});
+			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
+				cancelAnimationFrame(animationID);
+				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+				document.getElementById('drawBtn').removeAttribute('style');
+			});
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
