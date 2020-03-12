@@ -10,9 +10,9 @@
 		const maxDepth = 11;
 		let ctx;
 		let w;
-		let canvRect;
-		let initialSeed = 1;
 		
+		let initialSeed = 1;
+		let c;
 		let seed = 1;
 		let lastMousePos;
 		
@@ -24,7 +24,7 @@
 		function setUp(){
 			initialSeed = Math.random();
 			
-			const c = document.createElement('canvas');
+			c = document.createElement('canvas');
 			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			c.setAttribute('width', w);
 			c.setAttribute('height', w);
@@ -36,7 +36,7 @@
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			canvRect = c.getBoundingClientRect();
+			canvRect = 
 
 			canvResult.addEventListener('mousemove', drawPattern);
 			canvResult.addEventListener('touchmove', drawPattern);
@@ -45,7 +45,6 @@
 		}
 		
 		function drawPattern(e){
-			console.log(lastMousePos);
 			seed = initialSeed;
 			const useColor = document.getElementById('colorInput').checked;
 			const useBackground = document.getElementById('backgroundInput').checked;
@@ -85,13 +84,15 @@
 			let leftSwing = 0.5;
 			let rightSwing = 0.5;
 			
+			let canvRect = c.getBoundingClientRect();
+			
 			if(e && e.clientX && e.clientY) {
-				lastMousePos = {x: e.clientX, y: e.clientY};
+				lastMousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
 			}
 			if(lastMousePos){
-				const mouseX = lastMousePos.x - canvRect.left;
-				const mouseY = lastMousePos.y - canvRect.top;
-				
+				const mouseX = lastMousePos.x;
+				const mouseY = lastMousePos.y;
+				console.log(mouseY);
 				const xMapped = mouseX / canvRect.width;
 				leftSwing = 1 - xMapped;
 				rightSwing = xMapped;
