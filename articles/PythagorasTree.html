@@ -12,9 +12,19 @@
 		let ctx;
 		let w;
 		let canvRect;
-		let skyGrad;
+		let initialSeed = 1;
+		
+		let seed = 1;
+		let lastMousePos;
+		
+		function random() {
+			const x = Math.sin(seed++) * 10000;
+			return x - Math.floor(x);
+		}
 		
 		function setUp(){
+			initialSeed = Math.random();
+			
 			const c = document.createElement('canvas');
 			w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			c.setAttribute('width', w);
@@ -29,13 +39,6 @@
 			
 			canvRect = c.getBoundingClientRect();
 
-			skyGrad = ctx.createLinearGradient(w / 2, 0 , w / 2 ,w);
-			skyGrad.addColorStop(0, 'lightskyblue');
-			skyGrad.addColorStop(0.48, 'silver');
-			skyGrad.addColorStop(0.499, '#1c850c');
-			skyGrad.addColorStop(0.5, '#4a2407');
-			skyGrad.addColorStop(1, '#0f0701');
-
 			canvResult.addEventListener('mousemove', drawPattern);
 			canvResult.addEventListener('touchmove', drawPattern);
 			
@@ -43,24 +46,52 @@
 		}
 		
 		function drawPattern(e){
+			console.log(lastMousePos);
+			seed = initialSeed;
 			const useColor = document.getElementById('colorInput').checked;
+			const useBackground = document.getElementById('backgroundInput').checked;
 			
 			const rootColor = useColor ? '#853e00' : 'black';
 			const branchColor = useColor ? '#a15a03' : 'black';
 			const leafColor = useColor ? '#169403' : 'black';
-
-			ctx.fillStyle = skyGrad;
+			
+			if(useBackground){
+				const skyGrad = ctx.createLinearGradient(w / 2, 0 , w / 2 ,w);
+				if(useColor){
+					skyGrad.addColorStop(0, 'lightskyblue');
+					skyGrad.addColorStop(0.48, 'silver');
+					skyGrad.addColorStop(0.499, '#1c850c');
+					skyGrad.addColorStop(0.5, '#4a2407');
+					skyGrad.addColorStop(1, '#0f0701');
+				}
+				else{
+					skyGrad.addColorStop(0, 'grey');
+					skyGrad.addColorStop(0.499, 'silver');
+					skyGrad.addColorStop(0.5, 'grey');
+					skyGrad.addColorStop(1, 'black');
+				}
+				ctx.fillStyle = skyGrad;
+			}
+			else{
+				ctx.fillStyle = 'white';
+			}
+			
 			ctx.fillRect(0, 0, w, w);
 
 			const branchDepth = parseInt(document.getElementById('branchesInput').value);
 			const rootDepth = parseInt(document.getElementById('rootsInput').value);
-
+			
+			const randomFactor = parseFloat(document.getElementById('randInput').value);
+			
 			let leftSwing = 0.5;
 			let rightSwing = 0.5;
 			
-			if(e) {
-				const mouseX = e.clientX - canvRect.left;
-				const mouseY = e.clientY - canvRect.top;
+			if(e && e.clientX && e.clientY) {
+				lastMousePos = {x: e.clientX, y: e.clientY};
+			}
+			if(lastMousePos){
+				const mouseX = lastMousePos.x - canvRect.left;
+				const mouseY = lastMousePos.y - canvRect.top;
 				
 				const xMapped = mouseX / canvRect.width;
 				leftSwing = 1 - xMapped;
@@ -71,40 +102,58 @@
 				rightSwing *= yMapped;
 			}
 			
-			drawTree(ctx, w/2, w/2, leftSwing, rightSwing, 1, branchDepth, 0, w/10, Math.PI, branchColor, leafColor);
+			const reflectBranches = document.getElementById('reflectInput').checked;
+			
+			drawTree(w/2, w/2-1, 1, branchDepth, 0, w/10, Math.PI, false);
 			
 			ctx.fillStyle = rootColor;
 			ctx.beginPath();
 			ctx.arc(w/2, w/2, 10, 0, 2 * Math.PI);
 			ctx.fill();
 			
-			drawTree(ctx, w/2, w/2, rightSwing, leftSwing, 1, rootDepth, 0, w/10, 0, rootColor, rootColor);
-		}
-	
-		function drawTree(ctx, x1, y1, leftSwing, rightSwing, depth, maxDepth, angle, length, angleOffset, rootColor, leafColor){
-			if(depth > maxDepth)
-				return;
+			drawTree(w/2, w/2+1, 1, rootDepth, 0, w/10, 0, true);
 			
-			if(depth == maxDepth)
-				ctx.strokeStyle = leafColor;
-			else
-				ctx.strokeStyle = rootColor;
-			
-			ctx.lineWidth = maxDepth / depth;
-			const x2 = Math.sin(angle + angleOffset) * length + x1;
-			const y2 = Math.cos(angle + angleOffset) * length + y1;
-			
-			ctx.beginPath();
-			ctx.moveTo(x1, y1);
-			ctx.lineTo(x2, y2);
-			ctx.stroke();
+			function drawTree(x1, y1, depth, maxDepth, angle, length, angleOffset, isRoot){
+				if(depth > maxDepth)
+					return;
+				
+				if(isRoot)
+					ctx.strokeStyle = rootColor;
+				else if(depth == maxDepth)
+					ctx.strokeStyle = leafColor;
+				else
+					ctx.strokeStyle = branchColor;
+				
+				ctx.lineWidth = maxDepth / depth;
+				
+				let randModifier = random() * randomFactor + (1 - randomFactor / 2);
+				
+				let x2 = Math.sin(angle + angleOffset) * length * randModifier + x1;
+				let y2 = Math.cos(angle + angleOffset) * length * randModifier + y1;
+				
+				if(reflectBranches && (!isRoot && y2 > w/2 || isRoot &&  y2 < w/2)){
+					angle += Math.PI;
+					y2 = w/2 + 1 * (isRoot ? 1 : -1);
+				}
+				
+				ctx.beginPath();
+				ctx.moveTo(x1, y1);
+				ctx.lineTo(x2, y2);
+				ctx.stroke();
 
-			drawTree(ctx, x2, y2, leftSwing, rightSwing, depth + 1, maxDepth, angle + leftSwing, length * 0.8, angleOffset, rootColor, leafColor);
-			drawTree(ctx, x2, y2, leftSwing, rightSwing, depth + 1, maxDepth, angle - rightSwing, length * 0.8, angleOffset, rootColor, leafColor);
+				drawTree(x2, y2, depth + 1, maxDepth, angle + leftSwing * (isRoot ? -1 : 1), length * 0.8, angleOffset, isRoot);
+				drawTree(x2, y2, depth + 1, maxDepth, angle - rightSwing * (isRoot ? -1 : 1), length * 0.8, angleOffset, isRoot);
+			}
 		}
-		
+
 		window.addEventListener('DOMContentLoaded', () => {
 			setUp();
+			document.getElementById('branchesInput').addEventListener('input', drawPattern);
+			document.getElementById('colorInput').addEventListener('change', drawPattern);
+			document.getElementById('randInput').addEventListener('input', drawPattern);
+			document.getElementById('rootsInput').addEventListener('input', drawPattern);
+			document.getElementById('reflectInput').addEventListener('change', drawPattern);
+			document.getElementById('backgroundInput').addEventListener('change', drawPattern);
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
@@ -138,7 +187,10 @@
 					<input id="colorInput" type="checkbox" checked>
 					<label for="colorInput">Use color</label>
 				</div>
-				<div class="op"></div>
+				<div class="op">
+					<input id="randInput" type="number" value="0.5" min="0" max="1" step="0.05">
+					<label for="randInput">Random factor<label>
+				</div>
 				<div class="op">
 					<input id="branchesInput" type="number" value="10" min="1">
 					<label for="branchesInput">Branch depth<label>
@@ -146,6 +198,14 @@
 				<div class="op">
 					<input id="rootsInput" type="number" value="5" min="0">
 					<label for="rootsInput">Root depth<label>
+				</div>
+				<div class="op" title="Reflect branches if they cross the horizon">
+					<input id="reflectInput" type="checkbox" checked>
+					<label for="reflectInput">Ground Collision<label>
+				</div>
+				<div class="op">
+					<input id="backgroundInput" type="checkbox" checked>
+					<label for="backgroundInput">Draw background<label>
 				</div>
 			</div>
 
