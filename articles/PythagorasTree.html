@@ -36,12 +36,40 @@
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			canvRect = 
+			//canvRect = 
 
 			canvResult.addEventListener('mousemove', drawPattern);
 			canvResult.addEventListener('touchmove', drawPattern);
-			
+			applyURLParameters();
 			drawPattern();
+		}
+		
+		function applyURLParameters(){
+			const urlVars = getUrlVars();
+			if(urlVars['useColor']){
+				document.getElementById('colorInput').checked = urlVars['useColor'] === 'true';
+			}
+			if(urlVars['rand']){
+				document.getElementById('randInput').value = urlVars['rand'];
+			}
+			if(urlVars['branches']){
+				document.getElementById('branchesInput').value = urlVars['branches'];
+			}
+			if(urlVars['roots']){
+				document.getElementById('rootsInput').value = urlVars['roots'];
+			}
+			if(urlVars['xFrom']){
+				document.getElementById('leanFromInput').value = urlVars['xFrom'];
+			}
+			if(urlVars['xTo']){
+				document.getElementById('leanToInput').value = urlVars['xTo'];
+			}
+			if(urlVars['reflect']){
+				document.getElementById('reflectInput').checked = urlVars['reflect'] === 'true';
+			}
+			if(urlVars['background']){
+				document.getElementById('backgroundInput').checked = urlVars['background'] === 'true';
+			}
 		}
 		
 		function drawPattern(e){
