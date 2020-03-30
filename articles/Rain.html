@@ -3,89 +3,79 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
-	<title>SIT Bars - Craig's Playpen</title>
+	<title>Gauss - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
 	<script>
-		const colors = [
-			'#015581',
-			'#ed6d20',
-			'#3ca4dc',
-			'#ee2b74',
-			'#007dc3',
-			'#ffc80f',
-			'#b4c869',
-			'#666866',
-			'#22bbe3',
-			'#cd2137',
-			'#669b41',
-			'#5e58a2',
-			'#b63e97',
-			'#8dc63f',
-			'#00697c',
-			'#363636',
-			'#eb5a91',
-			'#e83c2a',
-			'#643514',
-		];
-	
 		let animationID = null;
-		function drawPattern(){
+		
+		function setUp(){
+			window.cancelAnimationFrame(animationID);
+		
 			document.getElementById('drawBtn').setAttribute('style','display:none');
 			document.getElementById('stopDrawingBtn').removeAttribute('style');
-			
-			const heightMult = parseFloat(document.getElementById('heightMultInput').value);
 			
 			window.cancelAnimationFrame(animationID);
 			const c = document.createElement('canvas');
 			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
-			
-			const h = w * heightMult;
-
 			c.setAttribute('width', w);
-			c.setAttribute('height', h);
+			c.setAttribute('height', w);
 			const ctx = c.getContext('2d');
 			const center = {x: w/2.0, y: w/2.0};
-			const radius = w * 0.45;
 			
 			const canvResult = document.getElementById('canvResult');
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			
 			ctx.fillStyle = 'black';
-			ctx.fillRect(0, 0, w, h);
+			ctx.fillRect(0, 0, w, w);
 			
-			ctx.lineWidth = 1;
-
-			const numBars = parseInt(document.getElementById('barNumInput').value);
-			const gutterWidth = (parseFloat(document.getElementById('barGutterInput').value) / 100) * w;
+			const drop1 = {point: {x: w / 2, y: 0}, speed: 1};
+			const drops = [drop1];
 			
-			const barWidth = w / numBars - gutterWidth;
-			if(barWidth <= 0){
-				alert('Negative bar width. Try smaller gutters');
-			}
-			else{
-				const drawings = [];
+			animationID = window.requestAnimationFrame(() => {
+				drawDots();
+			});
+			
+			const acceleration = 1.04;
+			
+			function drawDots(){
+				for(let i = 0; i < drops.length; i++){
+					const d = drops[i];
 
-				shuffleInplace(colors);				
-				
-				for(let i = 0; i < numBars; i ++){
-					const left = i * barWidth + i * gutterWidth;
-					ctx.fillStyle = colors[i % colors.length];
-					ctx.beginPath();
-					ctx.rect(left, 0, barWidth, h);
-					ctx.fill();
+					d.speed *= acceleration;
+					const pointTo = {x: d.point.x, y: d.point.y + d.speed};
+					
+					drawLine(ctx, d.point, pointTo, 'red');
+					
+					d.point = pointTo;
 				}
+				animationID = window.requestAnimationFrame(() => {
+					drawDots();
+				});
 			}
-
-			document.getElementById('drawBtn').removeAttribute('style');
-			document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 		}
 
+		function drawLine(ctx, start, end, color){
+			ctx.strokeStyle = color;
+
+			ctx.beginPath();
+			ctx.moveTo(start.x, start.y);
+			ctx.lineTo(end.x,end.y);
+			ctx.stroke();
+		}
+
+		function drawCircle(ctx, center, radius, color){
+			ctx.fillStyle = color;
+
+			ctx.beginPath();
+			ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+			ctx.fill();
+		}
+		
 		window.addEventListener('DOMContentLoaded', () => {
-			document.getElementById('drawBtn').addEventListener('click', drawPattern);
+			document.getElementById('drawBtn').addEventListener('click', setUp);
 			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
 				cancelAnimationFrame(animationID);
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
@@ -113,19 +103,22 @@
 </div>
 
 <main>
-
+	<div class="pageWidth">
 		<header>
-			<h1>SIT Bars</h1>
+			<h1>Gauss</h1>
 		</header>
 		<section>
-			<input id="barNumInput" type="number" min="0" value="15">
-			<label for="barNumInput">Number of bars</label>
+			<input id="animateInput" type="checkbox" checked>
+			<label for="animateInput">Animate</label>
 			<br>
-			<input id="barGutterInput" type="number" min="0" value="0.5" step="0.05" max="10">
-			<label for="barGutterInput">Gutter size (percent)</label>
+			<input id="colorInput" type="checkbox" checked>
+			<label for="colorInput">Use color</label>
 			<br>
-			<input id="heightMultInput" type="number" min="0.1" value="0.6" step="0.1" max="5">
-			<label for="heightMultInput">Height multiplier (1 is square)</label>
+			<input id="gradInput" type="checkbox" checked>
+			<label for="gradInput">Use Gradient</label>
+			<br>
+			<input id="gradInnerSize" type="number" value="0" min="0" max="0.9" step="0.1">
+			<label for="gradInnerSize">Gradient inner multiplier</label>
 			<br>
 			<button id="drawBtn">Draw!</button>
 			<button id="stopDrawingBtn" style="display:none">STOP</button>
@@ -135,7 +128,7 @@
 			<div id="canvResult"></div>
 		</section>
 		<div class="scrollOverflow"></div>
-
+	</div>
 </main>
 </body>
 </html>

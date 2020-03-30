@@ -80,21 +80,22 @@
 			c.setAttribute('width', w);
 			c.setAttribute('height', w);
 			const ctx = c.getContext('2d');
-			ctx.globalAlpha = 0.6;
+			
 			ctx.lineWidth = 1;
 			const center = {x: w/2.0, y: w/2.0};
 			const radius = w * 0.45;
-			ctx.globalCompositeOperation = 'multiply';
+			ctx.globalCompositeOperation = 'screen';
 			const canvResult = document.getElementById('canvResult');
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			ctx.fillStyle = 'white';
+			ctx.fillStyle = 'black';
 			ctx.strokeStyle = 'black';
 			ctx.beginPath();
 			ctx.rect(0, 0, w, w);
 			ctx.fill();
-
+			ctx.globalAlpha = 0.6;
+			
 			let multiplier = parseFloat(document.getElementById('multInput').value);
 			const points = parseInt(document.getElementById('numNails').value);
 			
