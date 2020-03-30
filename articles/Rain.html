@@ -57,7 +57,9 @@
 			});
 			
 			const acceleration = 1.02;
-			const rate = 0.2;
+			
+			
+			//const rate = parseFloat(document.getElementById('rateInput').value);
 
 			function drawBackground(){
 				ctx.fillStyle = 'black';
@@ -71,9 +73,10 @@
 				ctx.fillStyle = 'rgba(12,36,51,0.1)';
 				ctx.fillRect(0, 0, w, w);
 				//drawBackground();
+				//const acceleration = parseFloat(document.getElementById('accelerationInput').value);
 				
-				if(Math.random() < rate){
-					const newDrop = {point: {x: ~~(Math.random() * w), y: ~~(Math.random() * w)}, speed: 1};
+				if(Math.random() < parseFloat(document.getElementById('rateInput').value)){
+					const newDrop = {point: {x: ~~(Math.random() * w), y: ~~(mapLinear(Math.random(), 0, 1, -w*0.2 , w*0.9))}, speed: 1};
 					drops.push(newDrop);
 				}
 
@@ -158,24 +161,23 @@
 <main>
 	<div class="pageWidth">
 		<header>
-			<h1>Gauss</h1>
+			<h1>Rain</h1>
 		</header>
+		
 		<section>
-			<input id="animateInput" type="checkbox" checked>
-			<label for="animateInput">Animate</label>
-			<br>
-			<input id="colorInput" type="checkbox" checked>
-			<label for="colorInput">Use color</label>
-			<br>
-			<input id="gradInput" type="checkbox" checked>
-			<label for="gradInput">Use Gradient</label>
-			<br>
-			<input id="gradInnerSize" type="number" value="0" min="0" max="0.9" step="0.1">
-			<label for="gradInnerSize">Gradient inner multiplier</label>
-			<br>
-			<button id="drawBtn">Draw!</button>
-			<button id="stopDrawingBtn" style="display:none">STOP</button>
-
+			<div class="optionsArea">
+				<div class="op">
+					<input id="rateInput" type="number" min="0" max="1" value="0.2" step="0.05">
+					<label for="rateInput">Rainfall Rate</label>
+				</div>
+				
+			</div>
+			<div class="optionsArea">
+				<div class="op">
+					<button id="drawBtn">Draw!</button>
+					<button id="stopDrawingBtn" style="display:none">STOP</button>
+				</div>
+			</div>
 			<div id="sizeCalc"></div>
 			<img id="modMulResult">
 			<div id="canvResult"></div>
