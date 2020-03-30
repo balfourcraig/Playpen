@@ -3,7 +3,7 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
-	<title>Gauss - Craig's Playpen</title>
+	<title>Rain - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
@@ -70,13 +70,17 @@
 			}
 			
 			function drawDots(){
-				ctx.fillStyle = 'rgba(12,36,51,0.1)';
+				ctx.fillStyle = 'rgba(0,0,0,0.1)';
 				ctx.fillRect(0, 0, w, w);
 				//drawBackground();
 				//const acceleration = parseFloat(document.getElementById('accelerationInput').value);
 				
 				if(Math.random() < parseFloat(document.getElementById('rateInput').value)){
-					const newDrop = {point: {x: ~~(Math.random() * w), y: ~~(mapLinear(Math.random(), 0, 1, -w*0.2 , w*0.9))}, speed: 1};
+					const h = mapLinear(Math.random(), 0, 1, 195, 230);
+					const s = mapLinear(Math.random(), 0, 1, 85, 100);
+					const l = mapLinear(Math.random(), 0, 1, 75, 95);
+					const color = 'hsl(' + h + ',' + s + '%,' + l + '%)';
+					const newDrop = {point: {x: ~~(Math.random() * w), y: ~~(mapLinear(Math.random(), 0, 1, -w*0.2 , w*0.9))}, speed: 1, color: color, rad: mapLinear(Math.random(), 0, 1, 15, 20)};
 					drops.push(newDrop);
 				}
 
@@ -85,7 +89,9 @@
 
 					d.speed *= acceleration;
 					const pointTo = {x: d.point.x, y: d.point.y + d.speed};
-					drawLine(ctx, d.point, pointTo, 'dodgerblue');
+					
+					ctx.lineWidth = d.rad;
+					drawLine(ctx, d.point, pointTo, d.color);
 					d.point = pointTo;
 					
 					if(pointTo.y > w){
