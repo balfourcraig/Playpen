@@ -9,6 +9,14 @@ function nextGoldenRand(){
 	return randh;
 }
 
+function getUrlVars() {
+	var vars = {};
+	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+		vars[key] = value;
+	});
+	return vars;
+}
+
 function stringHash(s, seed){
 	const phi = 0.618033988749895;
 	let hash = seed / phi;
@@ -50,16 +58,7 @@ function shuffleInplace(arr){
 	}
 }
 
-function shuffleInplaceGolden(arr){
-	let n = arr.length;
-	while(n > 0){
-		const r = Math.floor(nextGoldenRand() * n);
-		const temp = arr[r];
-		arr[r] = arr[n-1];
-		arr[n-1] = temp;
-		n--;
-	}
-}
+
 
 function randomColor() {
 	var letters = '0123456789ABC';
