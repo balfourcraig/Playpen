@@ -9,21 +9,31 @@
 	<script src="../scripts/utils.js"></script>
 	<script>
 		let animationID = null;
-
+		let drops = [];
+		let c;
+		let ctx;
+		let isSetUp = false;
+		let lastMousePos = null;
+		
 		function setUp(){
 			window.cancelAnimationFrame(animationID);
 
 			document.getElementById('drawBtn').setAttribute('style','display:none');
 			document.getElementById('stopDrawingBtn').removeAttribute('style');
+			isSetUp = true;
 			
 			window.cancelAnimationFrame(animationID);
-			const c = document.createElement('canvas');
+			c = document.createElement('canvas');
 			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 			c.setAttribute('width', w);
 			c.setAttribute('height', w);
-			const ctx = c.getContext('2d');
+			ctx = c.getContext('2d');
 			const center = {x: w/2.0, y: w/2.0};
-			
+			c.addEventListener('mousemove', onMouseOver);
+			c.addEventListener('mouseleave', () => {
+				lastMousePos = null;
+			});
+
 			const canvResult = document.getElementById('canvResult');
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
@@ -35,8 +45,8 @@
 			ctx.lineWidth = 16;
 			//const drop1 = {point: {x: w / 2, y: 0}, speed: 1};
 			//const drops = [drop1];
-			const drops = [];
-			
+			drops = [];
+
 			animationID = window.requestAnimationFrame(() => {
 				drawDots();
 			});
@@ -48,15 +58,11 @@
 				ctx.fillRect(0, 0, w, w);
 
 				if(Math.random() < parseFloat(document.getElementById('rateInput').value)){
-					const h = mapLinear(Math.random(), 0, 1, 195, 230);
-					const s = mapLinear(Math.random(), 0, 1, 85, 100);
-					const l = mapLinear(Math.random(), 0, 1, 75, 95);
-					const color = 'hsl(' + h + ',' + s + '%,' + l + '%)';
-					const newDrop = {point: {x: ~~(Math.random() * w), y: ~~(mapLinear(Math.random(), 0, 1, -w*0.2 , w*0.9))}, speed: 1, color: color, rad: mapLinear(Math.random(), 0, 1, 15, 20)};
-					drops.push(newDrop);
-					
-					if(document.getElementById('splashInput').checked)
-						drawCircle(ctx, newDrop.point, newDrop.rad * 1.2, color);
+					drops.push(dropAtPoint({x: ~~(Math.random() * w), y: ~~(mapLinear(Math.random(), 0, 1, -w*0.2 , w*0.9))}, document.getElementById('splashInput').checked));
+				}
+				
+				if(lastMousePos && document.getElementById('mouseInput').checked && Math.random() < parseFloat(document.getElementById('rateInput').value)){
+					drops.push(dropAtPoint(lastMousePos, document.getElementById('splashInput').checked));
 				}
 
 				for(let i = 0; i < drops.length; i++){
@@ -78,17 +84,30 @@
 					drawDots();
 				});
 			}
-		}
-
-		function removeFromArray(arr, item){
-			for(let i = 0; i < arr.length; i++){
-				if(arr[i] === item){
-					arr.splice(i,1);
-					return;
+			
+			function onMouseOver(e){
+				if(isSetUp){
+					let canvRect = c.getBoundingClientRect();
+					lastMousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+					
+					//const newDrop = dropAtPoint(mousePoint, document.getElementById('splashInput').checked);
+					//drops.push(newDrop);
 				}
 			}
+			
+			function dropAtPoint(point, drawSplash){
+				const h = mapLinear(Math.random(), 0, 1, 195, 230);
+				const s = mapLinear(Math.random(), 0, 1, 85, 100);
+				const l = mapLinear(Math.random(), 0, 1, 75, 95);
+				const color = 'hsl(' + h + ',' + s + '%,' + l + '%)';
+				const rad = mapLinear(Math.random(), 0, 1, 15, 20);
+				if(drawSplash)
+					drawCircle(ctx, point, rad * 1.2, color);
+				
+				return {point: point, speed: 1, color: color, rad: rad};
+			}
 		}
-		
+
 		function drawLine(ctx, start, end, color){
 			ctx.strokeStyle = color;
 
@@ -105,11 +124,10 @@
 			ctx.fill();
 		}
 		
-
-
 		window.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('drawBtn').addEventListener('click', setUp);
 			document.getElementById('stopDrawingBtn').addEventListener('click', () => {
+				isSetUp = false;
 				cancelAnimationFrame(animationID);
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 				document.getElementById('drawBtn').removeAttribute('style');
@@ -150,6 +168,10 @@
 				<div class="op">
 					<input id="splashInput" type="checkbox" checked>
 					<label for="splashInput">Show splashes</label>
+				</div>
+				<div class="op">
+					<input id="mouseInput" type="checkbox" checked>
+					<label for="mouseInput">Mouse reactive</label>
 				</div>
 			</div>
 			<div class="optionsArea">
