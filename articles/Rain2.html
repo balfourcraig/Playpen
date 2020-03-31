@@ -98,7 +98,7 @@
 						i--;
 						fadeDrops.push(d);
 						if(showSplashes)
-							splashes.push({point: {x: d.point.x, y: w}, color: d.color, rad: 0.1, opacity: 1});
+							splashes.push({point: {x: d.point.x, y: w}, rad: 0.1, opacity: 1});
 					}
 				}
 				for(let i = 0; i < fadeDrops.length; i++){
@@ -108,7 +108,7 @@
 					d.start = {x: d.start.x, y: d.start.y + d.speed};
 					
 					ctx.lineWidth = d.rad;
-					drawLine(ctx, d.start, pointTo, d.color);
+					drawLine(ctx, d.start, pointTo);
 					//drawCircle(ctx, pointTo, (d.rad * 1.2)/2, d.color);
 					d.point = pointTo;
 					
@@ -122,8 +122,8 @@
 					ctx.globalAlpha = d.opacity;
 					//drawCircle(ctx, d.point, d.rad, d.color);
 					ctx.drawImage(splashImg, d.point.x - d.rad/2, d.point.y - d.rad/2, d.rad, d.rad);
-					d.opacity -= 0.02;
-					d.rad += 10;
+					d.opacity -= 0.04;
+					d.rad += w*0.01;
 					if(d.opacity <= 0){
 						splashes.splice(i,1);
 						i--;
@@ -147,7 +147,7 @@
 				const s = mapLinear(Math.random(), 0, 1, 85, 100);
 				const l = mapLinear(Math.random(), 0, 1, 75, 95);
 				const color = 'hsl(' + h + ',' + s + '%,' + l + '%)';
-				const rad = mapLinear(Math.random(), 0, 1, 20, 30);
+				const rad = mapLinear(Math.random(), 0, 1, w * 0.02, w * 0.03);
 				//if(drawSplash)
 					//drawCircle(ctx, point, rad * 1.2, color);
 				
@@ -155,7 +155,7 @@
 			}
 		}
 
-		function drawLine(ctx, start, end, color){
+		function drawLine(ctx, start, end){
 			const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
 			grad.addColorStop(0, 'transparent');
 			grad.addColorStop(1, 'rgba(0,0,0,0.2)');
