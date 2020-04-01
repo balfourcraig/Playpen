@@ -20,9 +20,13 @@
 
 			const dropImg = document.createElement('img');
 			dropImg.src = '../Images/Drop02.png';
-
-			const splashImg = document.createElement('img');
-			splashImg.src = '../Images/GroundSplash.png';
+			
+			const splashImgs = [];
+			for(let i = 1; i <=3; i++){
+				const splash01 = document.createElement('img');
+				splash01.src = '../Images/GroundSplash0' + i + '.png';
+				splashImgs.push(splash01);
+			}
 			
 			window.cancelAnimationFrame(animationID);
 
@@ -98,7 +102,7 @@
 						i--;
 						fadeDrops.push(d);
 						if(showSplashes)
-							splashes.push({point: {x: d.point.x, y: w}, rad: 0.1, opacity: 1});
+							splashes.push({point: {x: d.point.x, y: w}, rad: 0.1, opacity: 1, glyphID: ~~(Math.random() * splashImgs.length)});
 					}
 				}
 				for(let i = 0; i < fadeDrops.length; i++){
@@ -121,7 +125,8 @@
 					const d = splashes[i];
 					ctx.globalAlpha = d.opacity;
 					//drawCircle(ctx, d.point, d.rad, d.color);
-					ctx.drawImage(splashImg, d.point.x - d.rad/2, d.point.y - d.rad/2, d.rad, d.rad);
+					splash = splashImgs[d.glyphID];
+					ctx.drawImage(splash, d.point.x - d.rad/2, d.point.y - d.rad/2, d.rad, d.rad);
 					d.opacity -= 0.04;
 					d.rad += w*0.01;
 					if(d.opacity <= 0){
