@@ -188,6 +188,14 @@ button:disabled:hover{
 	padding: 1rem;
 }
 
+.pendulumOptions{
+	
+}
+
+.pendulumOptions .op{
+	border-bottom: 1px dotted black;
+}
+
 .tab{
 	display: none;
 }
