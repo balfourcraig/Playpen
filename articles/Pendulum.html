@@ -97,7 +97,6 @@
 					prevPoint: null,
 					color: 'hsl(' + (i * (360/numPens)) + ', 80%, 50%)',
 				};
-				console.log(pen.Theta1);
 				pendula.push(pen);
 			}
 
@@ -170,7 +169,7 @@
 			document.getElementById('theta1DiffInput').value = boundedRandom(-1, 1);
 			document.getElementById('theta2InitialInput').value = boundedRandom(0.05, 2);
 			document.getElementById('theta2DiffInput').value = boundedRandom(-1, 1) * 0.5;
-			document.getElementById('numLinesInput').value = boundedRandom(1, 100);
+			document.getElementById('numLinesInput').value = getRandomInt(15, 150);
 			
 			document.getElementById('m1InitialInput').value = boundedRandom(5, 25);
 			document.getElementById('m1DiffInput').value = boundedRandom(-1, 1) * 0.5;
