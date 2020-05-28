@@ -58,8 +58,6 @@ function shuffleInplace(arr){
 	}
 }
 
-
-
 function randomColor() {
 	var letters = '0123456789ABC';
 	var color = '#';
