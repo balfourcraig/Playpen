@@ -215,29 +215,32 @@
 			<h1>Pythagoras Tree</h1>
 		</header>
 		<section>
+			<div id="sizeCalc"></div>
+			<div id="canvResult"></div>
+		
 			<div class="optionsArea">
 				<div class="op">
-					<input id="colorInput" type="checkbox" checked>
+					<input id="colorInput" type="checkbox">
 					<label for="colorInput">Use color</label>
 				</div>
 				<div class="op">
-					<input id="randInput" type="number" value="0.5" min="0" max="1" step="0.05">
+					<input id="randInput" type="number" value="0" min="0" max="1" step="0.05">
 					<label for="randInput">Random factor<label>
 				</div>
 				<div class="op">
-					<input id="branchesInput" type="number" value="10" min="1">
+					<input id="branchesInput" type="number" value="11" min="1">
 					<label for="branchesInput">Branch depth<label>
 				</div>
 				<div class="op">
-					<input id="rootsInput" type="number" value="5" min="0">
+					<input id="rootsInput" type="number" value="11" min="0">
 					<label for="rootsInput">Root depth<label>
 				</div>
 				<div class="op">
-					<input id="leanFromInput" type="number" value="-0.1" step="0.05">
+					<input id="leanFromInput" type="number" value="-0.2" step="0.05">
 					<label for="leanFromInput">X Range From<label>
 				</div>
 				<div class="op">
-					<input id="leanToInput" type="number" value="1" step="0.05">
+					<input id="leanToInput" type="number" value="1.2" step="0.05">
 					<label for="leanToInput">X Range To<label>
 				</div>
 				<div class="op" title="Reflect branches if they cross the horizon">
@@ -249,10 +252,6 @@
 					<label for="backgroundInput">Draw background<label>
 				</div>
 			</div>
-
-			<div id="sizeCalc"></div>
-			<img id="modMulResult">
-			<div id="canvResult"></div>
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>
