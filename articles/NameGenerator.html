@@ -13,6 +13,54 @@
 		}
 	</style>
 	<script>
+		const surnameSuffixes = [
+			'BERG',
+			'HILL',
+			'WARD',
+			'WOOD',
+			'Y',
+			'SON',
+			'S',
+			'O',
+			'I',
+			'A',
+			'HAM',
+			'ER',
+			'ERS',
+			'LER',
+			'NER',
+			'SOV',
+			'NOV',
+			'LOV',
+			'SKI',
+			'VIC',
+			'OVA',
+			'OV',
+			'SEN',
+			'GAARD',
+			'NEN',
+			'HOLM',
+			'TINEZ',
+			'MANN',
+			'AZ',
+			'EZ',
+			'SKAS',
+			'EIRA',
+			'TON',
+			'ALD',
+			
+		];
+		
+		const surnamePrefixes = [
+			'MC\'',
+			'MAC',
+			'VON ',
+			'VAN ',
+			'DE ',
+			'O\'',
+			'VAN DER ',
+		];
+	
 		const vowels = [
 			'A',
             'E',
@@ -69,38 +117,70 @@
 		
 		const randConsonant = () => consonants[getRandomInt(0, consonants.length -1)];
 		const randVowel = () => vowels[getRandomInt(0, vowels.length-1)];
+		const randSuffix = () => surnameSuffixes[getRandomInt(0, surnameSuffixes.length-1)];
+		const randPrefix = () => surnamePrefixes[getRandomInt(0, surnamePrefixes.length-1)];
 		
-		function firstName(){
+		function firstName(maxLength){
 			let name = randConsonant();
-			for(let i = 0; i < getRandomInt(1,4); i++){
+			for(let i = 0; i < getRandomInt(1, maxLength); i++){
 				name += randVowel() + randConsonant();
 			}
 			name = name[0] + name.toLowerCase().substring(1);
 			return name;
 		}
 		
-		function surname(){
-			return Math.random() < 0.2 ? firstName() + '-' + firstName() : firstName();
+		function surname(allowHyphen, allowPrefix){
+			let name = firstName(3);
+			
+			if(Math.random() < 0.8){
+				name += randSuffix();
+			}
+			if(allowPrefix && Math.random() < 0.3){
+				name = randPrefix() + name;
+			}
+			
+			name = name.toUpperCase();
+			name = name[0] + name.toLowerCase().substring(1);
+			
+			if(allowHyphen && Math.random() < 0.15){
+				name += '-' + surname(false, false);
+			}
+
+			return name;
 		}
 		
 		function name(){
-			return firstName() + ' ' + surname();
+			return firstName(5) + ' ' + surname(true, true);
 		}
 		
-		function printNames(numToPrint){
-			document.getElementById('nameList').innerHTML = '';
+		function printNames(numToPrint, append){
+			const nameList = document.getElementById('nameList');
+			const showSurnames = document.getElementById('showSurnamesInput').checked;
+			if(!append){
+				nameList.innerHTML = '';
+			}
 			const list = document.createElement('ul');
 			for(let i = 0; i < numToPrint; i++){
 				const item = document.createElement('li');
-				item.innerText = name();
+				if(showSurnames)
+					item.innerText = name();
+				else
+					item.innerText = firstName(5);
 				list.appendChild(item);
 			}
-			document.getElementById('nameList').appendChild(list);
+			nameList.appendChild(list);
+			const moreBtn = document.createElement('button');
+			moreBtn.innerText = '10 more...';
+			moreBtn.addEventListener('click', () => {
+				printNames(15, true);
+				moreBtn.parentElement.removeChild(moreBtn);
+			});
+			nameList.appendChild(moreBtn);
 		}
-		
+
 		window.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('genBtn').addEventListener('click', () => {
-				printNames(parseInt(document.getElementById('numNamesInput').value));
+				printNames(parseInt(document.getElementById('numNamesInput').value), false);
 			});
 		});
 	</script>
@@ -125,8 +205,12 @@
 					<input id="numNamesInput" type="number" value="50">
 					<label for="numNamesInput">Number to generate</label>
 				</div>
+				<div class="op">
+					<input id="showSurnamesInput" type="checkbox" checked>
+					<label for="showSurnamesInput">Show surnames</label>
+				</div>
 			</div>
-			<button id="genBtn">GO!</button>
+			<button id="genBtn">Generate</button>
 		</section>
 		<section>
 			<div id="nameList"></div>
