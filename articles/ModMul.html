@@ -76,12 +76,12 @@
 			ctx.lineWidth = 1;
 			const center = {x: w/2.0, y: w/2.0};
 			const radius = w * 0.45;
-			ctx.globalCompositeOperation = 'screen';
+			ctx.globalCompositeOperation = 'multiply';
 			const canvResult = document.getElementById('canvResult');
 			canvResult.innerHTML = '';
 			canvResult.appendChild(c);
 			
-			ctx.fillStyle = 'black';
+			ctx.fillStyle = 'white';
 			ctx.strokeStyle = 'black';
 			ctx.beginPath();
 			ctx.rect(0, 0, w, w);

@@ -19,7 +19,7 @@
 			c.setAttribute('width', w);
 			c.setAttribute('height', w);
 			const ctx = c.getContext('2d');
-			ctx.globalAlpha = 0.6;
+			
 			ctx.lineWidth = 2;
 			const center = {x: w/2.0, y: w/2.0};
 			const radius = w * 0.095;
@@ -33,7 +33,7 @@
 			ctx.beginPath();
 			ctx.rect(0, 0, w, w);
 			ctx.fill();
-
+			ctx.globalAlpha = 0.6;
 			const level1 = [];
 			const level2 = [];
 			
