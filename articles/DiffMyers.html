@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Myers' Diff Algorithm - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<script src="../scripts/myersDiff.js"></script>
+	<style>
+		.diffInput{
+			width: 100%;
+			resize: vertical;
+		}
+	</style>
+	<script>
+		function calcMyersAndDisplay(){
+			const text1 = document.getElementById('text1Area').value.split(' ');
+			const text2 = document.getElementById('text2Area').value.split(' ');
+			
+			const result = diffText(text1, text2);
+			
+			console.log(result);
+			
+			const output = document.getElementById('diffResult');
+			output.innerText = result;
+		}
+		
+		
+		
+		window.addEventListener('DOMContentLoaded', () => {
+			calcMyersAndDisplay();
+			document.getElementById('text1Area').addEventListener('input', calcMyersAndDisplay);
+			document.getElementById('text2Area').addEventListener('input', calcMyersAndDisplay);
+		});
+	</script>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-160042243-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-160042243-1');
+	</script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Myers' Diff Algorithm</h1>
+		</header>
+		<section>
+			<textarea id="text1Area" class="diffInput">Text 1</textarea>
+			<textarea id="text2Area" class="diffInput">Text 2</textarea>
+			<hr>
+			<div id="diffResult"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>

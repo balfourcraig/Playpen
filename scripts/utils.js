@@ -41,11 +41,7 @@ function roundToPrecision(val, precision){
 	return Math.round(val * multiplier) / multiplier;
 }
 
-function getRandomInt(min, max) {
-	min = Math.ceil(min);
-	max = Math.floor(max);
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+
 
 function shuffleInplace(arr){
 	let n = arr.length;
@@ -57,8 +53,6 @@ function shuffleInplace(arr){
 		n--;
 	}
 }
-
-
 
 function randomColor() {
 	var letters = '0123456789ABC';
@@ -111,6 +105,12 @@ function getRandomInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function boundedRandom(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return (Math.random() * (max - min)) + min;
+}
+
 function subdivideLine(p1, p2, totalSegments, seg){
 	const xDiff = p2.x - p1.x;
 	const yDiff = p2.y - p1.y;
@@ -146,4 +146,8 @@ function MapPointSpace(point, xFromStart, xFromEnd, xToStart, xToEnd, yFromStart
 		x: mapLinear(point.x, xFromStart, xFromEnd, xToStart, xToEnd),
 		y: mapLinear(point.y, yFromStart, yFromEnd, yToStart, yToEnd),
 	};
+}
+
+function capitalize(s){
+	return s[0].toUpperCase() + s.toLowerCase().substring(1);
 }

@@ -10,6 +10,21 @@
 	<script>
 		let animationID = null;
 		
+		function setUpBlankCanvas(){
+			const c = document.createElement('canvas');
+			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			c.setAttribute('width', w);
+			c.setAttribute('height', w);
+			const ctx = c.getContext('2d');
+			
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			ctx.fillStyle = '#eee';
+			ctx.fillRect(0, 0, w, w);
+		}
+		
 		function drawPattern(){
 			let x = 0;
 			let y = 0;
@@ -105,6 +120,7 @@
 				document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 				document.getElementById('drawBtn').removeAttribute('style');
 			});
+			setUpBlankCanvas();
 		});
 	</script>
 </head>
@@ -124,6 +140,17 @@
 		<section>
 			<div class="optionsArea">
 				<div class="op">
+					<button id="drawBtn">Draw!</button>
+					<button id="stopDrawingBtn" style="display:none">STOP</button>
+				</div>
+			</div>
+			
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"><canvas id="canvas"></canvas></div>
+			
+			<div class="optionsArea">
+				<div class="op">
 					<input id="animateInput" type="checkbox" checked>
 					<label for="animateInput">Animate</label>
 				</div>
@@ -140,12 +167,6 @@
 					<label for="opacityInput">Point Opacity</label>
 				</div>
 			</div>
-			<button id="drawBtn">Draw!</button>
-			<button id="stopDrawingBtn" style="display:none">STOP</button>
-			
-			<div id="sizeCalc"></div>
-			<img id="modMulResult">
-			<div id="canvResult"><canvas id="canvas"></canvas></div>
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>
