@@ -66,7 +66,7 @@ const latinVowel = () => latinElement('vowelSounds');
 
 function latinFirstname(gender){
 	let name = '';
-	for(let i = 0; i < getRandomInt(1,3); i++){
+	for(let i = 0; i < getRandomInt(1,2); i++){
 		name += latinVowel() + latinConsonant()
 	}
 	if(gender === 'M')

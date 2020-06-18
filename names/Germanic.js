@@ -23,6 +23,24 @@ const germanicData = JSON.parse(`{
 		"Dame",
 		"Archduchess"
 	],
+	"numbers":[
+		"II",
+		"III",
+		"IV",
+		"V",
+		"VI",
+		"VII",
+		"VIII",
+		"IX",
+		"X",
+		"XI",
+		"XII",
+		"XIII",
+		"XIV",
+		"XV",
+		"XVI",
+		"XVII"
+	],
 	"descriptions": [
 		"Destroyer",
 		"Conqueror",
@@ -351,9 +369,12 @@ function germanicName(gender){
 	if((flags & 2) === 2)
 		name += ' ' + germanicSurname(gender);
 	
-	if((flags & 16) === 16)
-		name += ' the ' + germanicDescription();
-	
+	if((flags & 16) === 16){
+		if(Math.random() < 0.3)
+			name += ' ' + germanicElement('numbers');
+		else
+			name += ' the ' + germanicDescription();
+	}
 	if((flags & 8) === 8){
 		if(Math.random() < 0.3)
 			name += ' of ' + germanicLocation();
