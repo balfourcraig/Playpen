@@ -147,3 +147,7 @@ function MapPointSpace(point, xFromStart, xFromEnd, xToStart, xToEnd, yFromStart
 		y: mapLinear(point.y, yFromStart, yFromEnd, yToStart, yToEnd),
 	};
 }
+
+function capitalize(s){
+	return s[0].toUpperCase() + s.toLowerCase().substring(1);
+}

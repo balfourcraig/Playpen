@@ -13,6 +13,29 @@
 		}
 	</style>
 	<script>
+		const titles = [
+			'Mr.',
+			'Mrs.',
+			'Miss.',
+			'Ms.',
+			'Sir',
+			'Dame',
+			'Lord',
+			'Lady',
+			'Baron',
+			'Baroness',
+			'Count',
+			'Countess',
+			'King',
+			'Queen',
+			'Emperor',
+			'Empress',
+			'Rev.',
+			'Dr.',
+			'St.',
+			'Chief',
+		];
+	
 		const surnameSuffixes = [
 			'BERG',
 			'HILL',
@@ -48,7 +71,6 @@
 			'EIRA',
 			'TON',
 			'ALD',
-			
 		];
 		
 		const surnamePrefixes = [
@@ -119,8 +141,9 @@
 		const randVowel = () => vowels[getRandomInt(0, vowels.length-1)];
 		const randSuffix = () => surnameSuffixes[getRandomInt(0, surnameSuffixes.length-1)];
 		const randPrefix = () => surnamePrefixes[getRandomInt(0, surnamePrefixes.length-1)];
+		const randTitle = () => titles[getRandomInt(0, titles.length-1)];
 		
-		function firstName(maxLength){
+		function nameSegment(maxLength){
 			let name = randConsonant();
 			for(let i = 0; i < getRandomInt(1, maxLength); i++){
 				name += randVowel() + randConsonant();
@@ -129,8 +152,23 @@
 			return name;
 		}
 		
+		function firstName(maxLength, allowTitles){
+			let name = '';
+			
+			name += randConsonant();
+			for(let i = 0; i < getRandomInt(1, maxLength); i++){
+				name += randVowel() + randConsonant();
+			}
+			name = name[0] + name.toLowerCase().substring(1);
+			
+			if(allowTitles && Math.random() < 0.4)
+				name = randTitle() + ' ' + name;
+			
+			return name;
+		}
+		
 		function surname(allowHyphen, allowPrefix){
-			let name = firstName(3);
+			let name = nameSegment(3);
 			
 			if(Math.random() < 0.8){
 				name += randSuffix();
@@ -149,13 +187,14 @@
 			return name;
 		}
 		
-		function name(){
-			return firstName(5) + ' ' + surname(true, true);
+		function name(allowTitles){
+			return firstName(3, allowTitles) + ' ' + surname(true, true);
 		}
 		
 		function printNames(numToPrint, append){
 			const nameList = document.getElementById('nameList');
 			const showSurnames = document.getElementById('showSurnamesInput').checked;
+			const showTitles = document.getElementById('showTitlesInput').checked;
 			if(!append){
 				nameList.innerHTML = '';
 			}
@@ -163,7 +202,7 @@
 			for(let i = 0; i < numToPrint; i++){
 				const item = document.createElement('li');
 				if(showSurnames)
-					item.innerText = name();
+					item.innerText = name(showTitles);
 				else
 					item.innerText = firstName(5);
 				list.appendChild(item);
@@ -208,6 +247,10 @@
 				<div class="op">
 					<input id="showSurnamesInput" type="checkbox" checked>
 					<label for="showSurnamesInput">Show surnames</label>
+				</div>
+				<div class="op">
+					<input id="showTitlesInput" type="checkbox" checked>
+					<label for="showTitlesInput">Allow Titles</label>
 				</div>
 			</div>
 			<button id="genBtn">Generate</button>

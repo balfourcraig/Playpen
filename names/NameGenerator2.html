@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Name Generator - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<style>
+		#nameList li{
+			padding: 10px;
+		}
+		.genderM{
+			color: #316ecc;
+		}
+		.genderF{
+			color: #f44d8c;
+		}
+	</style>
+	<script src="Latin.js"></script>
+	<script src="Germanic.js"></script>
+	<script>
+		function printNames(numToPrint, append){
+			const nameList = document.getElementById('nameList');
+			const genderFilter = document.getElementById('genderSelect').value;
+			
+			let nameFunc;
+			switch(document.getElementById('cultureSelect').value){
+				case 'latin':
+					nameFunc = latinName;
+					break;
+				case 'germanic':
+					nameFunc = germanicFirstname;
+					break;
+				default:
+					nameFunc = (x) => console.log('Unknown culture');
+			}
+			
+			if(!append){
+				nameList.innerHTML = '';
+			}
+			const list = document.createElement('ul');
+			for(let i = 0; i < numToPrint; i++){
+				const item = document.createElement('li');
+				let gender = genderFilter;
+				if(gender === 'MF')
+					gender = Math.random() > 0.5 ? 'M' : 'F';
+				
+				item.innerText = nameFunc(gender);
+				item.setAttribute('class', 'gender' + gender);
+				list.appendChild(item);
+			}
+			nameList.appendChild(list);
+			const moreBtn = document.createElement('button');
+			moreBtn.innerText = '10 more...';
+			moreBtn.addEventListener('click', () => {
+				printNames(15, true);
+				moreBtn.parentElement.removeChild(moreBtn);
+			});
+			nameList.appendChild(moreBtn);
+		}
+
+		window.addEventListener('DOMContentLoaded', () => {
+			document.getElementById('genBtn').addEventListener('click',() => {
+				const numToPrint = parseInt(document.getElementById('numNamesInput').value);
+				printNames(numToPrint, false);
+			});
+		});
+	</script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Name Generator</h1>
+		</header>
+		<section>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="numNamesInput" type="number" value="50">
+					<label for="numNamesInput">Number to generate</label>
+				</div>
+				<div class="op">
+					<select id="genderSelect">
+						<option value="MF">Both</option>
+						<option value="M" class="genderM">Male</option>
+						<option value="F" class="genderF">Female</option>
+					</select>
+					<label for="genderSelect">Gender</label>
+				</div>
+				<div class="op">
+					<select id="cultureSelect">
+						<option value="latin">Roman</option>
+						<option value="germanic" selected>Germanic</option>
+					</select>
+					<label for="cultureSelect">Culture</label>
+				</div>
+			</div>
+			<button id="genBtn">Generate</button>
+		</section>
+		<section>
+			<div id="nameList"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
