@@ -1,7 +1,7 @@
 const germanicData = JSON.parse(`{
 	"title": "Germanic",
 	"combinationBitflags":[
-		3,6,7,9,14,15,17,22
+		3,6,7,9,11,14,15,17,19,22
 	],
 	"titlesM": [
 		"Count",
@@ -11,7 +11,16 @@ const germanicData = JSON.parse(`{
 		"Duke",
 		"Lord",
 		"Sir",
-		"Archduke"
+		"Archduke",
+		"Kaiser",
+		"Pope",
+		"Grand Duke",
+		"Viscount",
+		"Elder",
+		"Earl",
+		"Brother",
+		"Father",
+		"Chamberlain"
 	],
 	"titlesF": [
 		"Countess",
@@ -21,7 +30,12 @@ const germanicData = JSON.parse(`{
 		"Duchess",
 		"Lady",
 		"Dame",
-		"Archduchess"
+		"Archduchess",
+		"Canoness",
+		"Sister",
+		"Mother",
+		"Venerable Mother",
+		"Viscountess"
 	],
 	"numbers":[
 		"II",
@@ -308,7 +322,15 @@ const germanicData = JSON.parse(`{
 		"BURG",
 		"HEIM",
 		"HOSSEN",
-		"GRAD"
+		"GRAD",
+		"HOLM",
+		"STEIN",
+		"IA",
+		"GART",
+		"GOROD",
+		"DORF",
+		"WOLD",
+		"FORT"
 	]
 }
 `);
@@ -331,7 +353,7 @@ function germanicFirstname(gender, maxLength){
 }
 
 function germanicSurname(gender){
-	return germanicFirstname(gender, 3) + (Math.random() < 0.8 ? 'er' : '');
+	return germanicFirstname(gender, 2) + (Math.random() < 0.8 ? 'er' : '');
 }
 
 function germanicTitle(gender){
@@ -360,7 +382,7 @@ function germanicName(gender){
 
 	let name = '';
 	
-	if((flags & 4) === 4)
+	if((flags & 4) === 4 && Math.random() < 0.8)
 		name += germanicTitle(gender);
 	
 	if((flags & 1) === 1)
@@ -370,7 +392,7 @@ function germanicName(gender){
 		name += ' ' + germanicSurname(gender);
 	
 	if((flags & 16) === 16){
-		if(Math.random() < 0.3)
+		if(Math.random() < 0.35)
 			name += ' ' + germanicElement('numbers');
 		else
 			name += ' the ' + germanicDescription();
@@ -385,7 +407,7 @@ function germanicName(gender){
 	}
 		
 	
-	return name;
+	return name.trim();
 	
 	//return germanicFirstname(gender, 2) + ' ' + germanicSurname(gender);
 }
