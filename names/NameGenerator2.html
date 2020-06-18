@@ -20,6 +20,7 @@
 	</style>
 	<script src="Latin.js"></script>
 	<script src="Germanic.js"></script>
+	<script src="Maori.js"></script>
 	<script>
 		function printNames(numToPrint, append){
 			const nameList = document.getElementById('nameList');
@@ -32,6 +33,9 @@
 					break;
 				case 'germanic':
 					nameFunc = germanicName;
+					break;
+				case 'maori':
+					nameFunc = maoriName;
 					break;
 				default:
 					nameFunc = (x) => console.log('Unknown culture');
@@ -47,7 +51,7 @@
 				if(gender === 'MF')
 					gender = Math.random() > 0.5 ? 'M' : 'F';
 				
-				item.innerText = nameFunc(gender);
+				item.innerHTML = nameFunc(gender);
 				item.setAttribute('class', 'gender' + gender);
 				list.appendChild(item);
 			}
@@ -101,6 +105,7 @@
 					<select id="cultureSelect">
 						<option value="latin">Roman</option>
 						<option value="germanic">Germanic</option>
+						<option value="maori">Maori</option>
 					</select>
 					<label for="cultureSelect">Culture</label>
 				</div>

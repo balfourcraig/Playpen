@@ -149,5 +149,5 @@ function MapPointSpace(point, xFromStart, xFromEnd, xToStart, xToEnd, yFromStart
 }
 
 function capitalize(s){
-	return s[0].toUpperCase() + s.toLowerCase().substring(1);
+	return s[0] + s.toLowerCase().substring(1);
 }
