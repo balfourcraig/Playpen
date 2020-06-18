@@ -3,6 +3,84 @@ const germanicData = JSON.parse(`{
 	"combinationBitflags":[
 		3,6,7,9,14,15,17,22
 	],
+	"titlesM": [
+		"Count",
+		"Baron",
+		"King",
+		"Prince",
+		"Duke",
+		"Lord",
+		"Sir",
+		"Archduke"
+	],
+	"titlesF": [
+		"Countess",
+		"Baroness",
+		"Queen",
+		"Princess",
+		"Duchess",
+		"Lady",
+		"Dame",
+		"Archduchess"
+	],
+	"descriptions": [
+		"Destroyer",
+		"Conqueror",
+		"Great",
+		"Bastard",
+		"Unready",
+		"Boneless",
+		"Ancient",
+		"Addable",
+		"Ambitious",
+		"Apostle",
+		"Avenger",
+		"Beloved",
+		"Blind",
+		"Bloody",
+		"Builder",
+		"Confessor",
+		"Crazy",
+		"Crosseyed",
+		"Devil",
+		"Elder",
+		"Eloquent",
+		"Exile",
+		"Fair",
+		"Fat",
+		"Swift",
+		"Fearless",
+		"Good",
+		"Holy",
+		"Hopeful",
+		"Invincible",
+		"Just",
+		"Lion",
+		"Lamb",
+		"Mad",
+		"Magnanimous",
+		"Monk",
+		"Old",
+		"Pious",
+		"Proud",
+		"Prudent",
+		"Quiet",
+		"Red",
+		"Saint",
+		"Strong",
+		"Tall",
+		"Terrible",
+		"Treacherous",
+		"Unlucky",
+		"Usurper",
+		"Valient",
+		"Warrior",
+		"Weak",
+		"Wicked",
+		"Wise",
+		"Young",
+		"Younger"
+	],
 	"prefixesM": [
 		"LU",
 		"MA",
@@ -206,44 +284,89 @@ const germanicData = JSON.parse(`{
 		"RTR",
 		"NK",
 		"NH"
+	],
+	"locationSuffixes":[
+		"BERG",
+		"BURG",
+		"HEIM",
+		"HOSSEN",
+		"GRAD"
 	]
 }
 `);
 
 const germanicElement = (elName) => germanicData[elName][getRandomInt(0, germanicData[elName].length -1)];
 
-function germanicFirstname(gender){
+function germanicFirstname(gender, maxLength){
 	let name = '';
-	if(gender === 'M')
-		name += germanicElement('prefixesM');
-	for(i = 0; i < getRandomInt(0,2); i++){
-		
+	//if(gender === 'M')
+	name += germanicElement('prefixesM');
+	for(i = 0; i < getRandomInt(0, maxLength); i++){
 		name += germanicElement('consonantSounds');
 		name += germanicElement('vowelSounds');
 	}
+	//if(gender === 'M')
+	name += germanicElement('suffixesM');
+	if(gender === 'F')
+		name += germanicElement('vowelSounds');
+	return capitalize(name);
+}
+
+function germanicSurname(gender){
+	return germanicFirstname(gender, 3) + (Math.random() < 0.8 ? 'er' : '');
+}
+
+function germanicTitle(gender){
 	if(gender === 'M')
-		name += germanicElement('suffixesM');
-	return name;
-}
-
-function germanicSurname(){
-	
-}
-
-function germanicTitle(){
-	
+		return germanicElement('titlesM');
+	else
+		return germanicElement('titlesF');
 }
 
 function germanicLocation(){
-	
+	let name = Math.random() < 0.4 ? '' : germanicElement('vowelSounds');
+	for(i = 0; i < getRandomInt(1,2); i++){
+		name += germanicElement('consonantSounds');
+		name += germanicElement('vowelSounds');
+	}
+	name += germanicElement('locationSuffixes');
+	return capitalize(name);
 }
 
 function germanicDescription(){
-	
+	return germanicElement('descriptions');
 }
 
-function germanicName(){
+function germanicName(gender){
+	const flags = germanicElement('combinationBitflags');
+
+	let name = '';
 	
+	if((flags & 4) === 4)
+		name += germanicTitle(gender);
+	
+	if((flags & 1) === 1)
+		name += ' ' + germanicFirstname(gender, 2);
+	
+	if((flags & 2) === 2)
+		name += ' ' + germanicSurname(gender);
+	
+	if((flags & 16) === 16)
+		name += ' the ' + germanicDescription();
+	
+	if((flags & 8) === 8){
+		if(Math.random() < 0.3)
+			name += ' of ' + germanicLocation();
+		else if(Math.random() < 0.5)
+			name += ' Van' + germanicLocation();
+		else
+			name += ' Von' + germanicLocation();
+	}
+		
+	
+	return name;
+	
+	//return germanicFirstname(gender, 2) + ' ' + germanicSurname(gender);
 }
 
 //1  = Firstname
