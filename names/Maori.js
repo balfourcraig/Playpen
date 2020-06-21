@@ -66,5 +66,7 @@ function maoriSurname(){
 
 function maoriName(gender){
 	let name = maoriFirstname(gender,3) + ' ' + maoriSurname();
-	return name;
+	if(Math.random() < 0.06)
+		name = 'Te ' + name;
+	return {culture: 'Maori', value: name, gender: gender};
 }

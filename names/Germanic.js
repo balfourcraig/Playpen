@@ -407,7 +407,7 @@ function germanicName(gender){
 	}
 		
 	
-	return name.trim();
+	return {culture: 'Germanic', value: name.trim(), gender: gender};
 	
 	//return germanicFirstname(gender, 2) + ' ' + germanicSurname(gender);
 }

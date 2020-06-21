@@ -87,5 +87,5 @@ function latinName(gender){
 	let name = latinFirstname(gender) + ' ' + latinSurname();
 	if(Math.random() < 0.3)
 		name += ' ' + latinSurname();
-	return name;
+	return {culture: 'Latin', value: name, gender: gender};
 }
