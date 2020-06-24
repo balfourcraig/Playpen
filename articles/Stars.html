@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Stars - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	
+	<style>
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 25px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background: dodgerblue;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background: dodgerblue;
+  cursor: pointer;
+  border-radius: 50%;
+}
+	</style>
+	
+	<script src="../scripts/utils.js"></script>
+	<script>
+		const fieldOfView = 90;
+		const stars = [//use objects to describe colour etc
+			
+		];
+	
+		function setUp(){
+			for(i = 0; i < 12; i++){
+				stars.push({x: 360/12 * i, name: i});
+			}
+		}
+	
+		function drawPattern(){
+			const angle = parseInt(document.getElementById('viewDirectionInput').value) + 180;
+			document.getElementById('viewDirLabel').innerText = 'View Direction: ' + angle;
+			const c = document.createElement('canvas');
+			const w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+			c.setAttribute('width', w);
+			const h = 100;
+			c.setAttribute('height', 100);
+			const ctx = c.getContext('2d');
+			const center = {x: w/2.0, y: h/2.0};
+
+			const canvResult = document.getElementById('canvResult');
+			canvResult.innerHTML = '';
+			canvResult.appendChild(c);
+			
+			ctx.fillStyle = 'black';
+			ctx.fillRect(0, 0, w, w);
+			ctx.font = "12px Arial";
+			
+			for(let i = 0; i < stars.length; i++){
+				let pos = null;
+				if(stars[i].x> angle - fieldOfView && stars[i].x < angle + fieldOfView){
+					pos = mapLinear(stars[i].x, angle - fieldOfView, angle + fieldOfView, 0, w);
+				}
+				else if (angle - fieldOfView < 0 && stars[i].x > fullMod(angle - fieldOfView, 360)){
+					pos = mapLinear(stars[i].x - 360, angle - fieldOfView, angle + fieldOfView, 0, w);
+				}
+				else if(angle + fieldOfView > 360 && stars[i].x < angle + fieldOfView - 360){
+					pos = mapLinear(stars[i].x + 360, angle - fieldOfView, angle + fieldOfView, 0, w);
+				}
+				if(pos){
+					drawCircleFade({x: pos, y: h/2}, 4, 'white');
+					ctx.fillStyle = 'lime';
+					ctx.fillText(stars[i].name, pos, h/2);
+				}				
+			}
+			
+			function drawCircleFade(center, radius, color){
+				const grad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, radius);
+				grad.addColorStop(0, color);
+				grad.addColorStop(1, 'transparent');
+				ctx.fillStyle = grad;
+
+				ctx.beginPath();
+				ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+				ctx.fill();
+			}
+		}
+
+		window.addEventListener('DOMContentLoaded', () => {
+			setUp();
+			drawPattern();
+			document.getElementById('viewDirectionInput').addEventListener('input', () => {
+				drawPattern();
+			});
+		});
+	</script>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-160042243-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-160042243-1');
+	</script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Stars</h1>
+		</header>
+		<section>
+			
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"></div>
+			<input type="range" min="-180" max="180" value="0" class="slider" id="viewDirectionInput">
+			<label for="viewDirectionInput" id="viewDirLabel">View Direction: </label>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>

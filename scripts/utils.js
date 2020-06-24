@@ -151,3 +151,8 @@ function MapPointSpace(point, xFromStart, xFromEnd, xToStart, xToEnd, yFromStart
 function capitalize(s){
 	return s[0] + s.toLowerCase().substring(1);
 }
+
+function fullMod(lhs, rhs) {
+	const r = lhs % rhs;
+	return r < 0 ? r + rhs : r;
+}
