@@ -26,6 +26,10 @@ function stringHash(s, seed){
 	return hash % 1;
 }
 
+function radToDeg(rad){
+	return rad * (180/Math.PI);
+}
+
 function cosineInterpolate(start, end, position){
 	const mapped = 0.5 * (-Math.cos(Math.PI * position)) + 0.5;
 	return (mapped * (end - start)) + start;
