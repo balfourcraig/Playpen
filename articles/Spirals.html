@@ -92,7 +92,7 @@
 			}
 		}
 		
-		function drawQuadCurve(ctx, start, control, end, color){			
+		function drawQuadCurve(ctx, start, control, end, color){
 			const grad = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
 			grad.addColorStop(0, 'transparent');
 			grad.addColorStop(0.5, color);

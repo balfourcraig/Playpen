@@ -111,6 +111,14 @@
 					lines.push({from: level2[i], to: level2[(i + 1) % 6]});
 				}
 			}
+			else if (pattern === 'spiral'){
+				for(let i = 0; i < 250; i++){
+					lines.push({
+						from: fibPoint(i, center, w),
+						to: fibPoint(i + 1, center, w)
+					});
+				}
+			}
 			else{
 				circles.push({center: center, radius: radius});
 			}
@@ -156,6 +164,17 @@
 
 			document.getElementById('drawBtn').removeAttribute('style');
 			document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
+		}
+		
+		function fibPoint(i, center, w){
+			const angle = i * goldenAngleRad;
+			const offset = i * w * 0.0035;
+			
+			const x = Math.cos(angle) * offset + center.x;
+			const y = Math.sin(angle) * offset + center.y;
+			
+			const p = {x:x, y:y};
+			return p;
 		}
 		
 		function minPoints(p1, p2, p3){
@@ -365,6 +384,7 @@
 						<option value="nail">Nail Board</option>
 						<option value="seed">Seed of Life</option>
 						<option value="metatron" selected>Metatron's Cube</option>
+						<option value="spiral">Fibonacci Spiral</option>
 					</select>
 					<label for="patternInput">Pattern</label>
 				</div>
