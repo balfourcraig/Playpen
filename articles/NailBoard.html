@@ -57,7 +57,7 @@
 			const animate = document.getElementById('animateInput').checked;
 			
 			const colorMode = document.getElementById('colorModeSelect').value;
-			const useColor = colorMode === 'mono' || colorMode === 'wheel' || colorMode === 'random';
+			const useColor = colorMode !== 'black';
 			const useGradient = colorMode === 'wheel';
 			
 			const drawings = [];
@@ -84,6 +84,15 @@
 								grad.addColorStop(0.1, col1);
 								grad.addColorStop(0.9, col2);
 								grad.addColorStop(1, 'transparent');
+							}
+							else if(colorMode === 'radial'){
+								let dist = Math.max(i,j) - Math.min(i,j);
+								dist = Math.min(dist, points - dist);
+								
+								const col1 = (points / dist) * 120;
+
+								grad.addColorStop(0, 'hsl(' + col1 + ', 80%, 50%)');
+								grad.addColorStop(1, 'hsl(' + col1 + ', 80%, 50%)');
 							}
 							else{
 								grad.addColorStop(0, 'transparent');
@@ -202,6 +211,7 @@
 						<option value="mono">Monochrome</option>
 						<option value="wheel" selected>Wheel</option>
 						<option value="random">Random</option>
+						<option value="radial">Radial</option>
 					</select>
 					<label for="colorModeSelect">Color Mode</label>
 				</div>
