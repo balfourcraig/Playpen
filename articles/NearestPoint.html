@@ -63,28 +63,57 @@
 				lines.push({from: bottomLeft, to: bottomRight});
 			}
 			
-			//Seed of life pattern:
-			//const seedRadius = w * 0.2;
-			//const layers = 4;
-			//circles.push({center: center, radius: seedRadius});
-			//for(let i = 1; i <= layers; i++){
-				//const layerPoints = subdividedHexagonAboutPoint(center, seedRadius * i, i, 0);
-				//for(let j = 0; j < layerPoints.length; j++){
-					//const p = layerPoints[j];
-					//circles.push({center: p, radius: seedRadius});
-				//}
-			//}
-			
-			//Star pattern:
-			const points = parseInt(document.getElementById('pointsInput').value);
-			for(let i = 0; i < points; i++){
-				const pointFrom = pointOnCircle(center, radius, points, i % points);
-				for(let j = i + 1; j < points ; j++){
-					const pointTo = pointOnCircle(center, radius, points, j % points);
-					lines.push({from: pointFrom, to: pointTo});
+			const useSeed = true;
+			const pattern = document.getElementById('patternInput').value;
+			if(pattern === 'seed'){
+				const seedRadius = w * 0.1;
+				const layers = parseInt(document.getElementById('seedLevelsInput').value);;
+				circles.push({center: center, radius: seedRadius});
+				for(let i = 1; i <= layers; i++){
+					const layerPoints = subdividedHexagonAboutPoint(center, seedRadius * i, i, 0);
+					for(let j = 0; j < layerPoints.length; j++){
+						const p = layerPoints[j];
+						circles.push({center: p, radius: seedRadius});
+					}
 				}
 			}
-			circles.push({center: center, radius: radius});
+			else if (pattern === 'nail') {
+				const points = parseInt(document.getElementById('pointsInput').value);
+				for(let i = 0; i < points; i++){
+					const pointFrom = pointOnCircle(center, radius, points, i % points);
+					for(let j = i + 1; j < points ; j++){
+						const pointTo = pointOnCircle(center, radius, points, j % points);
+						lines.push({from: pointFrom, to: pointTo});
+					}
+				}
+				circles.push({center: center, radius: radius});
+			}
+			else if (pattern === 'metatron'){
+				metatronRad = w * 0.095;
+				const level1 = [];
+				const level2 = [];
+				
+				for(let i = 0; i < 6; i++){
+					level1.push(pointOnCircle(center, metatronRad * 2, 6, i));
+					level2.push(pointOnCircle(center, metatronRad * 4, 6, i));
+				}
+				circles.push({center: center, radius: metatronRad})
+				for(let i = 0; i < 6; i++){
+					if(i % 2 === 0){
+						lines.push({from: level2[i], to:  level2[(i + 3) % 6]});
+					}
+					circles.push({center: level1[i], radius: metatronRad});
+					lines.push({from: level1[i], to: level1[(i + 1) % 6]});
+					lines.push({from: level1[i], to: level1[(i + 2) % 6]});
+					circles.push({center: level2[i], radius: metatronRad});
+					lines.push({from: level2[i], to: level1[(i + 4) % 6]});
+					lines.push({from: level2[i], to: level1[(i + 2) % 6]});
+					lines.push({from: level2[i], to: level2[(i + 1) % 6]});
+				}
+			}
+			else{
+				circles.push({center: center, radius: radius});
+			}
 
 			const pixelSize = parseInt(document.getElementById('pixelSizeInput').value);
 			const pixelBorder = parseInt(document.getElementById('pixelBorderInput').value);
@@ -230,6 +259,20 @@
 			}
 			return pointCenters;
 		}
+		
+		function updateTabs(){
+			const pattern = document.getElementById('patternInput').value;
+			const tabs = document.getElementsByClassName('settingsTab');
+			console.log(pattern);
+			console.log(tabs);
+			for(let i = 0; i < tabs.length; i++){
+				console.log(tabs[i].getAttribute('tabName'));
+				if(tabs[i].getAttribute('tabName') === pattern)
+					tabs[i].style.display = null;
+				else
+					tabs[i].style.display = 'none';
+			}
+		}
 
 		window.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('drawBtn').addEventListener('click', drawPattern);
@@ -241,8 +284,10 @@
 			setUpSliderReadout('ColorOffsetInput', 'colourOffsetReadout');
 			setUpSliderReadout('pointsInput', 'pointsReadout');
 			setUpSliderReadout('clampInput', 'clampReadout');
-
+			setUpSliderReadout('seedLevelsInput', 'seedLevelsReadout');
+			document.getElementById('patternInput').addEventListener('change', updateTabs);
 			setUpBlankCanvas();
+			updateTabs();
 		});
 	</script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
@@ -289,32 +334,51 @@
 					<label for="pixelBorderInput">Pixel Border</label>
 				</div>
 				<div class="op">
-					<input id="preventExtrapolationInput" type="checkbox" checked>
+					<input id="preventExtrapolationInput" type="checkbox">
 					<label for="preventExtrapolationInput">Contain Lines</label>
 				</div>
 				<div class="op">
 					<input id="ColorOffsetInput" type="range" min="0" max="360" value="0">
 					<label for="ColorOffsetInput">Color Offset <span id="colourOffsetReadout"></span></label>
 				</div>
+				
+				<div class="op">
+					<input id="avgInput" type="checkbox" checked>
+					<label for="avgInput">All Lines</label>
+				</div>
+				<div class="op">
+					<input id="distMultInput" type="number" min="0.2" value="5" step="0.2">
+					<label for="distMultInput">Distance Multiplier</label>
+				</div>
+				<div class="op">
+					<input id="clampInput" type="range" min="0" value="0.12" step="any" max="0.5">
+					<label for="clampInput">Clamp <span id="clampReadout"></span></label>
+				</div>
+				<div class="op">
+					<input id="pageBordersInput" type="checkbox" checked>
+					<label for="pageBordersInput">Include Borders</label>
+				</div>
+			</div>
+			<div class="optionsArea">
+				<div class="op">
+					<select id="patternInput">
+						<option value="nail">Nail Board</option>
+						<option value="seed">Seed of Life</option>
+						<option value="metatron" selected>Metatron's Cube</option>
+					</select>
+					<label for="patternInput">Pattern</label>
+				</div>
+			</div>
+			<div class="optionsArea settingsTab" tabName="nail">
 				<div class="op">
 					<input id="pointsInput" type="range" min="3" value="7" step="1" max="15">
 					<label for="pointsInput">Star Points <span id="pointsReadout"></span></label>
 				</div>
+			</div>
+			<div class="optionsArea settingsTab" tabName="seed">
 				<div class="op">
-					<input id="avgInput" type="checkbox">
-					<label for="avgInput">All Lines</label>
-				</div>
-				<div class="op">
-					<input id="distMultInput" type="number" min="0.2" value="3" step="0.2">
-					<label for="distMultInput">Distance Multiplier</label>
-				</div>
-				<div class="op">
-					<input id="clampInput" type="range" min="0" value="0.2" step="any" max="0.5">
-					<label for="clampInput">Clamp <span id="clampReadout"></span></label>
-				</div>
-				<div class="op">
-					<input id="pageBordersInput" type="checkbox">
-					<label for="pageBordersInput">Include Borders</label>
+					<input id="seedLevelsInput" type="range" min="0" value="3" step="1" max="5">
+					<label for="seedLevelsInput">Levels <span id="seedLevelsReadout"></span></label>
 				</div>
 			</div>
 		</section>
