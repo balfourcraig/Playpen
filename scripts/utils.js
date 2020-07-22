@@ -9,6 +9,25 @@ function nextGoldenRand(){
 	return randh;
 }
 
+function sumOffsets(el) {
+    let sum = 0;
+    while (el) {
+        sum += el.offsetTop;
+        el = el.offsetParent;
+    }
+    return sum;
+}
+
+function smoothMin(dstA, dstB, k){
+	const h = Math.max(k - Math.abs(dstA-dstB), 0) / k;
+	return Math.min(dstA, dstB) - h*h*h*k*1/6.0;//wut
+}
+
+function bias(x, biasAmount){
+	const k = Math.pow(1-biasAmount, 3);
+	return (x * k) / (x * k - x + 1);
+}
+
 function getUrlVars() {
 	var vars = {};
 	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
