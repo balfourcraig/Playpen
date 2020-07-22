@@ -50,8 +50,10 @@
 			c.addEventListener('mousemove', updatePatternPositions);
 			c.addEventListener('touchmove', updatePatternPositions);
 			
-			if(document.getElementById('InstantInput').checked)
+			if(document.getElementById('InstantInput').checked){
 				drawPattern();
+				//drawTimeout = setTimeout(() => drawPattern(1), 400);
+			}
 			else
 				drawFast();
 		}
@@ -80,11 +82,13 @@
 					
 					if(document.getElementById('InstantInput').checked){
 						drawPattern();
+						clearTimeout(drawTimeout);
+						//drawTimeout = setTimeout(() => drawPattern(1), 400);
 					}
 					else{
 						drawFast();
 						clearTimeout(drawTimeout);
-						drawTimeout = setTimeout(drawPattern, 200);
+						drawTimeout = setTimeout(() => drawPattern(), 200);
 					}
 				}
 			}
@@ -105,7 +109,8 @@
 			ctx.stroke();
 		}
 
-		function drawPattern(){
+		function drawPattern(pixelSizeOverride){
+			clearTimeout(drawTimeout);
 			const ctx = c.getContext('2d');
 			
 			ctx.lineWidth = 1;
@@ -121,7 +126,10 @@
 			ctx.fillRect(0, 0, w, w);
 			ctx.globalAlpha = 1;
 			
-			const pixelSize = parseInt(document.getElementById('PixelSizeInput').value);
+			let pixelSize = pixelSizeOverride;
+			if(pixelSize === undefined || isNaN(pixelSize))
+				pixelSize = parseInt(document.getElementById('PixelSizeInput').value);
+
 			const fill = document.getElementById('FillInput').checked;
 			const smoothing = parseFloat(document.getElementById('SmoothingInput').value);
 
@@ -134,7 +142,7 @@
 					
 					const scaledDist = minDist * 100;
 
-					const color = 'hsl(0, 0%, ' + scaledDist + '%)';
+					const color = 'hsl(' + (minDist * 270 + 120) + ', 70%, ' + scaledDist + '%)';
 					ctx.fillStyle = color;
 					ctx.fillRect(px, py, pixelSize, pixelSize, color);
 				}
