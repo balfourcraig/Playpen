@@ -1,0 +1,26 @@
+#calendar{
+	display: flex;
+	width:100%;
+}
+#calendar .day{
+	width: 100%;
+}
+.hour{
+	font-size: 10px;
+	background-color: #eee;
+	margin: 0px;
+	border:1px solid inset;
+}
+.hour.altRow{
+	background-color: #ddd;
+}
+.hour:hover{
+	background-color: white;
+}
+.event{
+	background-color: green;
+	color: white;
+}
+.event:hover{
+	background-color: limegreen;
+}
