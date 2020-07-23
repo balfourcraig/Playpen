@@ -366,8 +366,8 @@ function drawPattern(pixelSizeOverride){
 			}
 			minDist = bias(minDist, -0.99) * multiplier;
 			
-			const scaledDist = minDist * 100;
-			const color = 'hsl(' + (minDist * 270 + 120) + ', 70%, ' + scaledDist + '%)';
+			const scaledDist = minDist * 95 + 5;
+			const color = 'hsl(' + (minDist * 270 + 300) + ', 70%, ' + scaledDist + '%)';
 			ctx.fillStyle = color;
 			ctx.fillRect(px, py, pixelSize, pixelSize, color);
 		}
