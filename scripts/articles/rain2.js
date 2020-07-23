@@ -6,15 +6,15 @@ let lastMousePos = null;
 
 function setUp(){
 	const img = document.createElement('img');
-	img.src = '../Images/RainBack.jpg';
+	img.src = '../images/rainBack.jpg';
 
 	const dropImg = document.createElement('img');
-	dropImg.src = '../Images/Drop02.png';
+	dropImg.src = '../images/drop02.png';
 	
 	const splashImgs = [];
-	for(let i = 1; i <=3; i++){
+	for(let i = 1; i <= 3; i++){
 		const splash01 = document.createElement('img');
-		splash01.src = '../Images/GroundSplash0' + i + '.png';
+		splash01.src = '../images/groundSplash0' + i + '.png';
 		splashImgs.push(splash01);
 	}
 	
