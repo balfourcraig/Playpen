@@ -1,12 +1,26 @@
-let animationID = null;
-let w = 0;
+function smin(a, b, k){
+    const h = Math.max( k-Math.abs(a-b), 0.0 )/k;
+    return Math.min( a, b ) - h*h*k*(1.0/4.0);
+}
 
+let w = 0;
 let c = null;
 
-let circle = null;
-let box = null;
+let shapes = [];
+let borders = [];
 
 let drawTimeout = null;
+let lastMousePoint = null;
+let holding = null;
+let anchorPoint = null;
+
+function getDrawingMode(){
+	return document.querySelector('input[name="drawMode"]:checked').value
+}
+
+function getDisplayMode(){
+	return document.querySelector('input[name="displayMode"]:checked').value
+}
 
 function setUpBlankCanvas(){
 	c = document.createElement('canvas');
@@ -22,14 +36,18 @@ function setUpBlankCanvas(){
 	ctx.fillStyle = 'white';
 	ctx.fillRect(0, 0, w, w);
 	
-	circle = {
+	const circle = {
+		shapeType: 'circle',
+		dragable: true,
 		center: {
 			x: w * 0.45,
 			y: w * 0.5
 		},
 		radius: w * 0.1
 	};
-	box = {
+	const box = {
+		shapeType: 'rect',
+		dragable: true,
 		topLeft: {
 			x: w * 0.55,
 			y: w * 0.5
@@ -37,51 +55,221 @@ function setUpBlankCanvas(){
 		width: w * 0.2,
 		height: w * 0.2
 	};
+	shapes.push(circle);
+	shapes.push(box);
+	
+	borders.push({
+		shapeType: 'horizontalLine',
+		dragable: false,
+		y: 0
+	});
+	borders.push({
+		shapeType: 'horizontalLine',
+		dragable: false,
+		y: w
+	});
+	borders.push({
+		shapeType: 'verticalLine',
+		dragable: false,
+		x: 0
+	});
+	borders.push({
+		shapeType: 'verticalLine',
+		dragable: false,
+		x: w
+	});
+	
+	c.addEventListener('mousedown', mouseDown);
+	c.addEventListener('mouseup', mouseUp);
 	
 	c.addEventListener('mousemove', updatePatternPositions);
 	c.addEventListener('touchmove', updatePatternPositions);
 	
-	if(document.getElementById('InstantInput').checked){
-		drawPattern();
-		//drawTimeout = setTimeout(() => drawPattern(1), 400);
+	draw();
+}
+
+function mouseUp(e){
+	holding = null;
+	const mode = getDrawingMode();
+	if(mode === 'addCircle' && anchorPoint){
+		let canvRect = c.getBoundingClientRect();
+		const mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+		const rad = distToPoint(anchorPoint, mousePos);
+		const circle = {
+			shapeType: 'circle',
+			dragable: true,
+			center: anchorPoint,
+			radius: rad
+		};
+		shapes.push(circle);
 	}
-	else
-		drawFast();
+	else if (mode === 'addRect' && anchorPoint){
+		let canvRect = c.getBoundingClientRect();
+		const mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+		let xDiff = mousePos.x - anchorPoint.x;
+		let yDiff = mousePos.y - anchorPoint.y;
+		if(xDiff < 0){
+			xDiff *= -1;
+			anchorPoint.x -= xDiff;
+		}
+		if(yDiff < 0){
+			yDiff *= -1;
+			anchorPoint.y -= yDiff;
+		}
+		const rect = {
+			shapeType: 'rect',
+			dragable: true,
+			topLeft: anchorPoint,
+			width: xDiff,
+			height: yDiff
+		};
+		shapes.push(rect)
+	}
+	else if(mode === 'addLine' && anchorPoint){
+		let canvRect = c.getBoundingClientRect();
+		const mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+		const line = {
+			shapeType: 'line',
+			dragable: true,
+			from: anchorPoint,
+			to: mousePos,
+		};
+		shapes.push(line);
+	}
+	anchorPoint = null;
+	draw();
+}
+
+function mouseDown(e) {
+	if(e && e.clientX && e.clientY) {
+		let canvRect = c.getBoundingClientRect();
+		const mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+		
+		const mode = getDrawingMode();
+		for(let i = 0; i < shapes.length; i++){
+			if(shapes[i].dragable && (
+				(shapes[i].shapeType === 'rect' && distToRect(mousePos, shapes[i], w, true) === 0)
+				|| (shapes[i].shapeType === 'circle' && distToCircle(mousePos, shapes[i], w, true) === 0)
+				|| (shapes[i].shapeType === 'line' && distToLine(mousePos, shapes[i], true, w) < 5)
+			)){
+				if(mode === 'drag'){
+					holding = shapes[i];
+					return false;
+				}
+				else if (mode === 'delete'){
+					const index = shapes.indexOf(shapes[i]);
+					shapes.splice(index, 1);
+					return false;
+				}
+			}
+		}
+		if (mode === 'addCircle' || mode === 'addRect' || mode === 'addLine'){
+			anchorPoint = mousePos;
+		}
+	}
 }
 
 function updatePatternPositions(e){
+	const mode = getDrawingMode();
 	if(e && e.clientX && e.clientY) {
 		let canvRect = c.getBoundingClientRect();
-		const ctx = c.getContext('2d');
 		const mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
 		
-		const leftDown = leftMouseButtonOnlyDown = e.buttons === undefined 
-			? e.which === 1 
-			: e.buttons === 1;
+		lastMousePoint = mousePos;
+
+		const traceMouse = document.getElementById('traceMouseInput').checked;
+		const drawInstant = document.getElementById('InstantInput').checked;
 		
-		if(leftDown){
-			if(distToCircle(mousePos, circle, w, true) < 0.001){
-				circle.center = mousePos;
+		if(holding){
+			if(holding.shapeType === 'circle'){
+				holding.center = mousePos;
 			}
-			else if (distToRect(mousePos, box, w, true) < 0.001){
+			else if (holding.shapeType === 'rect'){
 				const newBoxTopLeft = {
-					x: mousePos.x - box.width/2,
-					y: mousePos.y - box.height/2
+					x: mousePos.x - holding.width / 2,
+					y: mousePos.y - holding.height / 2
 				}
-				box.topLeft = newBoxTopLeft;
+				holding.topLeft = newBoxTopLeft;
 			}
-			
-			if(document.getElementById('InstantInput').checked){
-				drawPattern();
-				clearTimeout(drawTimeout);
-				//drawTimeout = setTimeout(() => drawPattern(1), 400);
-			}
-			else{
-				drawFast();
-				clearTimeout(drawTimeout);
-				drawTimeout = setTimeout(() => drawPattern(), 200);
+			else if (holding.shapeType === 'line'){
+				const lineWidth = holding.to.x - holding.from.x;
+				const lineHeight = holding.to.y - holding.from.y;
+				const newFrom = {
+					x: mousePos.x - lineWidth/2,
+					y: mousePos.y - lineHeight/2,
+				};
+				const newTo = {
+					x: mousePos.x + lineWidth/2,
+					y: mousePos.y + lineHeight/2,
+				};
+				holding.from = newFrom;
+				holding.to = newTo;
 			}
 		}
+		if(drawInstant && mode !== 'addCircle' && mode !== 'addRect' && mode !== 'addLine'){
+			draw();
+			return false;
+		}
+		else if(mode === 'addCircle'){
+			draw();
+			if(anchorPoint){
+				const ctx = c.getContext('2d');
+				ctx.strokeStyle = 'black';
+				const rad = distToPoint(anchorPoint, mousePos)
+				ctx.beginPath();
+				ctx.arc(anchorPoint.x, anchorPoint.y, rad, 0, 2 * Math.PI);
+				ctx.closePath();
+				ctx.stroke();
+			}
+			return false;
+		}
+		else if (mode === 'addRect'){
+			draw();
+			if(anchorPoint){
+				const ctx = c.getContext('2d');
+				ctx.strokeStyle = 'black';
+				const xDiff = mousePos.x - anchorPoint.x;
+				const yDiff = mousePos.y - anchorPoint.y;
+				ctx.strokeRect(anchorPoint.x, anchorPoint.y, xDiff, yDiff);
+			}
+		}
+		else if (mode === 'addLine'){
+			draw();
+			if(anchorPoint){
+				const ctx = c.getContext('2d');
+				ctx.strokeStyle = 'black';
+				ctx.beginPath();
+				ctx.moveTo(anchorPoint.x, anchorPoint.y);
+				ctx.lineTo(mousePos.x, mousePos.y);
+				ctx.stroke();
+			}
+		}
+		else if(holding){
+			drawFast();
+			clearTimeout(drawTimeout);
+			drawTimeout = setTimeout(() => draw(), 200);
+			return false;
+		}
+	}
+}
+
+const fastColors = [
+	'blue',
+	'red',
+	'green',
+	'yellow',
+	'purple'
+];
+
+function draw(pixelSizeOverride){
+	displayMode = getDisplayMode();
+	drawMode = getDrawingMode();
+	
+	if(displayMode === 'basic'){
+		drawFast();
+	}
+	else{
+		drawPattern(pixelSizeOverride);
 	}
 }
 
@@ -90,14 +278,25 @@ function drawFast(){
 	ctx.fillStyle = 'white';
 	ctx.fillRect(0,0,w,w);
 	
-	ctx.strokeStyle = 'red';
-	ctx.strokeRect(box.topLeft.x, box.topLeft.y, box.width, box.height);
-	
-	ctx.strokeStyle = 'blue';
-	ctx.beginPath();
-	ctx.arc(circle.center.x, circle.center.y, circle.radius, 0, 2 * Math.PI);
-	ctx.closePath();
-	ctx.stroke();
+	for(let i = 0; i < shapes.length; i++){
+		ctx.strokeStyle = fastColors[i % fastColors.length];
+		
+		if(shapes[i].shapeType === 'rect'){
+			ctx.strokeRect(shapes[i].topLeft.x, shapes[i].topLeft.y, shapes[i].width, shapes[i].height);
+		}
+		else if (shapes[i].shapeType === 'circle'){
+			ctx.beginPath();
+			ctx.arc(shapes[i].center.x, shapes[i].center.y, shapes[i].radius, 0, 2 * Math.PI);
+			ctx.closePath();
+			ctx.stroke();
+		}
+		else if (shapes[i].shapeType === 'line'){
+			ctx.beginPath();
+			ctx.moveTo(shapes[i].from.x, shapes[i].from.y);
+			ctx.lineTo(shapes[i].to.x, shapes[i].to.y);
+			ctx.stroke();
+		}
+	}
 }
 
 function drawPattern(pixelSizeOverride){
@@ -123,16 +322,51 @@ function drawPattern(pixelSizeOverride){
 
 	const fill = document.getElementById('FillInput').checked;
 	const smoothing = parseFloat(document.getElementById('SmoothingInput').value);
-
+	const useBorders = document.getElementById('pageBordersInput').checked;
+	const traceMouse = document.getElementById('traceMouseInput').checked;
+	const multiplier = parseFloat(document.getElementById('MultiplierInput').value);
+	
 	for(let px = 0; px < w; px += pixelSize){
 		for(let py = 0; py < w; py += pixelSize){
 			const pixel = {x: px, y: py};
-			const rectDist = distToRect(pixel, box, w, fill) / w;
-			const circleDist = distToCircle(pixel, circle, w, fill) / w;
-			const minDist = bias(smoothMin(rectDist, circleDist, smoothing), -0.99);
+			
+			let minDist = 1;
+			for(let i = 0; i < shapes.length; i++){
+				if(shapes[i].shapeType === 'rect'){
+					minDist = smin(minDist, distToRect(pixel, shapes[i], w, fill) / w, smoothing);
+				}
+				else if (shapes[i].shapeType === 'circle'){
+					minDist = smin(minDist, distToCircle(pixel, shapes[i], w, fill) / w, smoothing);
+				}
+				else if (shapes[i].shapeType === 'horizontalLine'){
+					minDist = smin(minDist, distToHorizontalLine(pixel, shapes[i], w) / w, smoothing);
+				}
+				else if (shapes[i].shapeType === 'verticalLine'){
+					minDist = smin(minDist, distToVerticalLine(pixel, shapes[i], w) / w, smoothing);
+				}
+				else if (shapes[i].shapeType === 'line'){
+					minDist = smin(minDist, distToLine(pixel, shapes[i], true, w) / w, smoothing);
+				}
+				else{
+					console.error('Unknown shapeType ' + shapes[i].shapeType);
+				}
+			}
+			if(useBorders){
+				for(let i = 0; i < borders.length; i++){
+					if (borders[i].shapeType === 'horizontalLine'){
+						minDist = smin(minDist, distToHorizontalLine(pixel, borders[i], w) / w, smoothing);
+					}
+					else if (borders[i].shapeType === 'verticalLine'){
+						minDist = smin(minDist, distToVerticalLine(pixel, borders[i], w) / w, smoothing);
+					}
+				}
+			}
+			if(traceMouse && lastMousePoint){
+				minDist = smin(minDist, distToPoint(pixel, lastMousePoint, w) / w, smoothing);
+			}
+			minDist = bias(minDist, -0.99) * multiplier;
 			
 			const scaledDist = minDist * 100;
-
 			const color = 'hsl(' + (minDist * 270 + 120) + ', 70%, ' + scaledDist + '%)';
 			ctx.fillStyle = color;
 			ctx.fillRect(px, py, pixelSize, pixelSize, color);
@@ -163,6 +397,14 @@ function distToRect(point, rect, clampVal, fill){
 	const cx = Math.max(Math.min(point.x, rect.topLeft.x + rect.width), rect.topLeft.x);
 	const cy = Math.max(Math.min(point.y, rect.topLeft.y + rect.height), rect.topLeft.y);
 	return Math.min(distToPoint(point, {x: cx, y: cy}), clampVal);
+}
+
+function distToHorizontalLine(point, line, clampVal){
+	return Math.min(clampVal, Math.abs(point.y - line.y));
+}
+
+function distToVerticalLine(point, line, clampVal){
+	return Math.min(clampVal, Math.abs(point.x - line.x));
 }
 
 function fibPoint(i, center, w){
@@ -285,8 +527,23 @@ function subdividedHexagonAboutPoint(center, radius, subdivisions, rotation){
 window.addEventListener('DOMContentLoaded', () => {
 	setUpSliderReadout('SmoothingInput', 'SmoothingReadout');
 	setUpSliderReadout('PixelSizeInput', 'PixelSizeReadout');
-	document.getElementById('PixelSizeInput').addEventListener('change', drawPattern);
-	document.getElementById('SmoothingInput').addEventListener('change', drawPattern);
-	document.getElementById('FillInput').addEventListener('change', drawPattern);
+	setUpSliderReadout('MultiplierInput', 'MultiplierReadout');
+	document.getElementById('PixelSizeInput').addEventListener('change', draw);
+	document.getElementById('SmoothingInput').addEventListener('change', draw);
+	document.getElementById('MultiplierInput').addEventListener('change', draw);
+	document.getElementById('FillInput').addEventListener('change', draw);
+	document.getElementById('pageBordersInput').addEventListener('change', draw);
+	document.getElementById('traceMouseInput').addEventListener('change', () => {
+		lastMousePoint = null;
+		draw();
+	});
+	displayModes = document.querySelectorAll('input[name="displayMode"');
+	for(let i = 0; i < displayModes.length; i++){
+		displayModes[i].addEventListener('click', draw);
+	}
+	drawModes = document.querySelectorAll('input[name="drawMode"');
+	for(let i = 0; i < drawModes.length; i++){
+		drawModes[i].addEventListener('click', draw);
+	}
 	setUpBlankCanvas();
 });

@@ -34,6 +34,26 @@
 			<h1>Gloopy Shapes</h1>
 		</header>
 		<section>
+			<div>
+				<fieldset>
+					<legend>Interaction Mode</legend>
+					<input id="modeDrag" type="radio" name="drawMode" value="drag" checked><label for="modeDrag">Drag</label>
+					<br>
+					<input id="modeDelete" type="radio" name="drawMode" value="delete"><label for="modeDelete">Delete</label>
+					<br>
+					<input id="modeAddCircle" type="radio" name="drawMode" value="addCircle"><label for="modeAddCircle">Add Circle</label>
+					<br>
+					<input id="modeAddRect" type="radio" name="drawMode" value="addRect"><label for="modeAddRect">Add Rect</label>
+					<br>
+					<input id="modeAddLine" type="radio" name="drawMode" value="addLine"><label for="modeAddLine">Add Line</label>
+				</fieldset>
+				<fieldset>
+					<legend>Display Mode</legend>
+					<input id="modeBasic" type="radio" name="displayMode" value="basic"><label for="modeBasic">Basic</label>
+					<br>
+					<input id="modeFull" type="radio" name="displayMode" value="full" checked><label for="modeFull">Full</label>
+				</fieldset>
+			</div>
 			<div id="sizeCalc"></div>
 			<div id="canvResult"></div>
 			<div class="optionsArea">
@@ -53,12 +73,18 @@
 					<input id="InstantInput" type="checkbox" checked>
 					<label for="InstantInput">Draw instant (may cause issues. Use high pixel size)</label>
 				</div>
-				<!--
 				<div class="op">
-					<input id="pageBordersInput" type="checkbox" checked>
+					<input id="pageBordersInput" type="checkbox">
 					<label for="pageBordersInput">Include Borders</label>
 				</div>
-				-->
+				<div class="op">
+					<input id="traceMouseInput" type="checkbox">
+					<label for="traceMouseInput">Trace Mouse</label>
+				</div>
+				<div class="op">
+					<input id="MultiplierInput" type="range" min="0" max="2" value="1" step="any">
+					<label for="MultiplierInput">Distance Multiplier <span id="MultiplierReadout"></span></label>
+				</div>
 			</div>
 		</section>
 		<div class="scrollOverflow"></div>
