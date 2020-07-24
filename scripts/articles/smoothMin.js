@@ -39,6 +39,7 @@ function setUpBlankCanvas(){
 	const circle = {
 		shapeType: 'circle',
 		dragable: true,
+		color: randomColor(),
 		center: {
 			x: w * 0.45,
 			y: w * 0.5
@@ -48,6 +49,7 @@ function setUpBlankCanvas(){
 	const box = {
 		shapeType: 'rect',
 		dragable: true,
+		color: randomColor(),
 		topLeft: {
 			x: w * 0.55,
 			y: w * 0.5
@@ -97,6 +99,7 @@ function mouseUp(e){
 		const rad = distToPoint(anchorPoint, mousePos);
 		const circle = {
 			shapeType: 'circle',
+			color: randomColor(),
 			dragable: true,
 			center: anchorPoint,
 			radius: rad
@@ -118,6 +121,7 @@ function mouseUp(e){
 		}
 		const rect = {
 			shapeType: 'rect',
+			color: randomColor(),
 			dragable: true,
 			topLeft: anchorPoint,
 			width: xDiff,
@@ -130,6 +134,7 @@ function mouseUp(e){
 		const mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
 		const line = {
 			shapeType: 'line',
+			color: randomColor(),
 			dragable: true,
 			from: anchorPoint,
 			to: mousePos,
@@ -257,7 +262,6 @@ const fastColors = [
 	'blue',
 	'red',
 	'green',
-	'yellow',
 	'purple'
 ];
 
@@ -279,7 +283,7 @@ function drawFast(){
 	ctx.fillRect(0,0,w,w);
 	
 	for(let i = 0; i < shapes.length; i++){
-		ctx.strokeStyle = fastColors[i % fastColors.length];
+		ctx.strokeStyle = shapes[i].color;
 		
 		if(shapes[i].shapeType === 'rect'){
 			ctx.strokeRect(shapes[i].topLeft.x, shapes[i].topLeft.y, shapes[i].width, shapes[i].height);

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Lava Lamp - Craig's Playpen</title>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<link rel="stylesheet" href="../css/styles.css">
+	
+	<script src="../scripts/utils.js"></script>
+	<script src="../scripts/articles/lavaLamp.js"></script>
+	
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-160042243-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-160042243-1');
+	</script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Lava Lamp</h1>
+		</header>
+		<section>
+			<div>
+				<fieldset>
+					<legend>Display Mode</legend>
+					<input id="modeBasic" type="radio" name="displayMode" value="basic" checked><label for="modeBasic">Basic</label>
+					<br>
+					<input id="modeFull" type="radio" name="displayMode" value="full"><label for="modeFull">Full</label>
+				</fieldset>
+			</div>
+			<div id="sizeCalc"></div>
+			<div id="canvResult"></div>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="PixelSizeInput" type="range" min="1" max="10" value="10" step="1">
+					<label for="PixelSizeInput">Pixel Size <span id="PixelSizeReadout"></span></label>
+				</div>
+				<div class="op">
+					<input id="SmoothingInput" type="range" min="0" max="1" value="0.30" step="any">
+					<label for="SmoothingInput">Smoothing <span id="SmoothingReadout"></span></label>
+				</div>
+				<div class="op">
+					<input id="MultiplierInput" type="range" min="0" max="2" value="1" step="any">
+					<label for="MultiplierInput">Distance Multiplier <span id="MultiplierReadout"></span></label>
+				</div>
+			</div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
