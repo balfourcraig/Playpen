@@ -34,28 +34,29 @@
 			<h1>Lava Lamp</h1>
 		</header>
 		<section>
-			<div>
-				<fieldset>
-					<legend>Display Mode</legend>
-					<input id="modeBasic" type="radio" name="displayMode" value="basic"><label for="modeBasic">Basic</label>
-					<br>
-					<input id="modeFull" type="radio" name="displayMode" value="full" checked><label for="modeFull">Full</label>
-				</fieldset>
-			</div>
 			<div id="sizeCalc"></div>
 			<div id="canvResult"></div>
 			<div class="optionsArea">
 				<div class="op">
-					<input id="PixelSizeInput" type="range" min="1" max="10" value="10" step="1">
-					<label for="PixelSizeInput">Pixel Size <span id="PixelSizeReadout"></span></label>
+					<input id="PixelSizeInput" type="range" min="1" max="10" value="1" step="1">
+					<label for="PixelSizeInput">Resolution <span id="PixelSizeReadout"></span></label>
+					<p>Higher resolution may cause browser to hang</p>
 				</div>
 				<div class="op">
-					<input id="SmoothingInput" type="range" min="0" max="1" value="0.30" step="any">
-					<label for="SmoothingInput">Smoothing <span id="SmoothingReadout"></span></label>
+					<input id="SmoothingInput" type="range" min="0.1" max="1" value="0.30" step="any">
+					<label for="SmoothingInput">Gooyness <span id="SmoothingReadout"></span></label>
 				</div>
 				<div class="op">
-					<input id="MultiplierInput" type="range" min="0" max="2" value="1" step="any">
-					<label for="MultiplierInput">Distance Multiplier <span id="MultiplierReadout"></span></label>
+					<input id="MultiplierInput" type="range" min="0.1" max="2" value="1" step="any">
+					<label for="MultiplierInput">Contrast</label>
+				</div>
+				<div class="op">
+					<input id="ColorInput" type="range" min="0" max="360" value="180" step="1">
+					<label for="ColorInput">Color Shift</label>
+				</div>
+				<div class="op">
+					<input id="ColorSpeedInput" type="range" min="0" max="3" value="0.5" step="any">
+					<label for="ColorSpeedInput">Color Speed</label>
 				</div>
 			</div>
 		</section>

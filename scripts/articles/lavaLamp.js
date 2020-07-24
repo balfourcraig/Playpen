@@ -1,9 +1,10 @@
 function smin(a, b, k){
     const h = Math.max( k-Math.abs(a-b), 0.0 )/k;
-    return Math.min(1, Math.max(0, Math.min( a, b ) - h*h*k*(1.0/4.0)));
+    return Math.max(0, Math.min( a, b ) - h*h*k*(1.0/4.0));
 }
 
 let w = 0;
+let h = 0;
 let c = null;
 
 let shapes = [];
@@ -13,16 +14,10 @@ let lastMousePoint = null;
 let holding = null;
 let anchorPoint = null;
 
-function getDrawingMode(){
-	return document.querySelector('input[name="drawMode"]:checked').value
-}
-
-function getDisplayMode(){
-	return document.querySelector('input[name="displayMode"]:checked').value
-}
+let colorOffset = 0;
 
 function spawnCircleAbove(){
-	const rad = Math.random() * w * 0.08 + (w * 0.02);
+	const rad = Math.random() * w * 0.05 + (w * 0.03);
 	shapes.push({
 		color: randomColor(),
 		center: {
@@ -30,25 +25,25 @@ function spawnCircleAbove(){
 			y: -2 * rad
 		},
 		radius: rad,
-		yAcceleration: Math.random() * 0.02 + 0.02,
+		yAcceleration: Math.random() * 0.04 + 0.02,
 		xAcceleration: 0,
-		ySpeed: Math.random() * 2,
+		ySpeed: Math.random() * 1,
 		xSpeed: 0
 	});
 }
 
 function spawnCircleBelow(){
-	const rad = Math.random() * w * 0.08 + (w * 0.02);
+	const rad = Math.random() * w * 0.05 + (w * 0.03);
 	shapes.push({
 		color: randomColor(),
 		center: {
 			x: Math.random() * w,
-			y: w + 2 * rad
+			y: h + 2 * rad
 		},
 		radius: rad,
-		yAcceleration: -(Math.random() * 0.02 + 0.02),
+		yAcceleration: -(Math.random() * 0.04 + 0.02),
 		xAcceleration: 0,
-		ySpeed: -(Math.random() * 2),
+		ySpeed: -(Math.random() * 1),
 		xSpeed: 0
 	});
 }
@@ -60,7 +55,7 @@ function updatePositions(){
 		shapes[i].xSpeed += shapes[i].xAcceleration;
 		shapes[i].ySpeed += shapes[i].yAcceleration;
 		
-		if(shapes[i].center.y - shapes[i].radius * 2 > w){
+		if(shapes[i].center.y - shapes[i].radius * 2 > h){
 			shapes[i].ySpeed = -1;
 			shapes[i].yAcceleration *= -1;
 		}
@@ -74,8 +69,9 @@ function updatePositions(){
 function setUpBlankCanvas(){
 	c = document.createElement('canvas');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+	h = w * 1.3;
 	c.setAttribute('width', w);
-	c.setAttribute('height', w);
+	c.setAttribute('height', h);
 	const ctx = c.getContext('2d');
 	
 	const canvResult = document.getElementById('canvResult');
@@ -83,9 +79,9 @@ function setUpBlankCanvas(){
 	canvResult.appendChild(c);
 	
 	ctx.fillStyle = 'white';
-	ctx.fillRect(0, 0, w, w);
+	ctx.fillRect(0, 0, w, h);
 	
-	for(let i = 0; i < 12; i++){//random number of blobs
+	for(let i = 0; i < getRandomInt(9,15); i++){
 		if(Math.random() < 0.5)
 			spawnCircleAbove();
 		else
@@ -94,44 +90,19 @@ function setUpBlankCanvas(){
 	
 	setInterval(() => {
 		updatePositions();
-		draw();
-	}, 50);
-	
-	//draw();
-}
-
-function draw(pixelSizeOverride){
-	displayMode = getDisplayMode();
-	
-	if(displayMode === 'basic'){
-		drawFast();
-	}
-	else{
-		drawPattern(pixelSizeOverride);
-	}
-}
-
-function drawFast(){
-	const ctx = c.getContext('2d');
-	ctx.fillStyle = 'white';
-	ctx.fillRect(0,0,w,w);
-	
-	for(let i = 0; i < shapes.length; i++){
-		ctx.strokeStyle = shapes[i].color;
-		ctx.beginPath();
-		ctx.arc(shapes[i].center.x, shapes[i].center.y, shapes[i].radius, 0, 2 * Math.PI);
-		ctx.closePath();
-		ctx.stroke();
-	}
+		drawPattern();
+	}, 100);
 }
 
 function drawPattern(pixelSizeOverride){
-	clearTimeout(drawTimeout);
 	const ctx = c.getContext('2d');
 	
 	ctx.lineWidth = 1;
-	const center = {x: w/2.0, y: w/2.0};
-	const radius = w * 0.35;
+	const center = {x: w/2.0, y: h/2.0};
+	
+	const colorShiftSpeed = parseFloat(document.getElementById('ColorSpeedInput').value);
+	
+	colorOffset += colorShiftSpeed;
 
 	const canvResult = document.getElementById('canvResult');
 	canvResult.innerHTML = '';
@@ -139,33 +110,34 @@ function drawPattern(pixelSizeOverride){
 	
 	ctx.fillStyle = 'white';
 	ctx.strokeStyle = 'black';
-	ctx.fillRect(0, 0, w, w);
+	ctx.fillRect(0, 0, w, h);
 	ctx.globalAlpha = 1;
 	
 	let pixelSize = pixelSizeOverride;
 	if(pixelSize === undefined || isNaN(pixelSize))
-		pixelSize = parseInt(document.getElementById('PixelSizeInput').value);
+		pixelSize = 11 - parseInt(document.getElementById('PixelSizeInput').value);
 
 	const fill = true;
 	const smoothing = parseFloat(document.getElementById('SmoothingInput').value);
 	const traceMouse = false;
 	const multiplier = parseFloat(document.getElementById('MultiplierInput').value);
+	const colorShift = parseFloat(document.getElementById('ColorInput').value);
 	
 	for(let px = 0; px < w; px += pixelSize){
-		for(let py = 0; py < w; py += pixelSize){
+		for(let py = 0; py < h; py += pixelSize){
 			const pixel = {x: px, y: py};
 			
 			let minDist = 1;
 			for(let i = 0; i < shapes.length; i++){
 				minDist = smin(minDist, distToCircle(pixel, shapes[i], w, fill) / w, smoothing);
 			}
-			minDist = smin(minDist, Math.abs(pixel.y - w) / w, smoothing);
+			minDist = smin(minDist, Math.abs(pixel.y - h) / w, smoothing);
 			minDist = smin(minDist, Math.abs(pixel.y) / w, smoothing);
 
 			minDist = bias(minDist, -0.99) * multiplier;
 			
-			const scaledDist = 40 + (0.6 * (70 - (minDist * 90 + 10)));
-			const color = 'hsl(' + (minDist * 30 - 10) + ', 70%, ' + scaledDist + '%)';
+			const scaledDist = 30 + (0.7 * (90 - (minDist * 90 + 10)));
+			const color = 'hsl(' + (minDist * 40 + colorOffset + colorShift) + ', 80%, ' + scaledDist + '%)';
 			ctx.fillStyle = color;
 			ctx.fillRect(px, py, pixelSize, pixelSize, color);
 		}
@@ -200,15 +172,9 @@ function setUpSliderReadout(sliderName, readoutName){
 window.addEventListener('DOMContentLoaded', () => {
 	setUpSliderReadout('SmoothingInput', 'SmoothingReadout');
 	setUpSliderReadout('PixelSizeInput', 'PixelSizeReadout');
-	setUpSliderReadout('MultiplierInput', 'MultiplierReadout');
-	document.getElementById('PixelSizeInput').addEventListener('change', draw);
-	document.getElementById('SmoothingInput').addEventListener('change', draw);
-	document.getElementById('MultiplierInput').addEventListener('change', draw);
+	document.getElementById('PixelSizeInput').addEventListener('change', drawPattern);
+	document.getElementById('SmoothingInput').addEventListener('change', drawPattern);
+	document.getElementById('MultiplierInput').addEventListener('change', drawPattern);
 
-	displayModes = document.querySelectorAll('input[name="displayMode"');
-	for(let i = 0; i < displayModes.length; i++){
-		displayModes[i].addEventListener('click', draw);
-	}
-	
 	setUpBlankCanvas();
 });
