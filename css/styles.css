@@ -6,18 +6,23 @@ body{
 	padding: 0;
 	margin: 0;
 	min-height: 100vh;
-	background-color: #aaa;
+	background-color: #000;
 	display: flex;
 	flex-direction: column;
 	font-family: Arial, Helvetica, sans-serif;
+}
+
+a{
+	color: #5d89b3;
 }
 
 .pageWidth{
 	max-width: 960px;
 	margin: 0 auto;
 	padding: 10px;
-	background-color: #fff;
+	background-color: #222;
 	min-height: 100%;
+	color: #ccc;
 }
 
 .scrollOverflow{
@@ -44,7 +49,7 @@ h1, h2, h3, h3 a{
 
 .navHolder{
 	width: 100%;
-	background-color: #eee;
+	background-color: #111;
 	border-bottom: 2px solid dodgerblue;
 }
 
@@ -65,8 +70,11 @@ nav a{
 }
 
 nav a.selected{
-	font-weight: bold;
+	border-left: 1px solid dodgerblue;
+	border-right: 1px solid dodgerblue;
+	background-color: #0a2642;
 }
+
 
 nav a:hover{
 	text-decoration: none;
@@ -142,8 +150,8 @@ button:disabled:hover{
 .secBlock{
 	margin-bottom: 10px;
 	padding: 10px;
-	background-color: #f4f4f4;
-	border: 1px solid dodgerblue;
+	background-color: #181818;
+	border: 1px solid #5d89b3;
 	border-radius: 5px;
 }
 
