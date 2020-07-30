@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Name Generator - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<style>
+		#nameList table{
+			width: 100%;
+		}
+		#nameList table tr td{
+			padding: 10px;
+		}
+		.genderM{
+			color: #316ecc;
+		}
+		.genderF{
+			color: #f44d8c;
+		}
+		#warnings{
+			text-align: center;
+			color: goldenrod;
+		}
+	</style>
+	<script src="Latin.js"></script>
+	<script src="Germanic.js"></script>
+	<script src="Maori.js"></script>
+	<script src="nameGen2.js"></script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Name Generator</h1>
+		</header>
+		<section>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="numNamesInput" type="number" value="50">
+					<label for="numNamesInput">Number to generate</label>
+				</div>
+				<div class="op">
+					<select id="genderSelect">
+						<option value="MF">Both</option>
+						<option value="M" class="genderM">Male</option>
+						<option value="F" class="genderF">Female</option>
+					</select>
+					<label for="genderSelect">Gender</label>
+				</div>
+				<div class="op">
+					<select id="cultureSelect">
+						<option value="any">ANY</option>
+						<option value="latin">Roman</option>
+						<option value="germanic">Germanic</option>
+						<option value="maori">Maori</option>
+					</select>
+					<label for="cultureSelect">Culture</label>
+				</div>
+			</div>
+			<button id="genBtn">Generate</button>
+		</section>
+		<div id="warnings"></div>
+		<section>
+			<div id="nameList"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>

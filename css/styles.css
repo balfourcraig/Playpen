@@ -13,7 +13,127 @@ body{
 }
 
 a{
-	color: #5d89b3;
+	color: fuchsia;
+}
+
+a:hover{
+	color: #f9f;
+}
+
+main{
+	flex-grow: 1;
+}
+
+main .pageWidth{
+	position: relative;
+}
+
+main p {
+	line-height: 1.5em;
+}
+
+h1, h2, h3, h3{
+	color: dodgerblue;
+}
+
+nav{
+	max-width: 960px;
+	margin: 0 auto;
+	display: flex;
+	justify-content: space-around;
+}
+
+nav a{
+	padding: 10px;
+	font-size: 1.3rem;
+	flex-grow: 1;
+	text-align: center;
+	text-decoration: none;
+	border-top-left-radius: 1em;
+	border-top-right-radius: 1em;
+}
+
+nav a.selected{
+	border-left: 1px solid dodgerblue;
+	border-right: 1px solid dodgerblue;
+	background-color: #0a2642;
+}
+
+
+nav a:hover{
+	text-decoration: none;
+	background-color: dodgerblue;
+	color: white;
+}
+
+input{
+	margin: 5px 0;
+	background-color: black;
+	color: #ccc;
+	padding: 5px;
+	border: 2px inset #ccc;
+	border-radius: 0.5em;
+}
+
+input[type="number"]{
+	color: #c49c00;
+	border-color: #c49c00;
+}
+
+input[type="text"]{
+	color: #99c0ff;
+	border-color: #99c0ff;
+}
+
+select{
+	padding: 5px;
+	background-color: black;
+	color: fuchsia;
+	border: 1px inset fuchsia;
+	border-radius: 0.5em;
+}
+
+fieldset{
+	border: 2px inset #5e5e5e;
+	border-radius: 0.5em;
+	background-color: #181818;
+	margin-bottom: 1em;
+}
+
+fieldset legend{
+	background-color: #5e5e5e;
+	padding: 0.5em;
+	border: 2px outset #5e5e5e;
+	border-radius: 0.5em;
+}
+
+button{
+	margin: 5px 0;
+	padding: 10px;
+	border: 2px outset aquamarine;
+	color: aquamarine;
+	background-color: black;
+	border-radius: 0.5em;
+	cursor: pointer;
+}
+
+button:hover{
+	background-color: aquamarine;
+	color: black;
+}
+
+button:disabled{
+	color: grey;
+	border-color: grey;
+	cursor: not-allowed;
+}
+
+button:disabled:hover{
+	background-color: white;
+}
+
+li{
+	margin-bottom: 1em;
 }
 
 .pageWidth{
@@ -31,105 +151,8 @@ a{
 	position: relative;
 }
 
-main{
-	flex-grow: 1;
-}
-
-main .pageWidth{
-	position: relative;
-}
-
-main p {
-	line-height: 1.5em;
-}
-
-h1, h2, h3, h3 a{
-	color: dodgerblue;
-}
-
-.navHolder{
-	width: 100%;
-	background-color: #111;
-	border-bottom: 2px solid dodgerblue;
-}
-
-nav{
-	max-width: 960px;
-	margin: 0 auto;
-	display: flex;
-	justify-content: space-around;
-}
-
-nav a{
-	padding: 10px;
-	font-size: 1.3rem;
-	flex-grow: 1;
-	text-align: center;
-	text-decoration: none;
-	color: dodgerblue;
-}
-
-nav a.selected{
-	border-left: 1px solid dodgerblue;
-	border-right: 1px solid dodgerblue;
-	background-color: #0a2642;
-}
-
-
-nav a:hover{
-	text-decoration: none;
-	background-color: dodgerblue;
-	color: white;
-}
-
-#CSSSelectArea{
-	padding: 1rem;
-	background-color: #eee;
-	position: absolute;
-	right: 0;
-	top: 0;
-	border-radius: 0 0 0 1rem;
-}
-
-#CSSSelect{
-	padding: 0.5rem;
-}
-
-.scrollOverflow::after{
-	color: dodgerblue;
-}
-
 #sizeCalc{
-			padding: 2px;
-		}
-		
-input{
-	margin: 5px 0;
-}
-
-button{
-	margin: 5px 0;
-	padding: 10px;
-	border: 2px solid dodgerblue;
-	color: dodgerblue;
-	background-color: white;
-	border-radius: 10px;
-	cursor: pointer;
-}
-
-button:hover{
-	background-color: dodgerblue;
-	color: white;
-}
-
-button:disabled{
-	color: grey;
-	border-color: grey;
-	cursor: not-allowed;
-}
-
-button:disabled:hover{
-	background-color: white;
+	padding: 2px;
 }
 
 #stopDrawingBtn{
@@ -142,6 +165,12 @@ button:disabled:hover{
 	background-color: red;
 }
 
+.navHolder{
+	width: 100%;
+	background-color: #111;
+	border-bottom: 2px solid dodgerblue;
+}
+
 .area{
 	margin-top: 30px;
 	margin-bottom: 60px;
@@ -151,23 +180,23 @@ button:disabled:hover{
 	margin-bottom: 10px;
 	padding: 10px;
 	background-color: #181818;
-	border: 1px solid #5d89b3;
-	border-radius: 5px;
+	border: 2px solid #5d89b3;
+	border-radius: 0.5em;
 }
 
 .secBlock:first-child{
-	border-top-left-radius: 15px;
-	border-top-right-radius: 15px;
+	border-top-left-radius: 1em;
+	border-top-right-radius: 1em;
 }
 
 
 .secBlock:last-child{
-	border-bottom-left-radius: 15px;
-	border-bottom-right-radius: 15px;
+	border-bottom-left-radius: 1em;
+	border-bottom-right-radius: 1em;
 }
 
-.secBlock h3 a:hover{
-	color: deepskyblue;
+.fullwidth{
+	width: 100%;
 }
 
 .optionsArea{
@@ -182,10 +211,6 @@ button:disabled:hover{
 	flex-grow: 1;
 }
 
-.fullwidth{
-	width: 100%;
-}
-
 .optionsArea .nameArea{
 	width: 100%;
 }
@@ -194,10 +219,6 @@ button:disabled:hover{
 	width: 100%;
 	font-size: 2rem;
 	padding: 1rem;
-}
-
-.pendulumOptions{
-	
 }
 
 .pendulumOptions .op{
@@ -211,3 +232,4 @@ button:disabled:hover{
 .tab.open{
 	display: block;
 }
+

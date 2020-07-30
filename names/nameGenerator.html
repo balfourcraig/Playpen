@@ -3,11 +3,17 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
-	<title>Rain 2 - Craig's Playpen</title>
+	<title>Name Generator - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
-	<script src="../scripts/articles/rain2.js"></script>
+	<script src="nameGen.js"></script>
+	<style>
+		#nameList li{
+			padding: 10px;
+		}
+	</style>
+
 </head>
 <body>
 <div class="navHolder">
@@ -21,33 +27,27 @@
 <main>
 	<div class="pageWidth">
 		<header>
-			<h1>Rain 2</h1>
+			<h1>Name Generator</h1>
 		</header>
-		
 		<section>
 			<div class="optionsArea">
 				<div class="op">
-					<input id="rateInput" type="number" min="0" max="1" value="0.2" step="0.05">
-					<label for="rateInput">Rainfall Rate</label>
+					<input id="numNamesInput" type="number" value="50">
+					<label for="numNamesInput">Number to generate</label>
 				</div>
 				<div class="op">
-					<input id="splashInput" type="checkbox" checked>
-					<label for="splashInput">Show splashes</label>
+					<input id="showSurnamesInput" type="checkbox" checked>
+					<label for="showSurnamesInput">Show surnames</label>
 				</div>
 				<div class="op">
-					<input id="mouseInput" type="checkbox" checked>
-					<label for="mouseInput">Mouse reactive</label>
+					<input id="showTitlesInput" type="checkbox" checked>
+					<label for="showTitlesInput">Allow Titles</label>
 				</div>
 			</div>
-			<div class="optionsArea">
-				<div class="op">
-					<button id="drawBtn">Draw!</button>
-					<button id="stopDrawingBtn" style="display:none">STOP</button>
-				</div>
-			</div>
-			<div id="sizeCalc"></div>
-			<img id="modMulResult">
-			<div id="canvResult"></div>
+			<button id="genBtn">Generate</button>
+		</section>
+		<section>
+			<div id="nameList"></div>
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>
