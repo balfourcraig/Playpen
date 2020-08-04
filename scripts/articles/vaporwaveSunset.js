@@ -36,16 +36,20 @@ function setUp(){
 }
 
 function drawPattern(){
-	ctx.globalCompositeOperation = 'source-over';
 	ctx.clearRect(0, 0, w, h);
 
 	//sun
-	const sunCenter = {x: w/2, y:h * 0.3};
-	const sunRadius =  w * 0.25;
-	let grad = ctx.createLinearGradient(sunCenter.x, sunCenter.y - sunRadius, sunCenter.x, sunCenter.y + sunRadius);
-	grad.addColorStop(0, 'orange');
-	grad.addColorStop(1, 'red');
-	drawCircle(ctx, sunCenter, sunRadius, grad);
+	const sunCenter = {
+		x: w * parseFloat(document.getElementById('SunXInput').value),
+		y: h * parseFloat(document.getElementById('SunYInput').value)
+	};
+	const sunRadius =  w * parseFloat(document.getElementById('SunSizeInput').value);
+	
+	ctx.globalCompositeOperation = 'source-over';
+	const sunLinearGrad = ctx.createLinearGradient(sunCenter.x, sunCenter.y - sunRadius, sunCenter.x, sunCenter.y + sunRadius);
+	sunLinearGrad.addColorStop(0, 'orange');
+	sunLinearGrad.addColorStop(1, 'red');
+	drawCircle(ctx, sunCenter, sunRadius, sunLinearGrad);
 
 	for(let i = 0; i < linePositions.length; i++){
 		const lineWidth = (sunRadius * (1- linePositions[i]) * 0.1); 
@@ -53,10 +57,13 @@ function drawPattern(){
 		ctx.clearRect(0, yTop, w, lineWidth);
 		linePositions[i] = (linePositions[i] + 0.002) % 1;
 	}
-	
 	ctx.globalCompositeOperation = 'destination-over';
-	
 	drawCircle(ctx, sunCenter, sunRadius, '#920');
+	
+	const sunRadialGrad = ctx.createRadialGradient(sunCenter.x, sunCenter.y, sunRadius * 0, sunCenter.x, sunCenter.y, sunRadius * 1.4);
+	sunRadialGrad.addColorStop(0, 'orange');
+	sunRadialGrad.addColorStop(1, 'transparent');
+	drawCircle(ctx, sunCenter, sunRadius * 1.4, sunRadialGrad);
 	
 	for(let i = 0; i < backgroundCircles.length; i++){
 		drawCircle(ctx, backgroundCircles[i].center, backgroundCircles[i].radius, backgroundCircles[i].color);
@@ -73,7 +80,7 @@ function drawPattern(){
 	//Ripple reflection
 	const srcData = ctx.getImageData(0, 0, w, h/2);
 	const destData = ctx.getImageData(0, 0, w, h/2);
-	
+	const choppiness = parseFloat(document.getElementById('ChoppinessInput').value);
 	for(let row = 0; row < h/2; row++){
 		for(let col = 0; col < w; col++){
 			const destOffset = ((h/2 - row) * w + col) * 4;
@@ -87,6 +94,7 @@ function drawPattern(){
 			colShift += 0.5;
 			colShift *= 10;
 			colShift *= (1 - row/(h/2) + 0.1) * 2;
+			colShift *= choppiness;
 			colShift = ~~colShift;
 			
 			let rowShift = col/w;
@@ -97,6 +105,7 @@ function drawPattern(){
 			rowShift + 0.5;
 			rowShift *= 2;
 			rowShift *= (1 - row/(h/2) + 0.1) * 2;
+			rowShift *= choppiness;
 			rowShift = ~~rowShift;
 
 			const srcOffset = ((row + rowShift) * w + (col + colShift)) * 4;
@@ -127,6 +136,5 @@ function setUpSliderReadout(sliderName, readoutName){
 
 window.addEventListener('DOMContentLoaded', () => {
 	setUp();
-	//drawPattern();
 	setInterval(drawPattern, 50);
 });
