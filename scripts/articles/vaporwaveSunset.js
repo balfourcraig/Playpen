@@ -7,11 +7,12 @@ let ripplePos = 0;
 
 function setUp(){
 	//sun lines
-	linePositions = [];
-	const numSunLines = 4;
-	for(let i = 0; i < numSunLines; i++){
-		linePositions.push(i/numSunLines);
-	}
+	//linePositions = [];
+	//const numSunLines = 4;
+	//for(let i = 0; i < numSunLines; i++){
+		//linePositions.push(i/numSunLines);
+	//}
+	setUpSunLines(parseInt(document.getElementById('sunLinesInput').value));
 	
 	const c = document.createElement('canvas');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
@@ -29,19 +30,30 @@ function setUp(){
 		const cx = Math.random() * w;
 		const cy = Math.random() * (h/2);
 		const cr = Math.random() * w * 0.1 + 10;
-		const color = 'hsl(' + (Math.random() * 90 + 180) + ',40%,20%)';
+		const color = 'hsl(' + (Math.random() * 90 + 210) + ',40%,50%)';
 		const speed = Math.random() * 2 + 0.5;
 		backgroundCircles.push({center: {x: cx,y:cy}, radius: cr, color: color, speed: speed});
+	}
+}
+
+function setUpSunLines(numLines){
+	linePositions = [];
+	for(let i = 0; i < numLines; i++){
+		linePositions.push(i/numLines);
 	}
 }
 
 function drawPattern(){
 	ctx.clearRect(0, 0, w, h);
 
+	const numSunLines = parseInt(document.getElementById('sunLinesInput').value);
+	if(numSunLines != linePositions.length)
+		setUpSunLines(numSunLines);
+
 	//sun
 	const sunCenter = {
 		x: w * parseFloat(document.getElementById('SunXInput').value),
-		y: h * parseFloat(document.getElementById('SunYInput').value)
+		y: h * (1 - parseFloat(document.getElementById('SunYInput').value))
 	};
 	const sunRadius =  w * parseFloat(document.getElementById('SunSizeInput').value);
 	
@@ -65,15 +77,36 @@ function drawPattern(){
 	sunRadialGrad.addColorStop(1, 'transparent');
 	drawCircle(ctx, sunCenter, sunRadius * 1.4, sunRadialGrad);
 	
-	for(let i = 0; i < backgroundCircles.length; i++){
-		drawCircle(ctx, backgroundCircles[i].center, backgroundCircles[i].radius, backgroundCircles[i].color);
-		backgroundCircles[i].center.y += backgroundCircles[i].speed;
-		if(backgroundCircles[i].center.y > h/2 + backgroundCircles[i].radius)
-			backgroundCircles[i].center.y = -backgroundCircles[i].radius;
+	const showMist = document.getElementById('showMistInput').checked;
+	if(showMist){
+		const mistUp = document.getElementById('mistUpInput').checked;
+		for(let i = 0; i < backgroundCircles.length; i++){
+			const mistGrad = ctx.createRadialGradient(backgroundCircles[i].center.x, backgroundCircles[i].center.y, 0, backgroundCircles[i].center.x, backgroundCircles[i].center.y, backgroundCircles[i].radius);
+			mistGrad.addColorStop(0, backgroundCircles[i].color);
+			mistGrad.addColorStop(1, 'transparent');
+			
+			drawCircle(ctx, backgroundCircles[i].center, backgroundCircles[i].radius, mistGrad);
+			
+			if(mistUp){
+				backgroundCircles[i].center.y -= backgroundCircles[i].speed;
+				if(backgroundCircles[i].center.y < -backgroundCircles[i].radius)
+					backgroundCircles[i].center.y = h/2 + backgroundCircles[i].radius;
+			}
+			else{
+				backgroundCircles[i].center.y += backgroundCircles[i].speed;
+				if(backgroundCircles[i].center.y > h/2 + backgroundCircles[i].radius)
+					backgroundCircles[i].center.y = -backgroundCircles[i].radius;
+			}		
+		}
+		ctx.globalCompositeOperation = 'destination-over';
 	}
 	
-	ctx.fillStyle = 'black';
+	const skyLinearGrad = ctx.createLinearGradient(0, 0, 0, h/2);
+	skyLinearGrad.addColorStop(0, 'black');
+	skyLinearGrad.addColorStop(1, '#cc33ff');
+	ctx.fillStyle = skyLinearGrad;
 	ctx.fillRect(0, 0, w, h);
+	
 	ctx.globalCompositeOperation = 'source-over';
 
 	
@@ -84,7 +117,7 @@ function drawPattern(){
 	for(let row = 0; row < h/2; row++){
 		for(let col = 0; col < w; col++){
 			const destOffset = ((h/2 - row) * w + col) * 4;
-			let lightness = (1 - row/(h/2) + 0.3);
+			let lightness = (row/(h/2) + 0.3);
 			
 			let colShift = row/(h/2);
 			colShift = 
@@ -108,7 +141,9 @@ function drawPattern(){
 			rowShift *= choppiness;
 			rowShift = ~~rowShift;
 
-			const srcOffset = ((row + rowShift) * w + (col + colShift)) * 4;
+			const shiftedRow = clamp(row + rowShift, 0, h/2 -1);
+			const shiftedCol = clamp(col + colShift, 1, w -1);
+			const srcOffset = (shiftedRow * w + shiftedCol) * 4;
 
 			destData.data[destOffset] = 0.7 * lightness * srcData.data[srcOffset];
 			destData.data[destOffset + 1] = lightness * srcData.data[srcOffset + 1];
@@ -116,8 +151,17 @@ function drawPattern(){
 		}
 	}
 	ripplePos = (ripplePos + 0.002) % 1;
-	
 	ctx.putImageData(destData, 0, h/2); 
+
+	//const vigneteGrad = ctx.createRadialGradient(w/2, h/2, w/4, w/2, h/2, w/2);
+	//vigneteGrad.addColorStop(0, 'transparent');
+	//vigneteGrad.addColorStop(1, 'rgba(0,0,0,0.5)');
+	//ctx.fillStyle = vigneteGrad;
+	//ctx.fillRect(0,0,w,h);
+}
+
+function clamp(num, min, max){
+	return num <= min ? min : num >= max ? max : num;
 }
 
 function drawCircle(ctx, center, radius, color){
@@ -135,6 +179,7 @@ function setUpSliderReadout(sliderName, readoutName){
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+	setUpSliderReadout('sunLinesInput','sunLinesReadout');
 	setUp();
 	setInterval(drawPattern, 50);
 });
