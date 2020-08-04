@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Gauss Wave - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<script src="../scripts/articles/gaussWave.js"></script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Gauss Wave</h1>
+		</header>
+		<section>
+			<div class="op">
+				<input id="SquishInput" type="range" min="0.2" max="20" value="5" step="any">
+				<label for="SquishInput">Squish <span id="SquishReadout"></span></label>
+			</div>
+			<div class="op">
+				<input id="PixSizeInput" type="range" min="1" max="10" value="2" step="1">
+				<label for="PixSizeInput">Pixel Size <span id="PixSizeReadout"></span></label>
+			</div>
+
+			<div id="sizeCalc"></div>
+			<div id="canvResult"></div>
+			<div class="optionsArea">
+				
+			</div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>

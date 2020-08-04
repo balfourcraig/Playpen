@@ -1,0 +1,124 @@
+let linePositions = [];
+let w = 1;
+let h = 1;
+let ctx = null;
+let backgroundCircles = [];
+let ripplePos = 0;
+
+function setUp(){
+	//sun lines
+	linePositions = [];
+	const numSunLines = 4;
+	for(let i = 0; i < numSunLines; i++){
+		linePositions.push(i/numSunLines);
+	}
+	
+	const c = document.createElement('canvas');
+	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
+	h = w;
+	c.setAttribute('width', w);
+	c.setAttribute('height', h);
+	ctx = c.getContext('2d');
+	
+	const canvResult = document.getElementById('canvResult');
+	canvResult.innerHTML = '';
+	canvResult.appendChild(c);
+	
+	backgroundCircles = [];
+	for(let i = 0; i < 100; i++){
+		const cx = Math.random() * w;
+		const cy = Math.random() * (h/2);
+		const cr = Math.random() * w * 0.1 + 10;
+		const color = 'hsl(' + (Math.random() * 90 + 180) + ',50%,50%)';
+		const speed = Math.random() * 2 + 0.5;
+		backgroundCircles.push({center: {x: cx,y:cy}, radius: cr, color: color, speed: speed});
+	}
+}
+
+function drawPattern(){
+	ctx.globalCompositeOperation = 'source-over';
+	ctx.clearRect(0, 0, w, h);
+
+	//sun
+	const sunCenter = {x: w/2, y:h * 0.3};
+	const sunRadius =  w * 0.25;
+	let grad = ctx.createLinearGradient(sunCenter.x, sunCenter.y - sunRadius, sunCenter.x, sunCenter.y + sunRadius);
+	grad.addColorStop(0, 'orange');
+	grad.addColorStop(1, 'red');
+	drawCircle(ctx, sunCenter, sunRadius, grad);
+
+	for(let i = 0; i < linePositions.length; i++){
+		const lineWidth = (sunRadius * (1- linePositions[i]) * 0.1); 
+		const yTop = sunCenter.y + (sunRadius * (1 - linePositions[i])) - lineWidth/2;
+		ctx.clearRect(0, yTop, w, lineWidth);
+		linePositions[i] = (linePositions[i] + 0.005) % 1;
+	}
+	
+	ctx.globalCompositeOperation = 'destination-over';
+	
+	drawCircle(ctx, sunCenter, sunRadius, '#920');
+	
+	for(let i = 0; i < backgroundCircles.length; i++){
+		drawCircle(ctx, backgroundCircles[i].center, backgroundCircles[i].radius, backgroundCircles[i].color);
+		backgroundCircles[i].center.y += backgroundCircles[i].speed;
+		if(backgroundCircles[i].center.y > h/2 + backgroundCircles[i].radius)
+			backgroundCircles[i].center.y = -backgroundCircles[i].radius;
+	}
+	
+	ctx.fillStyle = 'black';
+	ctx.fillRect(0, 0, w, h);
+	ctx.globalCompositeOperation = 'source-over';
+	
+	
+	
+	
+	const srcData = ctx.getImageData(0, 0, w, h/2);
+	const destData = ctx.getImageData(0, 0, w, h/2);
+	
+	for(let row = 0; row < h/2; row++){
+		for(let col = 0; col < w; col++){
+			const srcOffset = (row * w + col) * 4;
+			const destOffset = ((h/2 - row) * w + col) * 4;
+			
+			let colShift = row/(h/2);
+			colShift = 
+				Math.cos((colShift + ripplePos) * 50) 
+				+ (Math.cos((colShift + (1-ripplePos) * 0.3 ) * 300) * 0.2)
+				+ Math.sin((colShift + (1-ripplePos)) * 50 * 1.5);
+			colShift += 0.5;
+			colShift *= 10;
+			colShift *= (1 - row/(h/2) + 0.1) * 2;
+			colShift = ~~colShift;
+			colShift *= 4;
+			
+			let lightness = (1 - row/(h/2) + 0.3);
+
+			destData.data[destOffset] = 0.7 * lightness * srcData.data[srcOffset + colShift];
+			destData.data[destOffset + 1] = lightness * srcData.data[srcOffset + 1 + colShift];
+			destData.data[destOffset + 2] = 1.2 * lightness * srcData.data[srcOffset + 2 + colShift];
+		}
+	}
+	ripplePos = (ripplePos + 0.002) % 1;
+	
+	ctx.putImageData(destData, 0, h/2); 
+}
+
+function drawCircle(ctx, center, radius, color){
+	ctx.fillStyle = color;
+	ctx.beginPath();
+	ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+	ctx.fill();
+}
+
+function setUpSliderReadout(sliderName, readoutName){
+	document.getElementById(readoutName).innerText = '(' + document.getElementById(sliderName).value + ')';
+	document.getElementById(sliderName).addEventListener('input', () => {
+		document.getElementById(readoutName).innerText = '(' + document.getElementById(sliderName).value + ')';
+	});
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+	setUp();
+	//drawPattern();
+	setInterval(drawPattern, 50);
+});

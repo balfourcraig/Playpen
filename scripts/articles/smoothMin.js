@@ -373,7 +373,7 @@ function drawPattern(pixelSizeOverride){
 			const scaledDist = minDist * 95 + 5;
 			const color = 'hsl(' + (minDist * 270 + 300) + ', 70%, ' + scaledDist + '%)';
 			ctx.fillStyle = color;
-			ctx.fillRect(px, py, pixelSize, pixelSize, color);
+			ctx.fillRect(px, py, pixelSize, pixelSize);
 		}
 	}
 }
