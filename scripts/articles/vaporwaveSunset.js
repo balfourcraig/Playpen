@@ -29,7 +29,7 @@ function setUp(){
 		const cx = Math.random() * w;
 		const cy = Math.random() * (h/2);
 		const cr = Math.random() * w * 0.1 + 10;
-		const color = 'hsl(' + (Math.random() * 90 + 180) + ',50%,50%)';
+		const color = 'hsl(' + (Math.random() * 90 + 180) + ',40%,20%)';
 		const speed = Math.random() * 2 + 0.5;
 		backgroundCircles.push({center: {x: cx,y:cy}, radius: cr, color: color, speed: speed});
 	}
@@ -51,7 +51,7 @@ function drawPattern(){
 		const lineWidth = (sunRadius * (1- linePositions[i]) * 0.1); 
 		const yTop = sunCenter.y + (sunRadius * (1 - linePositions[i])) - lineWidth/2;
 		ctx.clearRect(0, yTop, w, lineWidth);
-		linePositions[i] = (linePositions[i] + 0.005) % 1;
+		linePositions[i] = (linePositions[i] + 0.002) % 1;
 	}
 	
 	ctx.globalCompositeOperation = 'destination-over';
@@ -68,17 +68,16 @@ function drawPattern(){
 	ctx.fillStyle = 'black';
 	ctx.fillRect(0, 0, w, h);
 	ctx.globalCompositeOperation = 'source-over';
+
 	
-	
-	
-	
+	//Ripple reflection
 	const srcData = ctx.getImageData(0, 0, w, h/2);
 	const destData = ctx.getImageData(0, 0, w, h/2);
 	
 	for(let row = 0; row < h/2; row++){
 		for(let col = 0; col < w; col++){
-			const srcOffset = (row * w + col) * 4;
 			const destOffset = ((h/2 - row) * w + col) * 4;
+			let lightness = (1 - row/(h/2) + 0.3);
 			
 			let colShift = row/(h/2);
 			colShift = 
@@ -89,13 +88,22 @@ function drawPattern(){
 			colShift *= 10;
 			colShift *= (1 - row/(h/2) + 0.1) * 2;
 			colShift = ~~colShift;
-			colShift *= 4;
 			
-			let lightness = (1 - row/(h/2) + 0.3);
+			let rowShift = col/w;
+			rowShift =
+				Math.cos((rowShift + ripplePos) * 70)
+				+ (Math.cos((rowShift + (ripplePos)) * 120) * 0.3)
+				+ (Math.cos((rowShift + (1-ripplePos)) * 90) * 0.5);
+			rowShift + 0.5;
+			rowShift *= 2;
+			rowShift *= (1 - row/(h/2) + 0.1) * 2;
+			rowShift = ~~rowShift;
 
-			destData.data[destOffset] = 0.7 * lightness * srcData.data[srcOffset + colShift];
-			destData.data[destOffset + 1] = lightness * srcData.data[srcOffset + 1 + colShift];
-			destData.data[destOffset + 2] = 1.2 * lightness * srcData.data[srcOffset + 2 + colShift];
+			const srcOffset = ((row + rowShift) * w + (col + colShift)) * 4;
+
+			destData.data[destOffset] = 0.7 * lightness * srcData.data[srcOffset];
+			destData.data[destOffset + 1] = lightness * srcData.data[srcOffset + 1];
+			destData.data[destOffset + 2] = 1.2 * lightness * srcData.data[srcOffset + 2];
 		}
 	}
 	ripplePos = (ripplePos + 0.002) % 1;
