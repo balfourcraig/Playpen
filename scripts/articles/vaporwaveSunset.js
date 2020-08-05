@@ -5,6 +5,8 @@ let ctx = null;
 let backgroundCircles = [];
 let ripplePos = 0;
 
+let birds = [];
+
 function setUp(){
 	//sun lines
 	//linePositions = [];
@@ -29,10 +31,15 @@ function setUp(){
 	for(let i = 0; i < 100; i++){
 		const cx = Math.random() * w;
 		const cy = Math.random() * (h/2);
-		const cr = Math.random() * w * 0.1 + 10;
-		const color = 'hsl(' + (Math.random() * 90 + 210) + ',40%,50%)';
+		const cr = Math.random() * w * 0.08 + (w * 0.05);
+		const color = 'hsl(' + (Math.random() * 90 + 240) + ',40%,50%)';
 		const speed = Math.random() * 2 + 0.5;
 		backgroundCircles.push({center: {x: cx,y:cy}, radius: cr, color: color, speed: speed});
+	}
+	
+	const numBirds = 6;
+	for(let i = 0; i < numBirds; i++){
+		const birdPos = {x: Math.random() * w, y: Math.random() * h * 0.3};
 	}
 }
 
@@ -112,7 +119,7 @@ function drawPattern(){
 	
 	//Ripple reflection
 	const srcData = ctx.getImageData(0, 0, w, h/2);
-	const destData = ctx.getImageData(0, 0, w, h/2);
+	const destData = ctx.createImageData(w, h/2);
 	const choppiness = parseFloat(document.getElementById('ChoppinessInput').value);
 	for(let row = 0; row < h/2; row++){
 		for(let col = 0; col < w; col++){
@@ -148,10 +155,34 @@ function drawPattern(){
 			destData.data[destOffset] = 0.7 * lightness * srcData.data[srcOffset];
 			destData.data[destOffset + 1] = lightness * srcData.data[srcOffset + 1];
 			destData.data[destOffset + 2] = 1.2 * lightness * srcData.data[srcOffset + 2];
+			destData.data[destOffset + 3] = 255;
 		}
 	}
 	ripplePos = (ripplePos + 0.002) % 1;
 	ctx.putImageData(destData, 0, h/2); 
+	
+	const vhsAmount = parseInt(document.getElementById('vhsAmountInput').value);
+	if(vhsAmount){
+		//VHS Filter
+		const srcVHSData = ctx.getImageData(0, 0, w, h);
+		const destVHSData = ctx.createImageData(w, h);
+		for(let row = 0; row < h; row++){
+			for(let col = 0; col < w; col++){
+				const destOffset = (row * w + col) * 4;
+				
+				const rOffset = (row * w + col) * 4;
+				const gOffset = (row * w + (col - vhsAmount)) * 4;
+				const bOffset = (row * w + (col + vhsAmount)) * 4;
+				
+				destVHSData.data[destOffset] = srcVHSData.data[rOffset];
+				destVHSData.data[destOffset + 1] = srcVHSData.data[gOffset + 1];
+				destVHSData.data[destOffset + 2] = srcVHSData.data[bOffset + 2];
+				destVHSData.data[destOffset + 3] = 255;
+			}
+		}
+		ctx.putImageData(destVHSData, 0, 0);
+	}
+	
 
 	//const vigneteGrad = ctx.createRadialGradient(w/2, h/2, w/4, w/2, h/2, w/2);
 	//vigneteGrad.addColorStop(0, 'transparent');
@@ -180,6 +211,7 @@ function setUpSliderReadout(sliderName, readoutName){
 
 window.addEventListener('DOMContentLoaded', () => {
 	setUpSliderReadout('sunLinesInput','sunLinesReadout');
+	setUpSliderReadout('vhsAmountInput','vhsAmountReadout');
 	setUp();
 	setInterval(drawPattern, 50);
 });
