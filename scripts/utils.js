@@ -3,6 +3,12 @@ const goldenAngleRad = 2.39996322972865332;
 
 let randh = Math.random();
 
+function removeFromArray(arr, item){
+	let index = arr.indexOf(item);
+	if(index !== -1)
+		arr.splice(index, 1);
+}
+
 function nextGoldenRand(){
 	randh += golden_ratio;
 	randh %= 1;
@@ -63,8 +69,6 @@ function roundToPrecision(val, precision){
 	const multiplier = Math.pow(10, precision || 0);
 	return Math.round(val * multiplier) / multiplier;
 }
-
-
 
 function shuffleInplace(arr){
 	let n = arr.length;

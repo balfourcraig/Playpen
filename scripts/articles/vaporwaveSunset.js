@@ -37,9 +37,9 @@ function setUp(){
 		backgroundCircles.push({center: {x: cx,y:cy}, radius: cr, color: color, speed: speed});
 	}
 	
-	const numBirds = 6;
+	const numBirds = 0;
 	for(let i = 0; i < numBirds; i++){
-		const birdPos = {x: Math.random() * w, y: Math.random() * h * 0.3};
+		birds.push(createBird(false));
 	}
 }
 
@@ -48,6 +48,17 @@ function setUpSunLines(numLines){
 	for(let i = 0; i < numLines; i++){
 		linePositions.push(i/numLines);
 	}
+}
+
+function createBird(offscreen){
+	const bird = { 
+		x: offscreen ? (Math.random() < 0.5 ? 0 : w) : Math.random() * w,
+		y: Math.random() * h * 0.3,
+		speed: Math.random() * 1.5 + 1,
+		offset: Math.random() * Math.PI * 2,
+		initialSize: 6
+	};
+	return bird;
 }
 
 function drawPattern(){
@@ -115,43 +126,71 @@ function drawPattern(){
 	ctx.fillRect(0, 0, w, h);
 	
 	ctx.globalCompositeOperation = 'source-over';
-
+	
+	if(Math.random() < 0.01)
+		birds.push(createBird(true));
+	
+	for(let i = 0; i < birds.length; i++){
+		let birdPosY = Math.sin(birds[i].offset + (birds[i].x/w * Math.PI * 4));
+		birdPosY *= 70;
+		birdPosY += birds[i].y;
+		let birdSize = birds[i].speed < 0 ? (birds[i].x/w) : (1 - birds[i].x/w);
+		birdSize = (birdSize * 0.9 + 0.1) * birds[i].initialSize;
+		drawBird(ctx, {x: birds[i].x, y: birdPosY}, birdSize, 'black');
+		birds[i].x += birds[i].speed;
+		if(birds[i].x < - birds[i].initialSize || birds[i].x > w + birds[i].initialSize){
+			removeFromArray(birds, birds[i]);
+			i--;//is this needed?
+		}
+			
+	}
 	
 	//Ripple reflection
+	const choppiness = parseFloat(document.getElementById('ChoppinessInput').value);
+
 	const srcData = ctx.getImageData(0, 0, w, h/2);
 	const destData = ctx.createImageData(w, h/2);
-	const choppiness = parseFloat(document.getElementById('ChoppinessInput').value);
+	
 	for(let row = 0; row < h/2; row++){
 		for(let col = 0; col < w; col++){
 			const destOffset = ((h/2 - row) * w + col) * 4;
 			let lightness = (row/(h/2) + 0.3);
 			
-			let colShift = row/(h/2);
-			colShift = 
-				Math.cos((colShift + ripplePos) * 50) 
-				+ (Math.cos((colShift + (1-ripplePos) * 0.3 ) * 300) * 0.2)
-				+ Math.sin((colShift + (1-ripplePos)) * 50 * 1.5);
-			colShift += 0.5;
-			colShift *= 10;
-			colShift *= (1 - row/(h/2) + 0.1) * 2;
-			colShift *= choppiness;
-			colShift = ~~colShift;
+			let shiftedRow = 0;
+			let shiftedCol = 0;
 			
-			let rowShift = col/w;
-			rowShift =
-				Math.cos((rowShift + ripplePos) * 70)
-				+ (Math.cos((rowShift + (ripplePos)) * 120) * 0.3)
-				+ (Math.cos((rowShift + (1-ripplePos)) * 90) * 0.5);
-			rowShift + 0.5;
-			rowShift *= 2;
-			rowShift *= (1 - row/(h/2) + 0.1) * 2;
-			rowShift *= choppiness;
-			rowShift = ~~rowShift;
+			if(choppiness === 0){
+				shiftedRow = row;
+				shiftedCol = col;
+			}
+			else{
+				let colShift = row/(h/2);
+				colShift = 
+					Math.cos((colShift + ripplePos) * 50) 
+					+ (Math.cos((colShift + (1-ripplePos) * 0.3 ) * 300) * 0.2)
+					+ Math.sin((colShift + (1-ripplePos)) * 50 * 1.5);
+				colShift += 0.5;
+				colShift *= 10;
+				colShift *= (1 - row/(h/2) + 0.1) * 2;
+				colShift *= choppiness;
+				colShift = ~~colShift;
+				
+				let rowShift = col/w;
+				rowShift =
+					Math.cos((rowShift + ripplePos) * 70)
+					+ (Math.cos((rowShift + (ripplePos)) * 120) * 0.3)
+					+ (Math.cos((rowShift + (1-ripplePos)) * 90) * 0.5);
+				rowShift + 0.5;
+				rowShift *= 2;
+				rowShift *= (1 - row/(h/2) + 0.1) * 2;
+				rowShift *= choppiness;
+				rowShift = ~~rowShift;
 
-			const shiftedRow = clamp(row + rowShift, 0, h/2 -1);
-			const shiftedCol = clamp(col + colShift, 1, w -1);
+				shiftedRow = clamp(row + rowShift, 0, h/2 -1);
+				shiftedCol = clamp(col + colShift, 1, w -1);
+				
+			}
 			const srcOffset = (shiftedRow * w + shiftedCol) * 4;
-
 			destData.data[destOffset] = 0.7 * lightness * srcData.data[srcOffset];
 			destData.data[destOffset + 1] = lightness * srcData.data[srcOffset + 1];
 			destData.data[destOffset + 2] = 1.2 * lightness * srcData.data[srcOffset + 2];
@@ -160,7 +199,7 @@ function drawPattern(){
 	}
 	ripplePos = (ripplePos + 0.002) % 1;
 	ctx.putImageData(destData, 0, h/2); 
-	
+
 	const vhsAmount = parseInt(document.getElementById('vhsAmountInput').value);
 	if(vhsAmount){
 		//VHS Filter
@@ -193,6 +232,15 @@ function drawPattern(){
 
 function clamp(num, min, max){
 	return num <= min ? min : num >= max ? max : num;
+}
+
+function drawBird(ctx, center, width, color){
+	ctx.strokeStyle = color;
+	ctx.beginPath();
+	ctx.moveTo(center.x - width, center.y - width * 0.3);
+	ctx.lineTo(center.x, center.y);
+	ctx.lineTo(center.x + width, center.y - width * 0.3);
+	ctx.stroke();
 }
 
 function drawCircle(ctx, center, radius, color){
