@@ -18,7 +18,7 @@ function setUp(){
 	
 	const c = document.createElement('canvas');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
-	h = w;
+	h = w * 0.8;
 	c.setAttribute('width', w);
 	c.setAttribute('height', h);
 	ctx = c.getContext('2d');
@@ -37,7 +37,8 @@ function setUp(){
 		backgroundCircles.push({center: {x: cx,y:cy}, radius: cr, color: color, speed: speed});
 	}
 	
-	const numBirds = 0;
+	const maxBirds = parseInt(document.getElementById('maxBirdsInput').value);
+	const numBirds = 1 + ~~(Math.random() * maxBirds);
 	for(let i = 0; i < numBirds; i++){
 		birds.push(createBird(false));
 	}
@@ -53,8 +54,8 @@ function setUpSunLines(numLines){
 function createBird(offscreen){
 	const bird = { 
 		x: offscreen ? (Math.random() < 0.5 ? 0 : w) : Math.random() * w,
-		y: Math.random() * h * 0.3,
-		speed: Math.random() * 1.5 + 1,
+		y: Math.random() * h * 0.3 + h * 0.1,
+		speed: (Math.random() * 1.5 + 1) * (Math.random() < 0.5 ? -1 : 1),
 		offset: Math.random() * Math.PI * 2,
 		initialSize: 6
 	};
@@ -95,6 +96,7 @@ function drawPattern(){
 	sunRadialGrad.addColorStop(1, 'transparent');
 	drawCircle(ctx, sunCenter, sunRadius * 1.4, sunRadialGrad);
 	
+	//mist
 	const showMist = document.getElementById('showMistInput').checked;
 	if(showMist){
 		const mistUp = document.getElementById('mistUpInput').checked;
@@ -119,6 +121,7 @@ function drawPattern(){
 		ctx.globalCompositeOperation = 'destination-over';
 	}
 	
+	//sky
 	const skyLinearGrad = ctx.createLinearGradient(0, 0, 0, h/2);
 	skyLinearGrad.addColorStop(0, 'black');
 	skyLinearGrad.addColorStop(1, '#cc33ff');
@@ -127,22 +130,24 @@ function drawPattern(){
 	
 	ctx.globalCompositeOperation = 'source-over';
 	
-	if(Math.random() < 0.01)
+	//birds
+	const maxBirds = parseInt(document.getElementById('maxBirdsInput').value);
+	if(birds.length < maxBirds && Math.random() < 0.01)
 		birds.push(createBird(true));
 	
 	for(let i = 0; i < birds.length; i++){
 		let birdPosY = Math.sin(birds[i].offset + (birds[i].x/w * Math.PI * 4));
-		birdPosY *= 70;
+		birdPosY += 0.5;
+		birdPosY *= w * 0.05;
 		birdPosY += birds[i].y;
 		let birdSize = birds[i].speed < 0 ? (birds[i].x/w) : (1 - birds[i].x/w);
-		birdSize = (birdSize * 0.9 + 0.1) * birds[i].initialSize;
+		birdSize = (birdSize * 0.7 + 0.3) * birds[i].initialSize;
 		drawBird(ctx, {x: birds[i].x, y: birdPosY}, birdSize, 'black');
 		birds[i].x += birds[i].speed;
 		if(birds[i].x < - birds[i].initialSize || birds[i].x > w + birds[i].initialSize){
 			removeFromArray(birds, birds[i]);
 			i--;//is this needed?
 		}
-			
 	}
 	
 	//Ripple reflection
@@ -186,8 +191,8 @@ function drawPattern(){
 				rowShift *= choppiness;
 				rowShift = ~~rowShift;
 
-				shiftedRow = clamp(row + rowShift, 0, h/2 -1);
-				shiftedCol = clamp(col + colShift, 1, w -1);
+				shiftedRow = row + rowShift;
+				shiftedCol = col + colShift;
 				
 			}
 			const srcOffset = (shiftedRow * w + shiftedCol) * 4;
@@ -200,17 +205,17 @@ function drawPattern(){
 	ripplePos = (ripplePos + 0.002) % 1;
 	ctx.putImageData(destData, 0, h/2); 
 
+	//VHS Filter
 	const vhsAmount = parseInt(document.getElementById('vhsAmountInput').value);
 	if(vhsAmount){
-		//VHS Filter
 		const srcVHSData = ctx.getImageData(0, 0, w, h);
 		const destVHSData = ctx.createImageData(w, h);
 		for(let row = 0; row < h; row++){
 			for(let col = 0; col < w; col++){
 				const destOffset = (row * w + col) * 4;
 				
-				const rOffset = (row * w + col) * 4;
-				const gOffset = (row * w + (col - vhsAmount)) * 4;
+				const rOffset = (row * w + (col - vhsAmount)) * 4;
+				const gOffset = (row * w + (col)) * 4;
 				const bOffset = (row * w + (col + vhsAmount)) * 4;
 				
 				destVHSData.data[destOffset] = srcVHSData.data[rOffset];
@@ -222,12 +227,15 @@ function drawPattern(){
 		ctx.putImageData(destVHSData, 0, 0);
 	}
 	
-
-	//const vigneteGrad = ctx.createRadialGradient(w/2, h/2, w/4, w/2, h/2, w/2);
-	//vigneteGrad.addColorStop(0, 'transparent');
-	//vigneteGrad.addColorStop(1, 'rgba(0,0,0,0.5)');
-	//ctx.fillStyle = vigneteGrad;
-	//ctx.fillRect(0,0,w,h);
+	//vignette
+	const vignetteStrength = parseFloat(document.getElementById('vignetteInput').value);
+	if(vignetteStrength){
+		const vignetteGrad = ctx.createRadialGradient(w/2, h/2, w/4, w/2, h/2, w/2);
+		vignetteGrad.addColorStop(0, 'transparent');
+		vignetteGrad.addColorStop(1, 'rgba(0,0,0,' + vignetteStrength + ')');
+		ctx.fillStyle = vignetteGrad;
+		ctx.fillRect(0,0,w,h);
+	}
 }
 
 function clamp(num, min, max){
@@ -260,6 +268,7 @@ function setUpSliderReadout(sliderName, readoutName){
 window.addEventListener('DOMContentLoaded', () => {
 	setUpSliderReadout('sunLinesInput','sunLinesReadout');
 	setUpSliderReadout('vhsAmountInput','vhsAmountReadout');
+	setUpSliderReadout('maxBirdsInput','maxBirdsReadout');
 	setUp();
 	setInterval(drawPattern, 50);
 });
