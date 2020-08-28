@@ -9,6 +9,10 @@ function removeFromArray(arr, item){
 		arr.splice(index, 1);
 }
 
+function round(num){
+	return ~~(num + 0.5);
+}
+
 function nextGoldenRand(){
 	randh += golden_ratio;
 	randh %= 1;
@@ -34,6 +38,10 @@ function bias(x, biasAmount){
 	return (x * k) / (x * k - x + 1);
 }
 
+function clamp(val, min, max){
+	return Math.max(min, Math.min(val, max));
+}
+
 function getUrlVars() {
 	var vars = {};
 	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
@@ -46,13 +54,13 @@ function stringHash(s, seed){
 	const phi = 0.618033988749895;
 	let hash = seed / phi;
 	for (let i = s.length - 1; i >= 0; i--) {
-		hash += phi * (i + 1) * s.charCodeAt(i);
+		hash += phi * (phi / (i + 1)) * s.charCodeAt(i);
 	}
 	return hash % 1;
 }
 
 function radToDeg(rad){
-	return rad * (180/Math.PI);
+	return rad * (180 / Math.PI);
 }
 
 function cosineInterpolate(start, end, position){
@@ -133,9 +141,10 @@ function getRandomInt(min, max) {
 }
 
 function boundedRandom(min, max) {
-	min = Math.ceil(min);
-	max = Math.floor(max);
-	return (Math.random() * (max - min)) + min;
+	//min = Math.ceil(min);
+	//max = Math.floor(max);
+	let num = (Math.random() * (max - min)) + min;
+	return num;
 }
 
 function subdivideLine(p1, p2, totalSegments, seg){

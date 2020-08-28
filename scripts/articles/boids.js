@@ -10,10 +10,12 @@ let mouseOver = false;
 let mousePos = null;
 let sight = 75;
 
+let maxBoids = 1;
 const boidSize = 10;
 const chonkiness = 0.5;
 
 function setUp(){
+	maxBoids = parseInt(document.getElementById('numBoidsInput').getAttribute('max'));
 	const c = document.getElementById('canv');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 	h = w;
@@ -21,10 +23,10 @@ function setUp(){
 	c.setAttribute('height', h);
 	ctx = c.getContext('2d');
 	
-	let numBoids = 300;
+	let numBoids = parseInt(document.getElementById('numBoidsInput').value);
 	boids = [];
 	for(let i = 0; i < numBoids; i++){
-		boids.push(createBoid({x: Math.random() * w, y: Math.random() * h}));
+		boids.push(createBoidAtRandom());
 	}
 	
 	c.addEventListener('mouseover', (e) => {
@@ -40,11 +42,16 @@ function setUp(){
 			mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
 		}
 	});
+	c.addEventListener('mousedown', mouseDown);
 	
 	setInterval(draw, 50);
 }
 
-function createBoid(position){
+function createBoidAtRandom(){
+	return createBoidAtPosition({x: Math.random() * w, y: Math.random() * h});
+}
+
+function createBoidAtPosition(position){
 	const speed = 10;
 	return {
 		position: position,
@@ -53,6 +60,17 @@ function createBoid(position){
 			y: Math.random() * speed * 2 - speed
 		},
 		color: 'hsl(' + (Math.random() * 90 + 180) + ',50%,50%)'
+	}
+}
+
+function mouseDown(e) {
+	if(boids.length < maxBoids && e && e.clientX && e.clientY) {
+		const c = document.getElementById('canv');
+		let canvRect = c.getBoundingClientRect();
+		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};		
+		boids.push(createBoidAtPosition(mousePos));
+		document.getElementById('numBoidsInput').value = boids.length;
+		document.getElementById('numBoidsInput').dispatchEvent(new Event('change'));
 	}
 }
 
@@ -213,8 +231,6 @@ function drawBoid(boid, showDebugLines){
 			}
 		}
 	}
-	
-	
 }
 
 function limitSpeed(boid){
@@ -241,9 +257,22 @@ function dist(p1, p2){
 }
 
 function draw(){
+	const numBoids = parseInt(document.getElementById('numBoidsInput').value);
+	if(numBoids > boids.length){
+		for(let i = boids.length; i < numBoids; i++){
+			boids.push(createBoidAtRandom());
+		}
+	}
+	else if (numBoids < boids.length){
+		const newBoids = [];
+		for(let i = 0; i < numBoids; i++){
+			newBoids.push(boids[i]);
+		}
+		boids = newBoids;
+	}
+	
 	ctx.fillStyle = 'white';
 	ctx.fillRect(0, 0, w, h);
-	console.log(mouseOver);
 	for(let boid of boids){
 		flyTowardsCenter(boid);
 		avoidOther(boid);
@@ -256,6 +285,14 @@ function draw(){
 	}
 }
 
+function setUpSliderReadout(sliderName, readoutName){
+	document.getElementById(readoutName).innerText = '(' + document.getElementById(sliderName).value + ')';
+	document.getElementById(sliderName).addEventListener('input', () => {
+		document.getElementById(readoutName).innerText = '(' + document.getElementById(sliderName).value + ')';
+	});
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+	setUpSliderReadout('numBoidsInput', 'numBoidsReadout');
 	setUp();
 });

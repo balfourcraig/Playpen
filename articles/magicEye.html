@@ -3,11 +3,11 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<meta charset="UTF-8">
-	<title>Boids - Craig's Playpen</title>
+	<title>Magic Eye - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
-	<script src="../scripts/articles/boids.js"></script>
+	<script src="../scripts/articles/magicEye.js"></script>
 </head>
 <body>
 <div class="navHolder">
@@ -21,17 +21,13 @@
 <main>
 	<div class="pageWidth">
 		<header>
-			<h1>Boids</h1>
+			<h1>Magic Eye</h1>
 		</header>
 		<section>
 			<div id="sizeCalc"></div>
 			<canvas id="canv"></canvas>
-			<div class="optionsArea">
-				<div class="op">
-					<input id="numBoidsInput" type="range" min="1" max="1000" value="200" step="1">
-					<label for="numBoidsInput">Num of boids <span id="numBoidsReadout"></span></label>
-				</div>
-			</div>
+			<br>
+			<canvas id="depthCanv"></canvas>
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>

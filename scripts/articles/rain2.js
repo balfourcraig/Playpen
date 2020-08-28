@@ -6,15 +6,15 @@ let lastMousePos = null;
 
 function setUp(){
 	const img = document.createElement('img');
-	img.src = '../images/rainBack.jpg';
+	img.src = '../Images/rainBack.jpg';
 
 	const dropImg = document.createElement('img');
-	dropImg.src = '../images/drop02.png';
+	dropImg.src = '../Images/drop02.png';
 	
 	const splashImgs = [];
 	for(let i = 1; i <= 3; i++){
 		const splash01 = document.createElement('img');
-		splash01.src = '../images/groundSplash0' + i + '.png';
+		splash01.src = '../Images/groundSplash0' + i + '.png';
 		splashImgs.push(splash01);
 	}
 	
@@ -49,10 +49,13 @@ function setUp(){
 	const drops = [];
 	const fadeDrops = [];
 	const splashes = [];
-
-	animationID = window.requestAnimationFrame(() => {
-		drawDots();
-	});
+	
+	setTimeout(() => {
+		animationID = window.requestAnimationFrame(() => {
+			drawDots();
+		});
+	}, 500);
+	
 	
 	const acceleration = 1.02;
 

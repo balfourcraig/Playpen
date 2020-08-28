@@ -49,12 +49,12 @@ function drawPattern(){
 		Theta2   : parseFloat(document.getElementById('theta2InitialInput').value)*(Math.PI)/2,
 		m1     : parseFloat(document.getElementById('m1InitialInput').value),
 		m2     : parseFloat(document.getElementById('m2InitialInput').value),
-		l1     : w * 0.2,
-		l2     : w * 0.2,
+		l1     : w * parseFloat(document.getElementById('length1InitialInput').value),
+		l2     : w * parseFloat(document.getElementById('length2InitialInput').value),
 		X0     : center.x,
 		Y0     : center.y,
 		prevPoint: null,
-		color: 'red',
+		hue: 0,
 	};
 	
 	const diffMult = parseFloat(document.getElementById('globalDiffMultiplier').value)
@@ -71,6 +71,15 @@ function drawPattern(){
 	const m1Diff = templatePendulum.m1 * parseFloat(document.getElementById('m1DiffInput').value) * diffMult;
 	const m2Diff = templatePendulum.m2 * parseFloat(document.getElementById('m2DiffInput').value) * diffMult;
 	
+	const l1Diff = templatePendulum.l1 * parseFloat(document.getElementById('length1DiffInput').value) * diffMult;
+	const l2Diff = templatePendulum.l2 * parseFloat(document.getElementById('length1DiffInput').value) * diffMult;
+	
+	const shiftColorInput = document.getElementById('shiftColorInput').checked;
+	const shiftLengthsInput = parseFloat(document.getElementById('shiftLengthsInput').value);
+	console.log(shiftLengthsInput)
+	const maxLength = w;
+	const minLength = w * 0.05;
+	
 	for(let i = 0; i < numPens; i++){
 		const pen = {
 			d2Theta1 : templatePendulum.d2Theta1,
@@ -81,21 +90,21 @@ function drawPattern(){
 			Theta2   : templatePendulum.Theta2 - theta2Diff + ((theta2Diff / numPens) * i),
 			m1     : templatePendulum.m1 - m1Diff + ((m1Diff / numPens) * i),
 			m2     : templatePendulum.m2 - m2Diff + ((m2Diff / numPens) * i),
-			l1     : templatePendulum.l1,
-			l2     : templatePendulum.l2,
+			l1     : templatePendulum.l1 - l1Diff + ((l1Diff / numPens) * i),
+			l2     : templatePendulum.l2 - l2Diff + ((l2Diff / numPens) * i),
 			X0     : templatePendulum.X0,
 			Y0     : templatePendulum.Y0,
 			prevPoint: null,
-			color: 'hsl(' + (i * (360/numPens)) + ', 80%, 50%)',
+			hue: i * (360/numPens)
 		};
 		pendula.push(pen);
 	}
-
+	ctx.globalAlpha = 0.3;
 	init = setInterval(function(){
-		ctx.globalAlpha = 0.005;
-		ctx.fillStyle = 'white';
-		ctx.fillRect(0, 0, w, w);
-		ctx.globalAlpha = 0.3;
+		//ctx.globalAlpha = 0.005;
+		//ctx.fillStyle = 'white';
+		//ctx.fillRect(0, 0, w, w);
+		//ctx.globalAlpha = 0.3;
 		
 		for(let i = 0; i < pendula.length; i++){
 			animate(pendula[i], i > 0 ? pendula[i-1].prevPoint : null);
@@ -116,7 +125,13 @@ function drawPattern(){
 		
 		const point = {x:x, y:y};
 		if(pen.prevPoint){
-			drawLineFlat(ctx, pen.prevPoint, point, pen.color);
+			if(shiftColorInput)
+				pen.hue += 1;
+			if(shiftLengthsInput > 0){
+				pen.l1 = clamp(pen.l1 + ((Math.random() * l1Diff - l1Diff * 0.5) * shiftLengthsInput), minLength, maxLength);
+				pen.l2 = clamp(pen.l2 + ((Math.random() * l2Diff - l2Diff * 0.5) * shiftLengthsInput), minLength, maxLength);
+			}
+			drawLineFlat(ctx, pen.prevPoint, point, 'hsl(' + pen.hue + ', 80%, 50%)');
 		}
 		pen.prevPoint = point;			
 	}
@@ -167,6 +182,21 @@ function randomizeValue(){
 	
 	document.getElementById('m2InitialInput').value = boundedRandom(5, 25);
 	document.getElementById('m2DiffInput').value = boundedRandom(-1, 1) * 0.5;
+	
+	if(document.getElementById('matchLengthInput').checked){
+		document.getElementById('length1InitialInput').value = 0.2;
+		document.getElementById('length1DiffInput').value = 0;
+		
+		document.getElementById('length2InitialInput').value = 0.2;
+		document.getElementById('length2DiffInput').value = 0;
+	}
+	else{
+		document.getElementById('length1InitialInput').value = boundedRandom(0.05, 0.5);
+		document.getElementById('length1DiffInput').value = boundedRandom(-1, 1) * 0.5;
+	
+		document.getElementById('length2InitialInput').value = boundedRandom(0.05, 0.5);
+		document.getElementById('length2DiffInput').value = boundedRandom(-1, 1) * 0.5;
+	}
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -181,5 +211,14 @@ window.addEventListener('DOMContentLoaded', () => {
 	document.getElementById('randBtn').addEventListener('click', () => {
 		randomizeValue();
 		drawPattern();
+	});
+	document.getElementById('matchLengthInput').addEventListener('change', () => {
+		if(document.getElementById('matchLengthInput').checked){
+			document.getElementById('length1InitialInput').value = 0.2;
+			document.getElementById('length1DiffInput').value = 0;
+			
+			document.getElementById('length2InitialInput').value = 0.2;
+			document.getElementById('length2DiffInput').value = 0;
+		}
 	});
 });
