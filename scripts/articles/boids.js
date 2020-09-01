@@ -8,10 +8,14 @@ let ctx = null;
 let boids = null;
 let mouseOver = false;
 let mousePos = null;
-let sight = 75;
+let sight = 50;
+
+const globalSpeed = 12;
+
+let fieldOfView = 2;
 
 let maxBoids = 1;
-const boidSize = 10;
+const boidSize = 8;
 const chonkiness = 0.5;
 
 function setUp(){
@@ -48,11 +52,11 @@ function setUp(){
 }
 
 function createBoidAtRandom(){
-	return createBoidAtPosition({x: Math.random() * w, y: Math.random() * h});
+	return createBoidAtPosition({x: Math.random() * (w - 2 * sight) + sight, y: Math.random() * (h - 2 * sight) + sight});
 }
 
 function createBoidAtPosition(position){
-	const speed = 10;
+	const speed = globalSpeed;
 	return {
 		position: position,
 		velocity: {
@@ -74,6 +78,35 @@ function mouseDown(e) {
 	}
 }
 
+function dot(a,b){
+	return a.x * b.x + a.y * b.y;
+}
+
+function angleBetweenVectors(a, b){
+	const magA = Math.sqrt(a.x * a.x + a.y * a.y);
+	const magB = Math.sqrt(b.x * b.x + b.y * b.y);
+	
+	const cosTheta = dot(a,b) / (magA * magB);
+	return Math.acos(cosTheta);
+}
+
+function getNeighbours(boid){
+	const neighbours = [];
+	const heading = Math.atan2(boid.velocity.x, boid.velocity.y);
+	for(let otherBoid of boids){
+		if(otherBoid != boid){
+			const scaledDist = 1 - (dist(boid.position, otherBoid.position) / sight);
+			if(scaledDist < 1 && scaledDist > 0){
+				distVec = {x: otherBoid.position.x - boid.position.x, y: otherBoid.position.y - boid.position.y};
+				if(Math.abs(angleBetweenVectors(boid.velocity, distVec)) < fieldOfView){
+					neighbours.push({boid: otherBoid, dist: scaledDist});
+				}
+			}
+		}
+	}
+	return neighbours;
+}
+
 function updateBoidPos(boid){
 	const newX = boid.position.x + boid.velocity.x;
 	const newY = boid.position.y + boid.velocity.y;
@@ -91,42 +124,36 @@ function updateBoidPos(boid){
 	}
 }
 
-function flyTowardsCenter(boid){
-	const centeringFactor = 0.05;
+function flyTowardsCenter(boid, neighbours){
+	const centeringFactor = 0.3;
 	
 	let centerX = 0;
 	let centerY = 0;
+	let avgDist = 0;
 	let numNeighbours = 0;
 	
-	for(let otherBoid of boids){
-		if(otherBoid != boid && dist(boid.position, otherBoid.position) < sight){
-			centerX += otherBoid.position.x;
-			centerY += otherBoid.position.y;
-			numNeighbours++;
-		}
-	}
-	
+	for(let n of neighbours){
+		centerX += n.boid.position.x;
+		centerY += n.boid.position.y;
+		avgDist += n.dist * n.dist;
+		numNeighbours++;
+	}	
 	if(numNeighbours){
 		centerX /= numNeighbours;
 		centerY /= numNeighbours;
-		
-		boid.velocity.x += (centerX - boid.position.x) * centeringFactor;
-		boid.velocity.y += (centerY - boid.position.y) * centeringFactor;
+		avgDist /= numNeighbours;
+		boid.velocity.x += (centerX - boid.position.x) * centeringFactor * avgDist;
+		boid.velocity.y += (centerY - boid.position.y) * centeringFactor * avgDist;
 	}
 }
 
-function avoidOther(boid){
-	const avoidFactor = 0.02;
+function avoidOther(boid, neighbours){
+	const avoidFactor = 0.05;
 	let moveX = 0;
 	let moveY = 0;
-	for(let otherBoid of boids){
-		if(otherBoid != boid){
-			const scaledDist = 1 - (dist(boid.position, otherBoid.position) / sight);
-			if(scaledDist < 1 && scaledDist > 0){
-				moveX += (boid.position.x - otherBoid.position.x) * scaledDist;
-				moveY += (boid.position.y - otherBoid.position.y) * scaledDist;
-			}
-		}
+	for(let n of neighbours){
+		moveX += (boid.position.x - n.boid.position.x) * n.dist * n.dist;
+		moveY += (boid.position.y - n.boid.position.y) * n.dist * n.dist;
 	}
 	boid.velocity.x += moveX * avoidFactor;
 	boid.velocity.y += moveY * avoidFactor;
@@ -135,10 +162,10 @@ function avoidOther(boid){
 function avoidMouse(boid){
 	const avoidFactor = 0.2;
 	if(mousePos && mouseOver){
-		const scaledDist = 1 - (dist(boid.position, mousePos) / sight);
+		const scaledDist = 1 - (dist(boid.position, mousePos) / (sight * 2));
 		if(scaledDist < 1 && scaledDist > 0){
-			boid.velocity.x += (boid.position.x - mousePos.x) * scaledDist * avoidFactor;
-			boid.velocity.y += (boid.position.y - mousePos.y) * scaledDist * avoidFactor;
+			boid.velocity.x += (boid.position.x - mousePos.x) * scaledDist * scaledDist * avoidFactor;
+			boid.velocity.y += (boid.position.y - mousePos.y) * scaledDist * scaledDist * avoidFactor;
 		}
 	}
 }
@@ -165,19 +192,17 @@ function avoidWalls(boid){
 	boid.velocity.y += moveY * avoidFactor;
 }
 
-function matchVelocity(boid){
-	const matchingFactor = 0.05;
+function matchVelocity(boid, neighbours){
+	const matchingFactor = 0.1;
 	
 	let avgDx = 0;
 	let avgDy = 0;
 	let numNeighbours = 0;
 	
-	for(let otherBoid of boids){
-		if(otherBoid != boid && dist(otherBoid.position, boid.position) < sight){
-			avgDx += otherBoid.velocity.x;
-			avgDy += otherBoid.velocity.y;
-			numNeighbours++;
-		}
+	for(let n of neighbours){
+		avgDx += n.boid.velocity.x * (1 - n.dist);
+		avgDy += n.boid.velocity.y * (1 - n.dist);
+		numNeighbours++;
 	}
 	if(numNeighbours){
 		avgDx /= numNeighbours;
@@ -188,7 +213,7 @@ function matchVelocity(boid){
 	}
 }
 
-function drawBoid(boid, showDebugLines){
+function drawBoid(boid, showDebugLines, neighbours){
 	const heading = Math.atan2(boid.velocity.x, boid.velocity.y);
 
 	const noseX = Math.sin(heading) * boidSize + boid.position.x;
@@ -217,29 +242,44 @@ function drawBoid(boid, showDebugLines){
 		ctx.lineTo(eyelineX, eyelineY);
 		ctx.stroke();
 
-		drawCircle(ctx, boid.position, sight, 'blue');
+		ctx.strokeStyle = 'blue';
 		
+		const fovStartX = Math.sin(heading - fieldOfView) * sight + boid.position.x;
+		const fovStartY = Math.cos(heading - fieldOfView) * sight + boid.position.y;
+		
+		const fovEndX = Math.sin(heading + fieldOfView) * sight + boid.position.x;
+		const fovEndY = Math.cos(heading + fieldOfView) * sight + boid.position.y;
+
+		ctx.beginPath();
+		ctx.moveTo(fovStartX, fovStartY);
+		ctx.lineTo(boid.position.x, boid.position.y);
+		ctx.lineTo(fovEndX, fovEndY);
+		ctx.stroke();
+		
+		drawCircle(ctx, boid.position, sight, 'blue');
+
 		ctx.strokeStyle = 'red';
-		for(let i = 0; i < boids.length; i++){
-			if(boids[i] != boid){
-				if(dist(boids[i].position, boid.position) < sight){
-					ctx.beginPath();
-					ctx.moveTo(boids[i].position.x, boids[i].position.y);
-					ctx.lineTo(boid.position.x, boid.position.y);
-					ctx.stroke();
-				}
-			}
+		for(let n of neighbours){
+			ctx.beginPath();
+			ctx.moveTo(n.boid.position.x, n.boid.position.y);
+			ctx.lineTo(boid.position.x, boid.position.y);
+			ctx.stroke();
 		}
 	}
 }
 
 function limitSpeed(boid){
-	const speedLimit = 15;
+	const upperSpeedLimit = globalSpeed * 1.5;
+	const lowerSpeedLimit = globalSpeed * 0.5;
 	
 	const speed = Math.sqrt(boid.velocity.x * boid.velocity.x + boid.velocity.y * boid.velocity.y);
-	if(speed > speedLimit){
-		boid.velocity.x = (boid.velocity.x / speed) * speedLimit;
-		boid.velocity.y = (boid.velocity.y / speed) * speedLimit;
+	if(speed > upperSpeedLimit){
+		boid.velocity.x = (boid.velocity.x / speed) * upperSpeedLimit;
+		boid.velocity.y = (boid.velocity.y / speed) * upperSpeedLimit;
+	}
+	else if(speed < lowerSpeedLimit){
+		boid.velocity.x = (boid.velocity.x / speed) * lowerSpeedLimit;
+		boid.velocity.y = (boid.velocity.y / speed) * lowerSpeedLimit;
 	}
 }
 
@@ -274,14 +314,15 @@ function draw(){
 	ctx.fillStyle = 'white';
 	ctx.fillRect(0, 0, w, h);
 	for(let boid of boids){
-		flyTowardsCenter(boid);
-		avoidOther(boid);
-		matchVelocity(boid);
+		const neighbours = getNeighbours(boid);
+		flyTowardsCenter(boid, neighbours);
+		avoidOther(boid, neighbours);
+		matchVelocity(boid, neighbours);
 		avoidMouse(boid);
 		avoidWalls(boid);
 		limitSpeed(boid);
 		updateBoidPos(boid);
-		drawBoid(boid, debugLines);
+		drawBoid(boid, debugLines, neighbours);
 	}
 }
 
