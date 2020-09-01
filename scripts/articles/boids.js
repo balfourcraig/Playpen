@@ -10,13 +10,17 @@ let mouseOver = false;
 let mousePos = null;
 let sight = 50;
 
-const globalSpeed = 12;
+let globalSpeed = 12;
 
 let fieldOfView = 2;
 
 let maxBoids = 1;
-const boidSize = 8;
-const chonkiness = 0.5;
+const boidSize = 10;
+const chonkiness = 2.2;
+
+let cohesion = 0;
+let alignment = 0;
+let separation = 0;
 
 function setUp(){
 	maxBoids = parseInt(document.getElementById('numBoidsInput').getAttribute('max'));
@@ -63,7 +67,7 @@ function createBoidAtPosition(position){
 			x: Math.random() * speed * 2 - speed,
 			y: Math.random() * speed * 2 - speed
 		},
-		color: 'hsl(' + (Math.random() * 90 + 180) + ',50%,50%)'
+		color: 'hsl(' + (Math.random() * 270 + 180) + ',50%,50%)'
 	}
 }
 
@@ -124,9 +128,7 @@ function updateBoidPos(boid){
 	}
 }
 
-function flyTowardsCenter(boid, neighbours){
-	const centeringFactor = 0.3;
-	
+function flyTowardsCenter(boid, neighbours){	
 	let centerX = 0;
 	let centerY = 0;
 	let avgDist = 0;
@@ -142,8 +144,8 @@ function flyTowardsCenter(boid, neighbours){
 		centerX /= numNeighbours;
 		centerY /= numNeighbours;
 		avgDist /= numNeighbours;
-		boid.velocity.x += (centerX - boid.position.x) * centeringFactor * avgDist;
-		boid.velocity.y += (centerY - boid.position.y) * centeringFactor * avgDist;
+		boid.velocity.x += (centerX - boid.position.x) * cohesion * avgDist;
+		boid.velocity.y += (centerY - boid.position.y) * cohesion * avgDist;
 	}
 }
 
@@ -155,8 +157,8 @@ function avoidOther(boid, neighbours){
 		moveX += (boid.position.x - n.boid.position.x) * n.dist * n.dist;
 		moveY += (boid.position.y - n.boid.position.y) * n.dist * n.dist;
 	}
-	boid.velocity.x += moveX * avoidFactor;
-	boid.velocity.y += moveY * avoidFactor;
+	boid.velocity.x += moveX * separation;
+	boid.velocity.y += moveY * separation;
 }
 
 function avoidMouse(boid){
@@ -193,8 +195,6 @@ function avoidWalls(boid){
 }
 
 function matchVelocity(boid, neighbours){
-	const matchingFactor = 0.1;
-	
 	let avgDx = 0;
 	let avgDy = 0;
 	let numNeighbours = 0;
@@ -208,8 +208,8 @@ function matchVelocity(boid, neighbours){
 		avgDx /= numNeighbours;
 		avgDy /= numNeighbours;
 		
-		boid.velocity.x += (avgDx - boid.velocity.x) * matchingFactor;
-		boid.velocity.y += (avgDy - boid.velocity.y) * matchingFactor;
+		boid.velocity.x += (avgDx - boid.velocity.x) * alignment;
+		boid.velocity.y += (avgDy - boid.velocity.y) * alignment;
 	}
 }
 
@@ -297,6 +297,11 @@ function dist(p1, p2){
 }
 
 function draw(){
+	cohesion = parseFloat(document.getElementById('cohesionInput').value);
+	alignment = parseFloat(document.getElementById('alignmentInput').value);
+	separation = parseFloat(document.getElementById('separationInput').value);
+	globalSpeed = parseFloat(document.getElementById('speedInput').value);
+	
 	const numBoids = parseInt(document.getElementById('numBoidsInput').value);
 	if(numBoids > boids.length){
 		for(let i = boids.length; i < numBoids; i++){

@@ -28,8 +28,24 @@
 			<canvas id="canv"></canvas>
 			<div class="optionsArea">
 				<div class="op">
-					<input id="numBoidsInput" type="range" min="1" max="1000" value="200" step="1">
+					<input id="numBoidsInput" type="range" min="1" max="1000" value="900" step="1">
 					<label for="numBoidsInput">Num of boids <span id="numBoidsReadout"></span></label>
+				</div>
+				<div class="op">
+					<input id="cohesionInput" type="range" min="0" max="1" value="0.3" step="any">
+					<label for="cohesionInput">Cohesion</label>
+				</div>
+				<div class="op">
+					<input id="alignmentInput" type="range" min="0" max="1" value="0.1" step="any">
+					<label for="alignmentInput">Alignment</label>
+				</div>
+				<div class="op">
+					<input id="separationInput" type="range" min="0" max="1" value="0.05" step="any">
+					<label for="separationInput">Separation</label>
+				</div>
+				<div class="op">
+					<input id="speedInput" type="range" min="1" max="15" value="12" step="any">
+					<label for="speedInput">Speed</label>
 				</div>
 			</div>
 		</section>
