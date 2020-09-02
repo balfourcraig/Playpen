@@ -144,17 +144,14 @@ function mouseDown(e) {
 
 function mouseMove(e){
 	const mode = getDrawingMode();
-	console.log('mode = ' + mode)
 	if(e && e.clientX && e.clientY) {
 		let canvRect = c.getBoundingClientRect();
 		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
 		
 		lastMousePoint = mousePos;
-		console.log('got e')
+
 		if(holding){
-			console.log('got holding')
 			if(holding.shapeType === 'circle'){
-				console.log('updating circle')
 				holding.center = mousePos;
 			}
 			else if (holding.shapeType === 'line'){
@@ -385,27 +382,28 @@ function distToCircle(p, circle, fill){
 }
 
 function avoidObstacles(boid){
+	const obForce = wallForce * wallForce;
 	let moveX = 0;
 	let moveY = 0;
 	for(let ob of obstacles){
 		if(ob.shapeType === 'circle'){
-			const dist = distToCircle(boid.position, ob, true);
-			if(dist < sight){
-				moveX += (boid.position.x - ob.center.x) / sight;
-				moveY += (boid.position.y - ob.center.y) / sight;
+			const dist = distToCircle(boid.position, ob, true) / sight;
+			if(dist < 1){
+				moveX += (boid.position.x - ob.center.x) / sight * dist * dist;
+				moveY += (boid.position.y - ob.center.y) / sight * dist * dist;
 			}
 		}
 		else if(ob.shapeType === 'line'){
 			const p = nearestLinePoint(boid.position, ob, true);
-			const dist = distToPoint(boid.position, p);
-			if(dist < sight){
-				moveX += (boid.position.x - p.x) / sight;
-				moveY += (boid.position.y - p.y) / sight;
+			const dist = distToPoint(boid.position, p) / sight;
+			if(dist < 1){
+				moveX += (boid.position.x - p.x) / sight * dist * dist;
+				moveY += (boid.position.y - p.y) / sight * dist * dist;
 			}
 		}
 	}
-	boid.velocity.x += moveX * wallForce;
-	boid.velocity.y += moveY * wallForce;
+	boid.velocity.x += moveX * obForce;
+	boid.velocity.y += moveY * obForce;
 }
 
 function matchVelocity(boid, neighbours){
