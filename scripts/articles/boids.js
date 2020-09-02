@@ -3,6 +3,7 @@ const debugLines = false;
 let animationID = null;
 let h = 1;
 let w = 1;
+let c = null;
 let ctx = null;
 
 let boids = null;
@@ -15,22 +16,50 @@ let globalSpeed = 12;
 let fieldOfView = 2;
 
 let maxBoids = 1;
-const boidSize = 10;
-const chonkiness = 2.2;
+const boidSize = 7;
+const chonkiness = 0.4;
 
 let cohesion = 0;
 let alignment = 0;
 let separation = 0;
+let mouseForce = 0;
+let wallForce = 0;
+
+let obstacles = [];
+
+let holding = null;
+let anchorPoint = null;
+
+function getDrawingMode(){
+	return document.querySelector('input[name="drawMode"]:checked').value;
+}
+
+function setUpDemoObstacles(numObs){
+	obstacles = [];
+	for(let i = 0; i < numObs; i++){
+		obstacles.push(
+		{
+			shapeType: 'circle',
+			radius: Math.random() * 50 + 10,
+			center: {
+				x: Math.random() * (w - 2 * sight) + sight,
+				y: Math.random() * (h - 2 * sight) + sight
+			},
+			dragable: true,
+			color: randomColor()
+		});
+	}
+}
 
 function setUp(){
 	maxBoids = parseInt(document.getElementById('numBoidsInput').getAttribute('max'));
-	const c = document.getElementById('canv');
+	c = document.getElementById('canv');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 	h = w;
 	c.setAttribute('width', w);
 	c.setAttribute('height', h);
 	ctx = c.getContext('2d');
-	
+	ctx.lineWidth = 2;
 	let numBoids = parseInt(document.getElementById('numBoidsInput').value);
 	boids = [];
 	for(let i = 0; i < numBoids; i++){
@@ -44,15 +73,114 @@ function setUp(){
 		mouseOver = false;
 		mousePos = null;
 	});
-	c.addEventListener('mousemove', (e) => {
-		if(e && e.clientX && e.clientY) {
-			let canvRect = c.getBoundingClientRect();
-			mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
-		}
-	});
+	c.addEventListener('mousemove', mouseMove);
 	c.addEventListener('mousedown', mouseDown);
+	c.addEventListener('mouseup', mouseUp);
+	
+	setUpDemoObstacles(4);
 	
 	setInterval(draw, 50);
+}
+
+function mouseUp(e){
+	holding = null;
+	const mode = getDrawingMode();
+	if(mode === 'addCircle' && anchorPoint){
+		let canvRect = c.getBoundingClientRect();
+		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+		const rad = distToPoint(anchorPoint, mousePos);
+		const circle = {
+			shapeType: 'circle',
+			color: randomColor(),
+			dragable: true,
+			center: anchorPoint,
+			radius: rad
+		};
+		obstacles.push(circle);
+	}
+	else if(mode === 'addLine' && anchorPoint){
+		let canvRect = c.getBoundingClientRect();
+		const mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+		const line = {
+			shapeType: 'line',
+			color: randomColor(),
+			dragable: true,
+			from: anchorPoint,
+			to: mousePos,
+		};
+		obstacles.push(line);
+	}
+	anchorPoint = null;
+}
+
+function mouseDown(e) {
+	if(e && e.clientX && e.clientY) {
+		let canvRect = c.getBoundingClientRect();
+		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+		
+		const mode = getDrawingMode();
+		for(let i = 0; i < obstacles.length; i++){
+			if(obstacles[i].dragable && (
+				//(obstacles[i].shapeType === 'rect' && distToRect(mousePos, obstacles[i], w, true) === 0)
+				 (obstacles[i].shapeType === 'circle' && distToCircle(mousePos, obstacles[i], w, true) === 0)
+				|| (obstacles[i].shapeType === 'line' && distToLine(mousePos, obstacles[i], true, w) < 5)
+			)){
+				if(mode === 'drag'){
+					holding = obstacles[i];
+					return false;
+				}
+				else if (mode === 'delete'){
+					const index = obstacles.indexOf(obstacles[i]);
+					obstacles.splice(index, 1);
+					return false;
+				}
+			}
+		}
+		if (mode === 'addCircle' || mode === 'addRect' || mode === 'addLine'){
+			anchorPoint = mousePos;
+		}
+	}
+}
+
+function mouseMove(e){
+	const mode = getDrawingMode();
+	console.log('mode = ' + mode)
+	if(e && e.clientX && e.clientY) {
+		let canvRect = c.getBoundingClientRect();
+		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
+		
+		lastMousePoint = mousePos;
+		console.log('got e')
+		if(holding){
+			console.log('got holding')
+			if(holding.shapeType === 'circle'){
+				console.log('updating circle')
+				holding.center = mousePos;
+			}
+			else if (holding.shapeType === 'line'){
+				const lineWidth = holding.to.x - holding.from.x;
+				const lineHeight = holding.to.y - holding.from.y;
+				const newFrom = {
+					x: mousePos.x - lineWidth/2,
+					y: mousePos.y - lineHeight/2,
+				};
+				const newTo = {
+					x: mousePos.x + lineWidth/2,
+					y: mousePos.y + lineHeight/2,
+				};
+				holding.from = newFrom;
+				holding.to = newTo;
+			}
+		}
+		
+		else if(holding){
+			return false;
+		}
+	}
+}
+
+function invertVelocity(vec){
+	return {x: vec.x * -1, y: vec.y * -1};
 }
 
 function createBoidAtRandom(){
@@ -67,18 +195,7 @@ function createBoidAtPosition(position){
 			x: Math.random() * speed * 2 - speed,
 			y: Math.random() * speed * 2 - speed
 		},
-		color: 'hsl(' + (Math.random() * 270 + 180) + ',50%,50%)'
-	}
-}
-
-function mouseDown(e) {
-	if(boids.length < maxBoids && e && e.clientX && e.clientY) {
-		const c = document.getElementById('canv');
-		let canvRect = c.getBoundingClientRect();
-		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};		
-		boids.push(createBoidAtPosition(mousePos));
-		document.getElementById('numBoidsInput').value = boids.length;
-		document.getElementById('numBoidsInput').dispatchEvent(new Event('change'));
+		color: 'hsl(' + (Math.random() * 160 + 50) + ',50%,50%)'
 	}
 }
 
@@ -96,7 +213,6 @@ function angleBetweenVectors(a, b){
 
 function getNeighbours(boid){
 	const neighbours = [];
-	const heading = Math.atan2(boid.velocity.x, boid.velocity.y);
 	for(let otherBoid of boids){
 		if(otherBoid != boid){
 			const scaledDist = 1 - (dist(boid.position, otherBoid.position) / sight);
@@ -128,7 +244,7 @@ function updateBoidPos(boid){
 	}
 }
 
-function flyTowardsCenter(boid, neighbours){	
+function flyTowardsCenter(boid, neighbours){
 	let centerX = 0;
 	let centerY = 0;
 	let avgDist = 0;
@@ -150,7 +266,6 @@ function flyTowardsCenter(boid, neighbours){
 }
 
 function avoidOther(boid, neighbours){
-	const avoidFactor = 0.05;
 	let moveX = 0;
 	let moveY = 0;
 	for(let n of neighbours){
@@ -162,18 +277,16 @@ function avoidOther(boid, neighbours){
 }
 
 function avoidMouse(boid){
-	const avoidFactor = 0.2;
 	if(mousePos && mouseOver){
 		const scaledDist = 1 - (dist(boid.position, mousePos) / (sight * 2));
 		if(scaledDist < 1 && scaledDist > 0){
-			boid.velocity.x += (boid.position.x - mousePos.x) * scaledDist * scaledDist * avoidFactor;
-			boid.velocity.y += (boid.position.y - mousePos.y) * scaledDist * scaledDist * avoidFactor;
+			boid.velocity.x += (boid.position.x - mousePos.x) * scaledDist * scaledDist * mouseForce;
+			boid.velocity.y += (boid.position.y - mousePos.y) * scaledDist * scaledDist * mouseForce;
 		}
 	}
 }
 
 function avoidWalls(boid){
-	const avoidFactor = 2;
 	let moveX = 0;
 	let moveY = 0;
 	
@@ -190,8 +303,109 @@ function avoidWalls(boid){
 		moveY -= 1 - ((h - boid.position.y) / sight);
 	}
 	
-	boid.velocity.x += moveX * avoidFactor;
-	boid.velocity.y += moveY * avoidFactor;
+	boid.velocity.x += moveX * wallForce;
+	boid.velocity.y += moveY * wallForce;
+}
+
+function nearestLinePoint(point, line, preventExtrapolation){
+	if(line.from.x > line.to.x){
+		const temp = line.from;
+		line.from = line.to;
+		line.to = temp;
+	}
+	
+	let iX = 0;
+	let iY = 0;
+	
+	if(Math.abs(line.from.y - line.to.y) < 0.01){//flat
+		iX = point.x;
+		iY = line.from.y;
+	}
+	else if(Math.abs(line.from.x - line.to.x) < 0.01){//vertical
+		iX = line.from.x;
+		iY = point.y
+	}
+	else{
+		const lM = (line.to.y - line.from.y) / (line.to.x - line.from.x);
+		const pM = (line.from.x - line.to.x) / (line.to.y - line.from.y);
+		const lC = line.from.y - lM * line.from.x;
+		const pC = point.y - pM * point.x;
+		
+		iX = -(lC - pC) / (lM - pM);
+		iY = -(lM * -iX) + lC;
+	}
+
+	if(preventExtrapolation && (
+		(line.from.x < line.to.x && iX < line.from.x)
+		|| (line.to.x < line.from.x && iX < line.to.x)
+		|| (line.from.x > line.to.x && iX > line.from.x)
+		|| (line.to.x > line.from.x && iX > line.to.x)
+		|| (line.from.y < line.to.y && iY < line.from.y)
+		|| (line.to.y < line.from.y && iY < line.to.y)
+		|| (line.from.y > line.to.y && iY > line.from.y)
+		|| (line.to.y > line.from.y && iY > line.to.y)
+		))
+	{
+		const distFrom = distToPoint(point, line.from);
+		const distTo = distToPoint(point, line.to);
+		if(distFrom < distTo){
+			return line.from;
+		}
+		else{
+			return line.to;
+		}
+	}
+	else
+	{
+		return {x: iX, y: iY};
+	}
+}
+
+function distToLine(point, line, preventExtrapolation){
+	const p = nearestLinePoint(point, line, preventExtrapolation);
+	return distToPoint(point, p);
+}
+
+function distToPoint(p1, p2){
+	const dX = p1.x - p2.x;
+	const dY = p1.y - p2.y;
+	return Math.sqrt((dX * dX) + (dY * dY));
+}
+
+function distToCircle(p, circle, fill){
+	const distToCenter = distToPoint(p, circle.center);
+	if(distToCenter < circle.radius){
+		if(fill)
+			return 0;
+		else
+			return circle.radius - distToCenter;
+	}
+	else
+		return distToCenter - circle.radius;
+}
+
+function avoidObstacles(boid){
+	let moveX = 0;
+	let moveY = 0;
+	for(let ob of obstacles){
+		if(ob.shapeType === 'circle'){
+			const dist = distToCircle(boid.position, ob, true);
+			if(dist < sight){
+				moveX += (boid.position.x - ob.center.x) / sight;
+				moveY += (boid.position.y - ob.center.y) / sight;
+			}
+		}
+		else if(ob.shapeType === 'line'){
+			const p = nearestLinePoint(boid.position, ob, true);
+			const dist = distToPoint(boid.position, p);
+			if(dist < sight){
+				moveX += (boid.position.x - p.x) / sight;
+				moveY += (boid.position.y - p.y) / sight;
+			}
+		}
+	}
+	boid.velocity.x += moveX * wallForce;
+	boid.velocity.y += moveY * wallForce;
 }
 
 function matchVelocity(boid, neighbours){
@@ -256,7 +470,7 @@ function drawBoid(boid, showDebugLines, neighbours){
 		ctx.lineTo(fovEndX, fovEndY);
 		ctx.stroke();
 		
-		drawCircle(ctx, boid.position, sight, 'blue');
+		drawCircle(ctx, boid.position, sight, 'blue', false);
 
 		ctx.strokeStyle = 'red';
 		for(let n of neighbours){
@@ -283,11 +497,17 @@ function limitSpeed(boid){
 	}
 }
 
-function drawCircle(ctx, center, radius, color){
-	ctx.strokeStyle = color;
+function drawCircle(ctx, center, radius, color, fill){
 	ctx.beginPath();
 	ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
-	ctx.stroke();
+	if(fill){
+		ctx.fillStyle = color;
+		ctx.fill();
+	}
+	else{
+		ctx.strokeStyle = color;
+		ctx.stroke();
+	}
 }
 
 function dist(p1, p2){
@@ -297,10 +517,13 @@ function dist(p1, p2){
 }
 
 function draw(){
+	const mode = getDrawingMode();
 	cohesion = parseFloat(document.getElementById('cohesionInput').value);
 	alignment = parseFloat(document.getElementById('alignmentInput').value);
 	separation = parseFloat(document.getElementById('separationInput').value);
 	globalSpeed = parseFloat(document.getElementById('speedInput').value);
+	mouseForce = parseFloat(document.getElementById('mouseInput').value);
+	wallForce = parseFloat(document.getElementById('wallInput').value);
 	
 	const numBoids = parseInt(document.getElementById('numBoidsInput').value);
 	if(numBoids > boids.length){
@@ -318,13 +541,42 @@ function draw(){
 	
 	ctx.fillStyle = 'white';
 	ctx.fillRect(0, 0, w, h);
+	
+	for(let ob of obstacles){
+		if(ob.shapeType === 'circle'){
+			drawCircle(ctx, ob.center, ob.radius, ob.color, true);
+		}
+		else if(ob.shapeType === 'line'){
+			ctx.strokeStyle = 'black';
+			ctx.beginPath();
+			ctx.moveTo(ob.from.x, ob.from.y);
+			ctx.lineTo(ob.to.x, ob.to.y);
+			ctx.stroke();
+		}
+	}
+
+	if(mode === 'addCircle' && anchorPoint){
+		const rad = distToPoint(anchorPoint, mousePos)
+		drawCircle(ctx, anchorPoint, rad, 'black', false);
+	}
+	else if(mode === 'addLine' && anchorPoint){
+		ctx.strokeStyle = 'black';
+		ctx.beginPath();
+		ctx.moveTo(anchorPoint.x, anchorPoint.y);
+		ctx.lineTo(mousePos.x, mousePos.y);
+		ctx.stroke();
+	}
+	
+	
 	for(let boid of boids){
 		const neighbours = getNeighbours(boid);
 		flyTowardsCenter(boid, neighbours);
 		avoidOther(boid, neighbours);
 		matchVelocity(boid, neighbours);
-		avoidMouse(boid);
+		if(mode === 'mousePush')
+			avoidMouse(boid);
 		avoidWalls(boid);
+		avoidObstacles(boid);
 		limitSpeed(boid);
 		updateBoidPos(boid);
 		drawBoid(boid, debugLines, neighbours);
