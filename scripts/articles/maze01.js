@@ -62,8 +62,8 @@ function drawPattern(){
 	c.setAttribute('height', h);
 	const ctx = c.getContext('2d');
 	
-	ctx.fillStyle = 'white';
-	ctx.strokeStyle = 'black';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
+	ctx.strokeStyle = 'silver';
 	ctx.beginPath();
 	ctx.rect(0, 0, w, h);
 	ctx.fill();
@@ -75,8 +75,8 @@ function drawPattern(){
 	ctx.lineWidth = lineWidth;
 	ctx.lineCap = 'round';
 
-	ctx.fillStyle = 'black';
-	ctx.strokeStyle = 'black';
+	ctx.fillStyle = 'silver';
+	ctx.strokeStyle = 'silver';
 	
 	const topLeft = MapPointSpace({x: -0.5, y: -0.5}, -2, xNodes+1, 0, w, -2, yNodes+1,0,h);
 	const rectWidth = mapLinear(xNodes - 2, -2, xNodes + 1, 0, w);
@@ -185,8 +185,8 @@ function drawPattern(){
 				}
 
 				ctx.lineWidth = lineWidth;
-				ctx.strokeStyle = 'black';
-				ctx.fillStyle = 'black';
+				ctx.strokeStyle = 'silver';
+				ctx.fillStyle = 'silver';
 			});
 
 		}

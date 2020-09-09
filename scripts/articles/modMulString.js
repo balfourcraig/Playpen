@@ -63,7 +63,7 @@ function drawModMul(){
 	canvResult.innerHTML = '';
 	canvResult.appendChild(c);
 	
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
 	ctx.strokeStyle = 'black';
 	ctx.beginPath();
 	ctx.rect(0, 0, w, w);

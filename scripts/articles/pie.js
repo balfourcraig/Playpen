@@ -43,7 +43,7 @@ function drawPattern(e){
 
 	const rect = c.getBoundingClientRect();
 	
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
 	ctx.strokeStyle = 'black';
 	ctx.strokeWidth = 0;
 	ctx.beginPath();

@@ -11,7 +11,7 @@ function setUpBlankCanvas(){
 	canvResult.innerHTML = '';
 	canvResult.appendChild(c);
 	
-	ctx.fillStyle = '#eee';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
 	ctx.fillRect(0, 0, w, w);
 }
 
@@ -87,7 +87,7 @@ function drawModMul(){
 	canvResult.innerHTML = '';
 	canvResult.appendChild(c);
 	
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
 	ctx.strokeStyle = 'black';
 	ctx.fillRect(0, 0, w, w);
 	ctx.globalAlpha = 0.6;

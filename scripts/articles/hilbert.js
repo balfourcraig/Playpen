@@ -18,7 +18,7 @@ function drawPattern(){
 	const lineWidth = parseInt(document.getElementById('lineWidthInput').value);
 	
 	ctx.lineWidth = lineWidth;
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
 	ctx.strokeStyle = 'none';
 	ctx.beginPath();
 	ctx.rect(0, 0, w, w);
@@ -42,8 +42,8 @@ function drawPattern(){
 		
 		curr = {x: mapLinear(curr.x, -0.5, N -0.5, 0, w), y: mapLinear(curr.y, -0.5, N -0.5, 0, w)};
 		
-		const colorFrom = useColor ? 'hsl(' + mapLinear(i-1, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
-		const colorTo = useColor ? 'hsl(' + mapLinear(i, 0, N*N, 0, 360) + ', 100%, 50%)' : 'black';
+		const colorFrom = useColor ? 'hsl(' + mapLinear(i-1, 0, N*N, 0, 360) + ', 100%, 50%)' : 'silver';
+		const colorTo = useColor ? 'hsl(' + mapLinear(i, 0, N*N, 0, 360) + ', 100%, 50%)' : 'silver';
 		
 		if(i === 0 && !useCurves){
 			drawings.push(() => drawCircle(ctx, curr, circleRadius, colorTo));

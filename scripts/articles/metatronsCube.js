@@ -19,7 +19,7 @@ function drawMetatron(){
 	canvResult.innerHTML = '';
 	canvResult.appendChild(c);
 	
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
 	ctx.strokeStyle = 'black';
 	ctx.beginPath();
 	ctx.rect(0, 0, w, w);
@@ -32,9 +32,11 @@ function drawMetatron(){
 	const useColor = document.getElementById('colorInput').checked;
 	
 	const colors = [];
+	const colourOffset = Math.random() * 360;
 	for(let i = 0; i < 5; i++){
-		colors.push(randomColor());
+		colors.push('hsl(' + (i * (360/5) + colourOffset) + ',50%,50%)');
 	}
+	shuffleInplace(colors);
 	
 	for(let i = 0; i < 6; i++){
 		level1.push(pointOnCircle(center, radius * 2, 6, i));

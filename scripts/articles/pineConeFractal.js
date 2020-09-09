@@ -17,7 +17,7 @@ function drawPattern(){
 	canvResult.innerHTML = '';
 	canvResult.appendChild(c);
 	
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
 	ctx.strokeStyle = 'none';
 	ctx.fillRect(0, 0, w, w);
 	

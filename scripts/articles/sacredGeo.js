@@ -38,7 +38,7 @@ function drawPattern(){
 	
 	ctx.strokeStyle = '#000000';
 	ctx.lineWidth = 3;
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = 'rgba(0,0,0,0)';
 	ctx.beginPath();
 	ctx.rect(0, 0, w, h);
 	ctx.fill();
