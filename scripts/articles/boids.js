@@ -387,18 +387,20 @@ function avoidObstacles(boid){
 	let moveY = 0;
 	for(let ob of obstacles){
 		if(ob.shapeType === 'circle'){
-			const dist = distToCircle(boid.position, ob, true) / sight;
+			let dist = distToCircle(boid.position, ob, true) / sight;
 			if(dist < 1){
-				moveX += (boid.position.x - ob.center.x) / sight * dist * dist;
-				moveY += (boid.position.y - ob.center.y) / sight * dist * dist;
+				dist = (-1 * Math.log(dist) + 0.001) + 0.7;
+				moveX += (boid.position.x - ob.center.x) / (sight) * dist;
+				moveY += (boid.position.y - ob.center.y) / (sight) * dist;
 			}
 		}
 		else if(ob.shapeType === 'line'){
 			const p = nearestLinePoint(boid.position, ob, true);
-			const dist = distToPoint(boid.position, p) / sight;
+			let dist = distToPoint(boid.position, p) / sight;
 			if(dist < 1){
-				moveX += (boid.position.x - p.x) / sight * dist * dist;
-				moveY += (boid.position.y - p.y) / sight * dist * dist;
+				dist = (-1 * Math.log(dist) + 0.001) + 0.7;
+				moveX += (boid.position.x - p.x) / sight * dist;
+				moveY += (boid.position.y - p.y) / sight * dist;
 			}
 		}
 	}
