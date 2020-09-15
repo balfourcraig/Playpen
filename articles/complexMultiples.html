@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Mandelbrot - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<script src="../scripts/utils.js"></script>
+	<script src="../scripts/articles/complexMultiples.js"></script>
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<style>
+		.hidden{
+			display: none;
+		}
+		
+		#lineCanv, #setCanv{
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+		
+		#lineCanv{
+			z-index: 1;
+			border: 2px solid black;
+			border-radius: 10px;
+		}
+		
+		#setCanv{
+			z-index: 0;
+			border: 2px solid transparent;
+		}
+	</style>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Mandelbrot Functionality</h1>
+		</header>
+		<section>
+			<label>Escape time: <span id="escapeTimeReadout">0</span></label>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="clickClearInput" type="checkbox">
+					<label for="clickClearInput">Clear on click</label>
+				</div>
+				<div>
+					<input id="speedInput" type="range" min="1" max="250" value="50">
+					<label for="speedInput">Frame delay</label>
+				</div>
+				<div>
+					<input id="maxIterationInput" type="range" min="1" max="500" value="150">
+					<label for="maxIterationInput">Max Iterations</label>
+				</div>
+				
+			</div>
+			<div class="op">
+				<button id="drawBtn">Draw!</button><button id="hideBtn" style="display:none;">Hide</button>
+			</div>
+			
+			<div id="sizeCalc"></div>
+			<div id="canvArea" style="position: relative;">
+				<canvas id="lineCanv"></canvas>
+				<canvas id="setCanv"></canvas>
+			</div>
+		</section>
+		<section>
+			<h2>Explaination</h2>
+			<p>The mandelbrot set is all about squaring complex numbers.</p>
+			<p>Pick a spot on the area. That point is then calculated as if we were plotting the mandelbrot set. As it's squared, it bounces around. If it spirals towards infinity, it is not in the set, if it stays forever inside the circle, it is in the set. If it bounces round a number of times then leaves, it is on the border of the set.</p>
+			<p>You can read more online: <a href="https://en.wikipedia.org/wiki/Mandelbrot_set">Wikipedia</a></p>
+			<hr>
+			<p>Click places to see the intermediate calculations for that point. You can optionally show the set behind with the "Draw" button. The first time this is clicked after page load, it will take a few seconds as the set is built. After that it can just be shown or hidden</p>
+			<p>On the pattern itself, black pixels are ones which escape right away, white are those which never escape, and the shades of blue are those which escape after jumping around a bit first</p>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
