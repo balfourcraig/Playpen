@@ -5,11 +5,12 @@ let h = 0;
 let c = null;
 let ctx = null;
 let frameDelay = 0;
+let lineWidth = 1;
 let escapeTimeReadout = null;
 
 let drawTimeout = null;
 let maxIteration = 150;
-
+let drawType = '';
 let drawn = false;
 
 function click(e){
@@ -26,6 +27,9 @@ function click(e){
 	}
 	frameDelay = parseInt(document.getElementById('speedInput').value);
 	maxIteration = parseInt(document.getElementById('maxIterationInput').value);
+	lineWidth = parseInt(document.getElementById('lineWidthInput').value);
+	drawType = document.getElementById('drawTypeSelect').value;
+	ctx.lineWidth = lineWidth;
 	drawIteration(0, false);
 }
 
@@ -78,17 +82,20 @@ function drawIteration(i, oneMore){
 	//console.log(magFrom);
 	const colorFrom = `hsl(${(i/maxIteration) * 360 },70%,50%)`;
 	
-	//ctx.fillStyle = colorFrom;
-	//ctx.beginPath();
-	//ctx.arc(drawX, drawY, 2, 0, 2 * Math.PI);
-	//ctx.closePath();
-	//ctx.fill();
-	
-	ctx.strokeStyle = colorFrom;
-	ctx.beginPath();
-	ctx.moveTo(drawX, drawY);
-	ctx.lineTo(drawNextX, drawNextY);
-	ctx.stroke();
+	if(drawType === 'dot' || drawType === 'linedot'){
+		ctx.fillStyle = colorFrom;
+		ctx.beginPath();
+		ctx.arc(drawX, drawY, lineWidth * 1.5, 0, 2 * Math.PI);
+		ctx.closePath();
+		ctx.fill();
+	}
+	if(drawType === 'line' || drawType === 'linedot'){
+		ctx.strokeStyle = colorFrom;
+		ctx.beginPath();
+		ctx.moveTo(drawX, drawY);
+		ctx.lineTo(drawNextX, drawNextY);
+		ctx.stroke();
+	}
 	
 	setTimeout(() => {
 		drawIteration(i + 1, oneMore);

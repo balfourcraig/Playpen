@@ -8,6 +8,29 @@
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
 	<script src="../scripts/articles/boids.js"></script>
+	<style>
+	#canvArea{
+		position: relative;
+		background-color: white;
+		border-radius: 10px;
+	}
+	#canv, #tailCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	
+	#canv{
+		z-index: 1;
+		border: 2px solid black;
+		border-radius: 10px;
+	}
+	
+	#tailCanvas{
+		z-index: 0;
+		border: 2px solid transparent;
+	}
+	</style>
 </head>
 <body>
 <div class="navHolder">
@@ -35,8 +58,12 @@
 					<input id="modeDelete" type="radio" name="drawMode" value="delete"><label for="modeDelete">Delete</label>
 				</fieldset>
 			</div>
-			<div id="sizeCalc"></div>
-			<canvas id="canv"></canvas>
+			<div id="canvArea">
+				<div id="sizeCalc"></div>
+				<canvas id="canv"></canvas>
+				<canvas id="tailCanvas"></canvas>
+			</div>
+			
 			<div class="optionsArea">
 				<div class="op">
 					<input id="numBoidsInput" type="range" min="1" max="1000" value="900" step="1">
@@ -65,6 +92,10 @@
 				<div class="op">
 					<input id="wallInput" type="range" min="0" max="12" value="3.5" step="any">
 					<label for="wallInput">Wall Force</label>
+				</div>
+				<div class="op">
+					<input id="tailsInput" type="checkbox" checked>
+					<label for="tailsInput">DrawTails</label>
 				</div>
 			</div>
 		</section>

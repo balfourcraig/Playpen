@@ -41,7 +41,7 @@ function setUp(){
 			const key = document.createElement('button');
 			key.innerText = note.name;
 			key.addEventListener('click', () => {
-				playNote(note.freq, 2);
+				playNote(note.freq, 0.5);
 			});
 			key.setAttribute('class', note.isBlack ? 'keyBlack' : 'keyWhite');
 			piano.appendChild(key);
@@ -66,7 +66,7 @@ function playNote(frequency, time){
 	
 	const osc = aCtx.createOscillator();
 	osc.frequency.value = frequency;
-	osc.type = 'sine';
+	osc.type = 'square';
 	osc.connect(distortion);
 	osc.start();
 	osc.stop(aCtx.currentTime + time);

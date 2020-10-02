@@ -46,30 +46,42 @@
 		</header>
 		<section>
 			<label>Escape time: <span id="escapeTimeReadout">0</span></label>
-			<div class="optionsArea">
-				<div class="op">
-					<input id="clickClearInput" type="checkbox">
-					<label for="clickClearInput">Clear on click</label>
-				</div>
-				<div>
-					<input id="speedInput" type="range" min="1" max="250" value="50">
-					<label for="speedInput">Frame delay</label>
-				</div>
-				<div>
-					<input id="maxIterationInput" type="range" min="1" max="500" value="150">
-					<label for="maxIterationInput">Max Iterations</label>
-				</div>
-				
-			</div>
-			<div class="op">
-				<button id="drawBtn">Draw!</button><button id="hideBtn" style="display:none;">Hide</button>
-			</div>
 			
 			<div id="sizeCalc"></div>
 			<div id="canvArea" style="position: relative;">
 				<canvas id="lineCanv"></canvas>
 				<canvas id="setCanv"></canvas>
 			</div>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="clickClearInput" type="checkbox" checked>
+					<label for="clickClearInput">Clear on click</label>
+				</div>
+				<div class="op">
+					<input id="speedInput" type="range" min="1" max="250" value="50">
+					<label for="speedInput">Frame delay</label>
+				</div>
+				<div class="op">
+					<input id="maxIterationInput" type="range" min="1" max="1000" value="150">
+					<label for="maxIterationInput">Max Iterations</label>
+				</div>
+				<div class="op">
+					<input id="lineWidthInput" type="range" min="1" max="5" value="1">
+					<label for="lineWidthInput">Line Width</label>
+				</div>
+				<div class="op">
+					<select id="drawTypeSelect">
+						<option value="line">Line</option>
+						<option value="dot">Dot</option>
+						<option value="linedot">Line + Dot</option>
+					</select>
+					<label>Draw type</label>
+				</div>
+				<div class="op">
+					<button id="drawBtn">Draw!</button><button id="hideBtn" style="display:none;">Hide</button>
+				</div>
+			</div>
+			
 		</section>
 		<section>
 			<h2>Explaination</h2>

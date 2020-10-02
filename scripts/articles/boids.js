@@ -6,6 +6,8 @@ let w = 1;
 let c = null;
 let ctx = null;
 
+let tailCtx = null;
+
 let boids = null;
 let mouseOver = false;
 let mousePos = null;
@@ -34,6 +36,34 @@ function getDrawingMode(){
 	return document.querySelector('input[name="drawMode"]:checked').value;
 }
 
+function fadeCanvas(ctx, fade){
+	const srcData = ctx.getImageData(0, 0, w, h);
+
+	for(let row = 0; row < h; row++){
+		for(let col = 0; col < w; col++){
+			const destOffset = ((h - row) * w + col) * 4;
+			srcData.data[destOffset] = srcData.data[destOffset];
+			srcData.data[destOffset + 1] = srcData.data[destOffset + 1];
+			srcData.data[destOffset + 2] = srcData.data[destOffset + 2];
+			srcData.data[destOffset + 3] = Math.max(0, srcData.data[destOffset + 3] - fade);
+		}
+	}
+	ctx.putImageData(srcData, 0, 0); 
+}
+
+function drawTails(){
+	//tailCtx.globalAlpha = 0.05;
+	//tailCtx.fillRect(0,0,w,h);
+	//tailCtx.globalAlpha = 0.2;
+	fadeCanvas(tailCtx, 1);
+	for(let b of boids){
+		tailCtx.beginPath();
+		tailCtx.moveTo(b.position.x, b.position.y);
+		tailCtx.lineTo(b.position.x - b.velocity.x, b.position.y - b.velocity.y);
+		tailCtx.stroke();
+	}
+}
+
 function setUpDemoObstacles(numObs){
 	obstacles = [];
 	for(let i = 0; i < numObs; i++){
@@ -54,11 +84,19 @@ function setUpDemoObstacles(numObs){
 function setUp(){
 	maxBoids = parseInt(document.getElementById('numBoidsInput').getAttribute('max'));
 	c = document.getElementById('canv');
+	let tailC = document.getElementById('tailCanvas');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 	h = w;
+	document.getElementById('sizeCalc').style.height = h + 'px';
 	c.setAttribute('width', w);
 	c.setAttribute('height', h);
+	tailC.setAttribute('width', w);
+	tailC.setAttribute('height', h);
 	ctx = c.getContext('2d');
+	tailCtx = tailC.getContext('2d');
+	tailCtx.globalAlpha = 0.2;
+	tailCtx.strokeStyle = 'blue';
+	tailCtx.fillStyle = 'white';
 	ctx.lineWidth = 2;
 	let numBoids = parseInt(document.getElementById('numBoidsInput').value);
 	boids = [];
@@ -76,6 +114,12 @@ function setUp(){
 	c.addEventListener('mousemove', mouseMove);
 	c.addEventListener('mousedown', mouseDown);
 	c.addEventListener('mouseup', mouseUp);
+	
+	document.getElementById('tailsInput').addEventListener('change', () => {
+		if(!document.getElementById('tailsInput').checked){
+			tailCtx.clearRect(0,0,w,h);
+		}
+	})
 	
 	setUpDemoObstacles(4);
 	
@@ -539,9 +583,9 @@ function draw(){
 		boids = newBoids;
 	}
 	
-	ctx.fillStyle = 'white';
-	ctx.fillRect(0, 0, w, h);
-	
+	//ctx.fillStyle = 'white';
+	//ctx.fillRect(0, 0, w, h);
+	ctx.clearRect(0,0,w,h);
 	for(let ob of obstacles){
 		if(ob.shapeType === 'circle'){
 			drawCircle(ctx, ob.center, ob.radius, ob.color, true);
@@ -566,8 +610,7 @@ function draw(){
 		ctx.lineTo(mousePos.x, mousePos.y);
 		ctx.stroke();
 	}
-	
-	
+
 	for(let boid of boids){
 		const neighbours = getNeighbours(boid);
 		flyTowardsCenter(boid, neighbours);
@@ -580,6 +623,13 @@ function draw(){
 		limitSpeed(boid);
 		updateBoidPos(boid);
 		drawBoid(boid, debugLines, neighbours);
+	}
+	if(document.getElementById('tailsInput').checked){
+		drawTails();
+	}
+	else{
+		//tailCtx.globalAlpha = 1;
+		//tailCtx.fillRect(0,0,w,h);
 	}
 }
 
