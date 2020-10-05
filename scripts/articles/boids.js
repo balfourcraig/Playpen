@@ -18,7 +18,6 @@ let globalSpeed = 12;
 let fieldOfView = 2;
 
 let maxBoids = 1;
-const boidSize = 7;
 const chonkiness = 0.4;
 
 let cohesion = 0;
@@ -26,6 +25,7 @@ let alignment = 0;
 let separation = 0;
 let mouseForce = 0;
 let wallForce = 0;
+let predatorForce = 0;
 
 let obstacles = [];
 
@@ -42,9 +42,6 @@ function fadeCanvas(ctx, fade){
 	for(let row = 0; row < h; row++){
 		for(let col = 0; col < w; col++){
 			const destOffset = ((h - row) * w + col) * 4;
-			srcData.data[destOffset] = srcData.data[destOffset];
-			srcData.data[destOffset + 1] = srcData.data[destOffset + 1];
-			srcData.data[destOffset + 2] = srcData.data[destOffset + 2];
 			srcData.data[destOffset + 3] = Math.max(0, srcData.data[destOffset + 3] - fade);
 		}
 	}
@@ -52,15 +49,17 @@ function fadeCanvas(ctx, fade){
 }
 
 function drawTails(){
-	//tailCtx.globalAlpha = 0.05;
-	//tailCtx.fillRect(0,0,w,h);
-	//tailCtx.globalAlpha = 0.2;
-	fadeCanvas(tailCtx, 1);
-	for(let b of boids){
-		tailCtx.beginPath();
-		tailCtx.moveTo(b.position.x, b.position.y);
-		tailCtx.lineTo(b.position.x - b.velocity.x, b.position.y - b.velocity.y);
-		tailCtx.stroke();
+	const tailLengthInput = parseInt(document.getElementById('tailLengthInput').value);
+	if(tailLengthInput > 0){
+		const tailLength = 51 - tailLengthInput;
+		fadeCanvas(tailCtx, tailLength);
+		for(let b of boids){
+			tailCtx.strokeStyle = b.color;
+			tailCtx.beginPath();
+			tailCtx.moveTo(b.position.x, b.position.y);
+			tailCtx.lineTo(b.position.x - b.velocity.x, b.position.y - b.velocity.y);
+			tailCtx.stroke();
+		}
 	}
 }
 
@@ -94,15 +93,18 @@ function setUp(){
 	tailC.setAttribute('height', h);
 	ctx = c.getContext('2d');
 	tailCtx = tailC.getContext('2d');
-	tailCtx.globalAlpha = 0.2;
+	//tailCtx.globalAlpha = 0.2;
 	tailCtx.strokeStyle = 'blue';
 	tailCtx.fillStyle = 'white';
 	ctx.lineWidth = 2;
 	let numBoids = parseInt(document.getElementById('numBoidsInput').value);
 	boids = [];
-	for(let i = 0; i < numBoids; i++){
+	for(let i = 0; i < numBoids-1; i++){
 		boids.push(createBoidAtRandom());
 	}
+	
+	//PREDATOR
+	//boids.push(createPredatorAtRandom());
 	
 	c.addEventListener('mouseover', (e) => {
 		mouseOver = true;
@@ -115,8 +117,8 @@ function setUp(){
 	c.addEventListener('mousedown', mouseDown);
 	c.addEventListener('mouseup', mouseUp);
 	
-	document.getElementById('tailsInput').addEventListener('change', () => {
-		if(!document.getElementById('tailsInput').checked){
+	document.getElementById('tailLengthInput').addEventListener('change', () => {
+		if(document.getElementById('tailLengthInput').value === '0'){
 			tailCtx.clearRect(0,0,w,h);
 		}
 	})
@@ -236,7 +238,21 @@ function createBoidAtPosition(position){
 			x: Math.random() * speed * 2 - speed,
 			y: Math.random() * speed * 2 - speed
 		},
-		color: 'hsl(' + (Math.random() * 160 + 50) + ',50%,50%)'
+		color: 'hsl(' + (Math.random() * 140 + 80) + ',50%,50%)',
+		role: 'prey'
+	}
+}
+
+function createPredatorAtRandom(){
+	const speed = globalSpeed;
+	return {
+		position: {x: Math.random() * (w - 2 * sight) + sight, y: Math.random() * (h - 2 * sight) + sight},
+		velocity: {
+			x: Math.random() * speed * 2 - speed,
+			y: Math.random() * speed * 2 - speed
+		},
+		color: 'hsl(' + (Math.random() * 10) + ',50%,50%)',
+		role: 'predator'
 	}
 }
 
@@ -256,7 +272,7 @@ function getNeighbours(boid){
 	const neighbours = [];
 	for(let otherBoid of boids){
 		if(otherBoid != boid){
-			const scaledDist = 1 - (dist(boid.position, otherBoid.position) / sight);
+			const scaledDist = 1 - (dist(boid.position, otherBoid.position) / (otherBoid.role === 'prey' ? sight : (sight * 3)));
 			if(scaledDist < 1 && scaledDist > 0){
 				distVec = {x: otherBoid.position.x - boid.position.x, y: otherBoid.position.y - boid.position.y};
 				if(Math.abs(angleBetweenVectors(boid.velocity, distVec)) < fieldOfView){
@@ -310,8 +326,15 @@ function avoidOther(boid, neighbours){
 	let moveX = 0;
 	let moveY = 0;
 	for(let n of neighbours){
-		moveX += (boid.position.x - n.boid.position.x) * n.dist * n.dist;
-		moveY += (boid.position.y - n.boid.position.y) * n.dist * n.dist;
+		const dist = n.dist * n.dist;
+		if(n.boid.role === 'prey'){
+			moveX += (boid.position.x - n.boid.position.x) * dist;
+			moveY += (boid.position.y - n.boid.position.y) * dist;
+		}
+		else{
+			moveX += (boid.position.x - n.boid.position.x) * dist * predatorForce;
+			moveY += (boid.position.y - n.boid.position.y) * dist * predatorForce;
+		}
 	}
 	boid.velocity.x += moveX * separation;
 	boid.velocity.y += moveY * separation;
@@ -472,63 +495,68 @@ function matchVelocity(boid, neighbours){
 }
 
 function drawBoid(boid, showDebugLines, neighbours){
-	const heading = Math.atan2(boid.velocity.x, boid.velocity.y);
-
-	const noseX = Math.sin(heading) * boidSize + boid.position.x;
-	const noseY = Math.cos(heading) * boidSize + boid.position.y;
-	
-	const tail1X = Math.sin(heading + Math.PI - chonkiness) * boidSize + boid.position.x;
-	const tail1Y = Math.cos(heading + Math.PI - chonkiness) * boidSize + boid.position.y;
-	
-	const tail2X = Math.sin(heading + Math.PI + chonkiness) * boidSize + boid.position.x;
-	const tail2Y = Math.cos(heading + Math.PI + chonkiness) * boidSize + boid.position.y;
-	
-	ctx.fillStyle = boid.color;
-	ctx.beginPath();
-	ctx.moveTo(noseX, noseY);
-	ctx.lineTo(tail1X, tail1Y);
-	ctx.lineTo(tail2X, tail2Y);
-	ctx.closePath();
-	ctx.fill();
-	
-	if(showDebugLines){
-		ctx.strokeStyle = 'green';
-		const eyelineX = Math.sin(heading) * sight + boid.position.x;
-		const eyelineY = Math.cos(heading) * sight + boid.position.y;
+	let boidSize = parseFloat(document.getElementById('boidSizeInput').value);
+	if(boidSize > 0){
+		if(boid.role === 'predator')
+			boidSize *= 2;
+		const heading = Math.atan2(boid.velocity.x, boid.velocity.y);
+		
+		const noseX = Math.sin(heading) * boidSize + boid.position.x;
+		const noseY = Math.cos(heading) * boidSize + boid.position.y;
+		
+		const tail1X = Math.sin(heading + Math.PI - chonkiness) * boidSize + boid.position.x;
+		const tail1Y = Math.cos(heading + Math.PI - chonkiness) * boidSize + boid.position.y;
+		
+		const tail2X = Math.sin(heading + Math.PI + chonkiness) * boidSize + boid.position.x;
+		const tail2Y = Math.cos(heading + Math.PI + chonkiness) * boidSize + boid.position.y;
+		
+		ctx.fillStyle = boid.color;
 		ctx.beginPath();
-		ctx.moveTo(boid.position.x, boid.position.y);
-		ctx.lineTo(eyelineX, eyelineY);
-		ctx.stroke();
-
-		ctx.strokeStyle = 'blue';
+		ctx.moveTo(noseX, noseY);
+		ctx.lineTo(tail1X, tail1Y);
+		ctx.lineTo(tail2X, tail2Y);
+		ctx.closePath();
+		ctx.fill();
 		
-		const fovStartX = Math.sin(heading - fieldOfView) * sight + boid.position.x;
-		const fovStartY = Math.cos(heading - fieldOfView) * sight + boid.position.y;
-		
-		const fovEndX = Math.sin(heading + fieldOfView) * sight + boid.position.x;
-		const fovEndY = Math.cos(heading + fieldOfView) * sight + boid.position.y;
-
-		ctx.beginPath();
-		ctx.moveTo(fovStartX, fovStartY);
-		ctx.lineTo(boid.position.x, boid.position.y);
-		ctx.lineTo(fovEndX, fovEndY);
-		ctx.stroke();
-		
-		drawCircle(ctx, boid.position, sight, 'blue', false);
-
-		ctx.strokeStyle = 'red';
-		for(let n of neighbours){
+		if(showDebugLines){
+			ctx.strokeStyle = 'green';
+			const eyelineX = Math.sin(heading) * sight + boid.position.x;
+			const eyelineY = Math.cos(heading) * sight + boid.position.y;
 			ctx.beginPath();
-			ctx.moveTo(n.boid.position.x, n.boid.position.y);
-			ctx.lineTo(boid.position.x, boid.position.y);
+			ctx.moveTo(boid.position.x, boid.position.y);
+			ctx.lineTo(eyelineX, eyelineY);
 			ctx.stroke();
+
+			ctx.strokeStyle = 'blue';
+			
+			const fovStartX = Math.sin(heading - fieldOfView) * sight + boid.position.x;
+			const fovStartY = Math.cos(heading - fieldOfView) * sight + boid.position.y;
+			
+			const fovEndX = Math.sin(heading + fieldOfView) * sight + boid.position.x;
+			const fovEndY = Math.cos(heading + fieldOfView) * sight + boid.position.y;
+
+			ctx.beginPath();
+			ctx.moveTo(fovStartX, fovStartY);
+			ctx.lineTo(boid.position.x, boid.position.y);
+			ctx.lineTo(fovEndX, fovEndY);
+			ctx.stroke();
+			
+			drawCircle(ctx, boid.position, sight, 'blue', false);
+
+			ctx.strokeStyle = 'red';
+			for(let n of neighbours){
+				ctx.beginPath();
+				ctx.moveTo(n.boid.position.x, n.boid.position.y);
+				ctx.lineTo(boid.position.x, boid.position.y);
+				ctx.stroke();
+			}
 		}
 	}
 }
 
 function limitSpeed(boid){
-	const upperSpeedLimit = globalSpeed * 1.5;
-	const lowerSpeedLimit = globalSpeed * 0.5;
+	const upperSpeedLimit = globalSpeed * 1.5 * (boid.role === 'prey' ? 1 : 0.7);
+	const lowerSpeedLimit = globalSpeed * 0.5 * (boid.role === 'prey' ? 1 : 0.7);
 	
 	const speed = Math.sqrt(boid.velocity.x * boid.velocity.x + boid.velocity.y * boid.velocity.y);
 	if(speed > upperSpeedLimit){
@@ -568,6 +596,7 @@ function draw(){
 	globalSpeed = parseFloat(document.getElementById('speedInput').value);
 	mouseForce = parseFloat(document.getElementById('mouseInput').value);
 	wallForce = parseFloat(document.getElementById('wallInput').value);
+	predatorForce = parseFloat(document.getElementById('predatorInput').value);
 	
 	const numBoids = parseInt(document.getElementById('numBoidsInput').value);
 	if(numBoids > boids.length){
@@ -613,9 +642,13 @@ function draw(){
 
 	for(let boid of boids){
 		const neighbours = getNeighbours(boid);
-		flyTowardsCenter(boid, neighbours);
-		avoidOther(boid, neighbours);
-		matchVelocity(boid, neighbours);
+		if(boid.role === 'prey'){
+			flyTowardsCenter(boid, neighbours);
+			matchVelocity(boid, neighbours);
+			avoidOther(boid, neighbours);
+		}
+		
+		
 		if(mode === 'mousePush')
 			avoidMouse(boid);
 		avoidWalls(boid);
@@ -624,13 +657,7 @@ function draw(){
 		updateBoidPos(boid);
 		drawBoid(boid, debugLines, neighbours);
 	}
-	if(document.getElementById('tailsInput').checked){
-		drawTails();
-	}
-	else{
-		//tailCtx.globalAlpha = 1;
-		//tailCtx.fillRect(0,0,w,h);
-	}
+	drawTails();
 }
 
 function setUpSliderReadout(sliderName, readoutName){

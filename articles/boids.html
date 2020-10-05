@@ -29,6 +29,7 @@
 	#tailCanvas{
 		z-index: 0;
 		border: 2px solid transparent;
+		opacity: 0.7;
 	}
 	</style>
 </head>
@@ -94,8 +95,16 @@
 					<label for="wallInput">Wall Force</label>
 				</div>
 				<div class="op">
-					<input id="tailsInput" type="checkbox" checked>
-					<label for="tailsInput">DrawTails</label>
+					<input id="predatorInput" type="range" min="0" max="12" value="12" step="any">
+					<label for="predatorInput">Predator Force</label>
+				</div>
+				<div class="op">
+					<input id="tailLengthInput" type="range" min="0" max="50" value="15" step="1">
+					<label for="tailLengthInput">Tail Length</label>
+				</div>
+				<div class="op">
+					<input id="boidSizeInput" type="range" min="0" max="20" value="4" step="any">
+					<label for="boidSizeInput">Boid Size</label>
 				</div>
 			</div>
 		</section>
