@@ -66,17 +66,35 @@ function drawTails(){
 function setUpDemoObstacles(numObs){
 	obstacles = [];
 	for(let i = 0; i < numObs; i++){
-		obstacles.push(
-		{
-			shapeType: 'circle',
-			radius: Math.random() * 50 + 10,
-			center: {
-				x: Math.random() * (w - 2 * sight) + sight,
-				y: Math.random() * (h - 2 * sight) + sight
-			},
-			dragable: true,
-			color: randomColor()
-		});
+		const shapeIndex = Math.random();
+		if(shapeIndex < 0.5){
+			obstacles.push(
+			{
+				shapeType: 'circle',
+				radius: Math.random() * 50 + 10,
+				center: {
+					x: Math.random() * (w - 2 * sight) + sight,
+					y: Math.random() * (h - 2 * sight) + sight
+				},
+				dragable: true,
+				color: randomColor()
+			});
+		}
+		else{
+			obstacles.push({
+				shapeType: 'line',
+				color: randomColor(),
+				dragable: true,
+				from: {
+					x: Math.random() * (w - 2 * sight) + sight,
+					y: Math.random() * (h - 2 * sight) + sight
+				},
+				to: {
+					x: Math.random() * (w - 2 * sight) + sight,
+					y: Math.random() * (h - 2 * sight) + sight
+				}
+			});
+		}
 	}
 }
 
@@ -93,7 +111,9 @@ function setUp(){
 	tailC.setAttribute('height', h);
 	ctx = c.getContext('2d');
 	tailCtx = tailC.getContext('2d');
-	//tailCtx.globalAlpha = 0.2;
+	tailCtx.globalAlpha = 0.8;
+	tailCtx.lineWidth = 2;
+	tailCtx.lineCap = 'round';
 	tailCtx.strokeStyle = 'blue';
 	tailCtx.fillStyle = 'white';
 	ctx.lineWidth = 2;
