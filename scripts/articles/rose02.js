@@ -6,6 +6,12 @@ let h;
 let ctx;
 let center;
 
+let petalWidth = 0.7;
+
+let colorPos = 0;
+
+const colors = [];
+
 function randomRedShade(){
 	const hue = getRandomInt(350,370) + 'deg';
 	const sat = getRandomInt(80,100) + '%';
@@ -28,13 +34,22 @@ function setUp(){
 	const canvResult = document.getElementById('canvResult');
 	canvResult.innerHTML = '';
 	canvResult.appendChild(c);
+	
+	const maxPetals = parseInt(document.getElementById('NumPetalsInput').getAttribute('max'));
+	for(let i = 0; i < maxPetals; i++){
+		colors.push(randomRedShade());
+	}
 }
 
 function drawPattern(){
-	document.getElementById('drawBtn').setAttribute('style','display:none');
-	
+	ctx.clearRect(0,0,w,h);
+	petalWidth = parseFloat(document.getElementById('PetalWidthInput').value);
+	const offsetMultiplier = parseFloat(document.getElementById('PetalClumpInput').value);
+	const numPetals = parseInt(document.getElementById('NumPetalsInput').value);
 	window.cancelAnimationFrame(animationID);
-	setUp();
+	
+	const colorShift = parseInt(document.getElementById('colourShiftSelect').value);
+	colorPos += colorShift;
 	
 	ctx.globalAlpha = 0.95;
 	
@@ -43,23 +58,17 @@ function drawPattern(){
 	ctx.beginPath();
 	ctx.rect(0, 0, w, w);
 	ctx.fill();
-	
-	const animate = document.getElementById('animateInput').checked;
 
-	
-	const rotation = Math.random() * Math.PI * 2 ;
-
-	const drawings = [];
-
-	const indexes = [];
-	for(let i = 0; i < 100; i++){
-		indexes.push(i);
+	if(document.getElementById('BackCircleInput').checked){
+		const circleGrad = ctx.createRadialGradient(center.x, center.y, w * 0.05, center.x, center.y, w * 0.2);
+		circleGrad.addColorStop(0, "darkred");
+		circleGrad.addColorStop(1, "transparent");
+		drawCircle(ctx, center, w*0.2, circleGrad);
 	}
-	drawings.push(() => drawCircle(ctx, center, w*0.25, 'darkred'));
-	for(let j = indexes.length-1; j > 2; j -= 1){
-		const i = indexes[j];
-		const angle = i * goldenAngleRad + rotation;
-		const offset = i * w * 0.0029;
+	
+	for(let i = numPetals; i >= 0; i -= 1){
+		const angle = i * goldenAngleRad;
+		const offset = i * w * offsetMultiplier;
 		
 		const x = Math.cos(angle) * offset + center.x;
 		const y = Math.sin(angle) * offset + center.y;
@@ -69,32 +78,13 @@ function drawPattern(){
 		const radius = Math.sqrt(i) * (w * 0.02) + (w * 0.02);
 		
 		let color = randomRedShade();
-		console.log(p);
-		drawings.push(() => drawLeafAtPoint(p, radius, angle));
-	}
-	if(animate){
-		animateLine(drawings, 0);
-	}
-	else{
-		for(let i = 0; i < drawings.length; i++){
-			drawings[i]();
-		}
-		document.getElementById('drawBtn').removeAttribute('style');
-	}
-}
 
-function animateLine(allActions, index){
-	if(index < allActions.length){
-		allActions[index]();
-
-			animationID = window.requestAnimationFrame(() => {
-				animateLine(allActions, index + 1);
-			});
-
+		drawLeafAtPoint(p, radius, angle, colors[(i + colorPos) % numPetals]);
 	}
-	else{
-		document.getElementById('drawBtn').removeAttribute('style');
-	}
+	//centerGrad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, w*0.02);
+	//centerGrad.addColorStop(0.5, '#b30000');
+	//centerGrad.addColorStop(1, "transparent");
+	//drawCircle(ctx, center, w*0.04, centerGrad);
 }
 
 function drawCircle(ctx, center, radius, color){
@@ -104,30 +94,30 @@ function drawCircle(ctx, center, radius, color){
 	ctx.fill();
 }
 
-function drawLeafAtPoint(p, size, angle){
+function drawLeafAtPoint(p, size, angle, color){
 	const leafTip = {
 		x: Math.cos(angle) * size + p.x,
 		y: Math.sin(angle) * size + p.y
 	};
 	
 	const leftControl1 = {
-		x: Math.cos(angle + 0.7) * (size * 0.9) + p.x,
-		y: Math.sin(angle + 0.7) * (size * 0.9) + p.y 
+		x: Math.cos(angle + 0.7 * petalWidth) * (size * 0.9) + p.x,
+		y: Math.sin(angle + 0.7 * petalWidth) * (size * 0.9) + p.y 
 	};
 	
 	const leftControl2 = {
-		x: Math.cos(angle + 0.1) * (size * 0.8) + p.x,
-		y: Math.sin(angle + 0.1) * (size * 0.8) + p.y 
+		x: Math.cos(angle + 0.1 * petalWidth) * (size * 0.8) + p.x,
+		y: Math.sin(angle + 0.1 * petalWidth) * (size * 0.8) + p.y 
 	};
 	
 	const rightControl1 = {
-		x: Math.cos(angle - 0.7) * (size * 0.9) + p.x,
-		y: Math.sin(angle - 0.7) * (size * 0.9) + p.y 
+		x: Math.cos(angle - 0.7 * petalWidth) * (size * 0.9) + p.x,
+		y: Math.sin(angle - 0.7 * petalWidth) * (size * 0.9) + p.y 
 	};
 	
 	const rightControl2 = {
-		x: Math.cos(angle - 0.1) * (size * 0.8) + p.x,
-		y: Math.sin(angle - 0.1) * (size * 0.8) + p.y 
+		x: Math.cos(angle - 0.1 * petalWidth) * (size * 0.8) + p.x,
+		y: Math.sin(angle - 0.1 * petalWidth) * (size * 0.8) + p.y 
 	};
 	
 	ctx.beginPath();
@@ -137,7 +127,7 @@ function drawLeafAtPoint(p, size, angle){
 	
 	const grad = ctx.createLinearGradient(p.x, p.y, leafTip.x, leafTip.y);
 	grad.addColorStop(0.2, 'darkred');
-	grad.addColorStop(1, randomRedShade());
+	grad.addColorStop(1, color);
 	ctx.fillStyle = grad;
 	ctx.fill();
 }
@@ -145,5 +135,7 @@ function drawLeafAtPoint(p, size, angle){
 window.addEventListener('DOMContentLoaded', () => {
 	setUp();
 	
-	document.getElementById('drawBtn').addEventListener('click', drawPattern);
+	//document.getElementById('drawBtn').addEventListener('click', () => {
+		setInterval(drawPattern, 120);
+	//});
 });

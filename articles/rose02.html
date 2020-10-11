@@ -22,14 +22,41 @@
 		<header>
 			<h1>Rose</h1>
 		</header>
-		<section>
-			<input id="animateInput" type="checkbox" checked>
-			<label for="animateInput">Animate</label>
-			<br>
-			<button id="drawBtn">Draw!</button>
-			
+		<section>			
 			<div id="sizeCalc"></div>
 			<div id="canvResult"></div>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="PetalWidthInput" type="range" min="0.2" value="1" max="2" step="any">
+					<label for="PetalWidthInput">Petal Width</label>
+				</div>
+				<div class="op">
+					<input id="PetalClumpInput" type="range" min="0.0001" value="0.0029" max="0.005" step="any">
+					<label for="PetalClumpInput">Petal Spacing</label>
+				</div>
+				<div class="op">
+					<input id="NumPetalsInput" type="range" min="3" value="100" max="500" step="1">
+					<label for="NumPetalsInput">Petals</label>
+				</div>
+				<div class="op">
+					<input id="BackCircleInput" type="checkbox" checked>
+					<label for="BackCircleInput">Backing Circle</label>
+				</div>
+				<div class="op">
+					<select id="colourShiftSelect">
+						<option value="0">0</option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="5">5</option>
+						<option value="8">8</option>
+						<option value="13">13</option>
+						<option value="21">21</option>
+						<option value="34">34</option>
+					</select>
+					<label for="colourShiftSelect">ColorShift</label>
+				</div>
+			</div>
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>
