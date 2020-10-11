@@ -9,8 +9,11 @@ let center;
 let petalWidth = 0.7;
 
 let colorPos = 0;
+let colorOffset = 0;
 
 const colors = [];
+
+let posOffset = 0;
 
 function randomRedShade(){
 	const hue = getRandomInt(350,370) + 'deg';
@@ -18,7 +21,6 @@ function randomRedShade(){
 	const val = getRandomInt(50,70) + '%';
 	return 'hsl(' + hue + ',' + sat + ',' + val + ')';
 }
-
 
 function setUp(){
 	c = document.createElement('canvas');
@@ -50,6 +52,11 @@ function drawPattern(){
 	
 	const colorShift = parseInt(document.getElementById('colourShiftSelect').value);
 	colorPos += colorShift;
+	posOffset = posOffset + parseFloat(document.getElementById('SpinSpeedInput').value);
+	if(posOffset > 1){
+		colorOffset += numPetals - 1;
+		posOffset = posOffset % 1;
+	}
 	
 	ctx.globalAlpha = 0.95;
 	
@@ -67,24 +74,28 @@ function drawPattern(){
 	}
 	
 	for(let i = numPetals; i >= 0; i -= 1){
-		const angle = i * goldenAngleRad;
-		const offset = i * w * offsetMultiplier;
+		const j = i + posOffset;
+		const angle = j * goldenAngleRad;
+		const offset = j * w * offsetMultiplier;
 		
 		const x = Math.cos(angle) * offset + center.x;
 		const y = Math.sin(angle) * offset + center.y;
 		
 		const p = {x:x, y:y};
 		
-		const radius = Math.sqrt(i) * (w * 0.02) + (w * 0.02);
+		const radius = Math.sqrt(j) * (w * 0.02);
 		
 		let color = randomRedShade();
 
-		drawLeafAtPoint(p, radius, angle, colors[(i + colorPos) % numPetals]);
+		drawLeafAtPoint(p, radius, angle, colors[(i + colorPos + colorOffset) % numPetals]);
 	}
 	//centerGrad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, w*0.02);
 	//centerGrad.addColorStop(0.5, '#b30000');
 	//centerGrad.addColorStop(1, "transparent");
 	//drawCircle(ctx, center, w*0.04, centerGrad);
+	animationID = document.requestAnimationFrame(() => {
+		drawPattern();
+	})
 }
 
 function drawCircle(ctx, center, radius, color){
@@ -95,35 +106,36 @@ function drawCircle(ctx, center, radius, color){
 }
 
 function drawLeafAtPoint(p, size, angle, color){
+	
+	const leafBase = {
+		x: Math.cos(angle) * (size * -0.2) + p.x,
+		y: Math.sin(angle) * (size * -0.2) + p.y
+	};
 	const leafTip = {
 		x: Math.cos(angle) * size + p.x,
 		y: Math.sin(angle) * size + p.y
 	};
-	
 	const leftControl1 = {
 		x: Math.cos(angle + 0.7 * petalWidth) * (size * 0.9) + p.x,
 		y: Math.sin(angle + 0.7 * petalWidth) * (size * 0.9) + p.y 
 	};
-	
 	const leftControl2 = {
 		x: Math.cos(angle + 0.1 * petalWidth) * (size * 0.8) + p.x,
 		y: Math.sin(angle + 0.1 * petalWidth) * (size * 0.8) + p.y 
 	};
-	
 	const rightControl1 = {
 		x: Math.cos(angle - 0.7 * petalWidth) * (size * 0.9) + p.x,
 		y: Math.sin(angle - 0.7 * petalWidth) * (size * 0.9) + p.y 
 	};
-	
 	const rightControl2 = {
 		x: Math.cos(angle - 0.1 * petalWidth) * (size * 0.8) + p.x,
 		y: Math.sin(angle - 0.1 * petalWidth) * (size * 0.8) + p.y 
 	};
 	
 	ctx.beginPath();
-	ctx.moveTo(p.x, p.y);
+	ctx.moveTo(leafBase.x, leafBase.y);
 	ctx.bezierCurveTo(leftControl1.x, leftControl1.y, leftControl2.x, leftControl2.y, leafTip.x, leafTip.y);
-	ctx.bezierCurveTo(rightControl2.x, rightControl2.y, rightControl1.x, rightControl1.y, p.x, p.y);
+	ctx.bezierCurveTo(rightControl2.x, rightControl2.y, rightControl1.x, rightControl1.y, leafBase.x, leafBase.y);
 	
 	const grad = ctx.createLinearGradient(p.x, p.y, leafTip.x, leafTip.y);
 	grad.addColorStop(0.2, 'darkred');
@@ -133,9 +145,8 @@ function drawLeafAtPoint(p, size, angle, color){
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-	setUp();
-	
+	setUp();	
 	//document.getElementById('drawBtn').addEventListener('click', () => {
-		setInterval(drawPattern, 120);
+		setInterval(drawPattern, 40);
 	//});
 });
