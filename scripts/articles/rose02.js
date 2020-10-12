@@ -11,7 +11,7 @@ let petalWidth = 0.7;
 let colorPos = 0;
 let colorOffset = 0;
 
-const colors = [];
+const colorVariations = [];
 
 let posOffset = 0;
 
@@ -38,7 +38,7 @@ function setUp(){
 	
 	const maxPetals = parseInt(document.getElementById('NumPetalsInput').getAttribute('max'));
 	for(let i = 0; i < maxPetals; i++){
-		colors.push(randomRedShade());
+		colorVariations.push(Math.random());
 	}
 }
 
@@ -47,10 +47,9 @@ function drawPattern(){
 	petalWidth = parseFloat(document.getElementById('PetalWidthInput').value);
 	const offsetMultiplier = parseFloat(document.getElementById('PetalClumpInput').value);
 	const numPetals = parseInt(document.getElementById('NumPetalsInput').value);
-	
-	
-	const colorShift = parseInt(document.getElementById('colourShiftSelect').value);
-	colorPos += colorShift;
+	const colorRangeOffset = parseFloat(document.getElementById('ColorOffsetInput').value);
+	const colorRange = parseFloat(document.getElementById('ColorRangeInput').value);
+	const colorVariationMultiplier = parseFloat(document.getElementById('ColorVariationInput').value);
 	posOffset = posOffset + parseFloat(document.getElementById('SpinSpeedInput').value);
 	if(posOffset > 1){
 		colorOffset += numPetals - 1;
@@ -61,7 +60,7 @@ function drawPattern(){
 		const circleGrad = ctx.createRadialGradient(center.x, center.y, w * 0.05, center.x, center.y, w * 0.2);
 		circleGrad.addColorStop(0, "darkred");
 		circleGrad.addColorStop(1, "transparent");
-		drawCircle(ctx, center, w*0.2, circleGrad);
+		drawCircle(ctx, center, w * 0.2, circleGrad);
 	}
 	
 	for(let i = numPetals; i >= 0; i -= 1){
@@ -72,22 +71,28 @@ function drawPattern(){
 		const x = Math.cos(angle) * offset + center.x;
 		const y = Math.sin(angle) * offset + center.y;
 		
-		const p = {x:x, y:y};
+		const p = {
+			x:x, y:y
+		};
 		
 		const halfNum = numPetals/2;
-		let radiusMult = (-((i - halfNum) * (i - halfNum)) + (halfNum * halfNum)) / (halfNum * halfNum);
+		let radiusMult = (-((j - halfNum) * (j - halfNum)) + (halfNum * halfNum)) / (halfNum * halfNum);
 		const radius = radiusMult * w * 0.15;
 		//let radius = Math.sqrt(j) * (w * 0.02);
 		//if(i === numPetals){
 			//radius *= 1 - posOffset;
 		//}
 		
-		let color = randomRedShade();
-
-		drawLeafAtPoint(p, radius, angle, colors[(i + colorPos + colorOffset) % numPetals]);
+		//let color = randomRedShade();
+		//let color = colors[(i + colorPos + colorOffset) % numPetals];
+		let variation =  colorVariations[(i + colorPos + colorOffset) % numPetals];
+		const colorAngle = ((i/numPetals) * colorRange + colorRangeOffset) + (variation * colorVariationMultiplier);
+		const tipColor = 'hsl(' + colorAngle + ',90%,60%)';
+		const rootColor = 'hsl(' + colorAngle + ',90%,20%)';
+		drawLeafAtPoint(p, radius, angle, tipColor, rootColor);
 	}
 
-	animationID = document.requestAnimationFrame(() => {
+	animationID = requestAnimationFrame(() => {
 		drawPattern();
 	})
 }
@@ -99,7 +104,7 @@ function drawCircle(ctx, center, radius, color){
 	ctx.fill();
 }
 
-function drawLeafAtPoint(p, size, angle, color){
+function drawLeafAtPoint(p, size, angle, tipColor, rootColor){
 	
 	const leafBase = {
 		x: Math.cos(angle) * (size * -0.2) + p.x,
@@ -132,15 +137,13 @@ function drawLeafAtPoint(p, size, angle, color){
 	ctx.bezierCurveTo(rightControl2.x, rightControl2.y, rightControl1.x, rightControl1.y, leafBase.x, leafBase.y);
 	
 	const grad = ctx.createLinearGradient(p.x, p.y, leafTip.x, leafTip.y);
-	grad.addColorStop(0.2, 'darkred');
-	grad.addColorStop(1, color);
+	grad.addColorStop(0.2, rootColor);
+	grad.addColorStop(1, tipColor);
 	ctx.fillStyle = grad;
 	ctx.fill();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
 	setUp();	
-	//document.getElementById('drawBtn').addEventListener('click', () => {
-		setInterval(drawPattern, 40);
-	//});
+	drawPattern();
 });
