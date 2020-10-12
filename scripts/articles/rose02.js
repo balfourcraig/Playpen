@@ -52,18 +52,21 @@ function drawPattern(){
 	const colorVariationMultiplier = parseFloat(document.getElementById('ColorVariationInput').value);
 	posOffset = posOffset + parseFloat(document.getElementById('SpinSpeedInput').value);
 	if(posOffset > 1){
-		colorOffset += numPetals - 1;
+		colorOffset +=  1;
 		posOffset = posOffset % 1;
 	}
 
 	if(document.getElementById('BackCircleInput').checked){
-		const circleGrad = ctx.createRadialGradient(center.x, center.y, w * 0.05, center.x, center.y, w * 0.2);
-		circleGrad.addColorStop(0, "darkred");
+		const maxOffset = numPetals * w * offsetMultiplier;
+		const backingColor = 'hsl(' + (colorRangeOffset + colorRange * 0.2) + ',90%,30%)';
+		
+		const circleGrad = ctx.createRadialGradient(center.x, center.y, maxOffset * 0.1, center.x, center.y, maxOffset * 0.9);
+		circleGrad.addColorStop(0, backingColor);
 		circleGrad.addColorStop(1, "transparent");
-		drawCircle(ctx, center, w * 0.2, circleGrad);
+		drawCircle(ctx, center, maxOffset, circleGrad);
 	}
-	
-	for(let i = numPetals; i >= 0; i -= 1){
+
+	for(let i = numPetals-1; i >= 0; i -= 1){
 		const j = i + posOffset;
 		const angle = j * goldenAngleRad;
 		const offset = j * w * offsetMultiplier;
@@ -85,13 +88,15 @@ function drawPattern(){
 		
 		//let color = randomRedShade();
 		//let color = colors[(i + colorPos + colorOffset) % numPetals];
-		let variation =  colorVariations[(i + colorPos + colorOffset) % numPetals];
-		const colorAngle = ((i/numPetals) * colorRange + colorRangeOffset) + (variation * colorVariationMultiplier);
+		let variation =  colorVariations[fullMod(i - colorOffset, numPetals)];
+		const colorAngle = ((j/numPetals) * colorRange + colorRangeOffset) + (variation * colorVariationMultiplier);
 		const tipColor = 'hsl(' + colorAngle + ',90%,60%)';
 		const rootColor = 'hsl(' + colorAngle + ',90%,20%)';
 		drawLeafAtPoint(p, radius, angle, tipColor, rootColor);
 	}
-
+	
+	
+	
 	animationID = requestAnimationFrame(() => {
 		drawPattern();
 	})
@@ -105,7 +110,6 @@ function drawCircle(ctx, center, radius, color){
 }
 
 function drawLeafAtPoint(p, size, angle, tipColor, rootColor){
-	
 	const leafBase = {
 		x: Math.cos(angle) * (size * -0.2) + p.x,
 		y: Math.sin(angle) * (size * -0.2) + p.y
@@ -115,16 +119,16 @@ function drawLeafAtPoint(p, size, angle, tipColor, rootColor){
 		y: Math.sin(angle) * size + p.y
 	};
 	const leftControl1 = {
-		x: Math.cos(angle + 0.7 * petalWidth) * (size * 0.9) + p.x,
-		y: Math.sin(angle + 0.7 * petalWidth) * (size * 0.9) + p.y 
+		x: Math.cos(angle + 0.4 * petalWidth * petalWidth) * (size * 0.9) + p.x,
+		y: Math.sin(angle + 0.4 * petalWidth * petalWidth) * (size * 0.9) + p.y 
 	};
 	const leftControl2 = {
 		x: Math.cos(angle + 0.1 * petalWidth) * (size * 0.8) + p.x,
 		y: Math.sin(angle + 0.1 * petalWidth) * (size * 0.8) + p.y 
 	};
 	const rightControl1 = {
-		x: Math.cos(angle - 0.7 * petalWidth) * (size * 0.9) + p.x,
-		y: Math.sin(angle - 0.7 * petalWidth) * (size * 0.9) + p.y 
+		x: Math.cos(angle - 0.4 * petalWidth * petalWidth) * (size * 0.9) + p.x,
+		y: Math.sin(angle - 0.4 * petalWidth * petalWidth) * (size * 0.9) + p.y 
 	};
 	const rightControl2 = {
 		x: Math.cos(angle - 0.1 * petalWidth) * (size * 0.8) + p.x,
