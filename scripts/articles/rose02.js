@@ -30,9 +30,8 @@ function setUp(){
 	c.setAttribute('height', h);
 	ctx = c.getContext('2d');
 	center = {x: w/2.0, y: w/2.0};
-	
-	//ctx.globalCompositeOperation = 'multiply';
-	
+	ctx.globalAlpha = 0.95;
+
 	const canvResult = document.getElementById('canvResult');
 	canvResult.innerHTML = '';
 	canvResult.appendChild(c);
@@ -44,11 +43,11 @@ function setUp(){
 }
 
 function drawPattern(){
-	ctx.clearRect(0,0,w,h);
+	ctx.clearRect(0, 0, w, h);
 	petalWidth = parseFloat(document.getElementById('PetalWidthInput').value);
 	const offsetMultiplier = parseFloat(document.getElementById('PetalClumpInput').value);
 	const numPetals = parseInt(document.getElementById('NumPetalsInput').value);
-	window.cancelAnimationFrame(animationID);
+	
 	
 	const colorShift = parseInt(document.getElementById('colourShiftSelect').value);
 	colorPos += colorShift;
@@ -57,14 +56,6 @@ function drawPattern(){
 		colorOffset += numPetals - 1;
 		posOffset = posOffset % 1;
 	}
-	
-	ctx.globalAlpha = 0.95;
-	
-	ctx.fillStyle = 'rgba(0,0,0,0)';
-	ctx.strokeStyle = 'none';
-	ctx.beginPath();
-	ctx.rect(0, 0, w, w);
-	ctx.fill();
 
 	if(document.getElementById('BackCircleInput').checked){
 		const circleGrad = ctx.createRadialGradient(center.x, center.y, w * 0.05, center.x, center.y, w * 0.2);
@@ -83,16 +74,19 @@ function drawPattern(){
 		
 		const p = {x:x, y:y};
 		
-		const radius = Math.sqrt(j) * (w * 0.02);
+		const halfNum = numPetals/2;
+		let radiusMult = (-((i - halfNum) * (i - halfNum)) + (halfNum * halfNum)) / (halfNum * halfNum);
+		const radius = radiusMult * w * 0.15;
+		//let radius = Math.sqrt(j) * (w * 0.02);
+		//if(i === numPetals){
+			//radius *= 1 - posOffset;
+		//}
 		
 		let color = randomRedShade();
 
 		drawLeafAtPoint(p, radius, angle, colors[(i + colorPos + colorOffset) % numPetals]);
 	}
-	//centerGrad = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, w*0.02);
-	//centerGrad.addColorStop(0.5, '#b30000');
-	//centerGrad.addColorStop(1, "transparent");
-	//drawCircle(ctx, center, w*0.04, centerGrad);
+
 	animationID = document.requestAnimationFrame(() => {
 		drawPattern();
 	})
