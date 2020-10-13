@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Color Picker - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<script src="../scripts/articles/colorPicker.js"></script>
+	<style>
+		#saturationInput{
+			width: 100%;
+		}
+		#canvArea{
+			position: relative;
+		}
+		#canv, #backingCanv{
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+		
+		#canv{
+			z-index: 1;
+		}
+		#backingCanv{
+			z-index: 0;
+		}
+	</style>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../showcase.html">Showcase</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Color Picker</h1>
+		</header>
+		<section>
+			<div id="canvArea">
+				<div id="sizeCalc"></div>
+				<canvas id="backingCanv"></canvas>
+				<canvas id="canv"></canvas>
+				<label for="saturationInput">Saturation</label>
+				<input id="saturationInput" type="range" min="0" max="1" value="1" step="any">
+			</div>
+			<div class="optionsArea">
+				<div class="op">
+					<select id="harmonySelect">
+						<option value="comp">Complementary</option>
+						<option disabled value="tetra">Tetradic</option>
+						<option disabled value="analagous">Analogous</option>
+						<option disabled value="tri">Triadic</option>
+						<option disabled value="square">Square</option>
+						<option disabled value="splitComp">Split Complement</option>
+					</select>
+					<label for="harmonySelect">Color Harmony</label>
+				</div>
+			</div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
