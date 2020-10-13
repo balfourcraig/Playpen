@@ -1,23 +1,33 @@
 let w;
 let h;
+let ctx;
+let c;
 
 function setUpConstants(){
 	const sizeCalc = document.getElementById('sizeCalc');
 	
 	w = sizeCalc.getBoundingClientRect().width;
 	h = w;
+
 	sizeCalc.parentElement.removeChild(sizeCalc);
+	
+	c = document.createElement('canvas');
+	ctx = c.getContext('2d');
+	c.setAttribute('width', w);
+	c.setAttribute('height', h);
+	const canvResult = document.getElementById('canvResult');
+	canvResult.innerHTML = '';
+	canvResult.appendChild(c);
 }
 
 function drawPattern(){
-
+	ctx.clearRect(0,0,w,h);
 	document.getElementById('drawBtn').setAttribute('style','display:none');
 	document.getElementById('stopDrawingBtn').removeAttribute('style');
 	
 	const animate = document.getElementById('animateInput').checked;
 	const stroke = document.getElementById('strokeRadioStroke').checked;
 	const gradStyle = document.querySelector('input[name="gradRadio"]:checked').value;
-	console.log(gradStyle);
 	
 	const rotation = document.getElementById('randomRotInput').checked ? Math.random() * Math.PI * 2 : 0;
 	
@@ -26,12 +36,7 @@ function drawPattern(){
 		colors.push(nextGoldenColor(80, 60));
 	}
 
-	const c = document.createElement('canvas');
 	
-	const ctx = c.getContext('2d');
-
-	c.setAttribute('width', w);
-	c.setAttribute('height', h);
 
 	const center = {x: w/2.0, y: h/2.0};
 	const radius = Math.min(w,h) * 0.1 * parseFloat(document.getElementById('radiusInput').value);
@@ -112,20 +117,9 @@ function drawPattern(){
 			});
 		}
 	}
-	
-	//drawings.push(() => {
-		//ctx.globalCompositeOperation = 'difference';
-		//ctx.fillStyle = 'black';
-		//ctx.beginPath();
-		//ctx.rect(0, 0, w, h);
-		//ctx.fill();
-	//});
 
-	const canvResult = document.getElementById('canvResult');
-	canvResult.innerHTML = '';
-	canvResult.appendChild(c);
-	
 	if(animate){
+		shuffleInplace(drawings);
 		animateLine(drawings, 0);
 	}
 	else{

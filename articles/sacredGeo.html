@@ -13,7 +13,7 @@
 <div class="navHolder">
 	<nav>
 		<a href="../index.html">Home</a>
-		<a class="selected" href="../ramblings.html">Deranged Ramblings</a>
+		<a class="selected" href="../showcase.html">Showcase</a>
 		<a href="../about.html">About</a>
 	</nav>
 </div>
@@ -24,42 +24,54 @@
 			<h1>Seed of Life</h1>
 		</header>
 		<section>
-			<p>"Seed of Life" pattern drawn on an HTML5 canvas, without re-drawing any lines</p>
-			<p>Refresh the page to redraw with different random colors and scales</p>
-			<input id="animateInput" type="checkbox">
-			<label for="animateInput">Animate</label>
-			<br>
-			<input id="randomRotInput" type="checkbox">
-			<label for="randomRotInput">Random Rotation</label>
-			<br>
-			<br>
-			<fieldset>
-				<legend>Draw style</legend>
-				<input id="strokeRadioStroke" type="radio" name="strokeRadio" value="stroke"><label for="strokeRadioStroke">Stroke</label>
-				<br>
-				<input id="strokeRadioFill" type="radio" name="strokeRadio" value="fill" checked><label for="strokeRadioFill">Fill</label>
-			</fieldset>
-			<fieldset>
-				<legend>Gradient style</legend>
-				<input id="gradInputNone" type="radio" name="gradRadio" value="none"><label for="gradInputNone">None</label>
-				<br>
-				<input id="gradInputSmooth" type="radio" name="gradRadio" value="smooth" checked><label for="gradInputSmooth" >Smooth</label>
-				<br>
-				<input id="gradInputRev" type="radio" name="gradRadio" value="rev"><label for="gradInputRev">Reversed</label>
-			</fieldset>
-			<br>
-			<input id="radiusInput" type="number" value="1" step="0.1" min="0">
-			<label for="radiusInput">Radius multiplier</label>
-			<br>
-			<input id="layersInput" type="number" value="6" step="1" min="1">
-			<label for="layersInput">Number of Layers</label>
-			<br>
-			<button id="drawBtn">Draw!</button>
-			<button id="stopDrawingBtn" style="display:none">STOP</button>
-			<br>
-			<button id="luckBtn">I'm feeling lucky!</button>
-			<div id="sizeCalc">Placeholder while the image builds. If you see this, your computer is either very slow, you're using a shit browser (looking at you, Internet Explorer!), or my site has died.</div>
+			<div class="optionsArea">
+				<div class="op">
+					<button id="drawBtn">Draw!</button>
+					<button id="stopDrawingBtn" style="display:none">STOP</button>
+				</div>
+				<div class="op">
+					<button id="luckBtn">I'm feeling lucky!</button>
+				</div>
+			</div>
+			<div id="sizeCalc"></div>
 			<div id="canvResult"></div>
+			<div class="optionsArea">
+				<div class="op">
+					<input id="animateInput" type="checkbox">
+					<label for="animateInput">Animate</label>
+				</div>
+				<div class="op">
+					<input id="randomRotInput" type="checkbox">
+					<label for="randomRotInput">Random Rotation</label>
+				</div>
+				<div class="op">
+					<fieldset>
+						<legend>Draw style</legend>
+						<input id="strokeRadioStroke" type="radio" name="strokeRadio" value="stroke"><label for="strokeRadioStroke">Stroke</label>
+						<br>
+						<input id="strokeRadioFill" type="radio" name="strokeRadio" value="fill" checked><label for="strokeRadioFill">Fill</label>
+					</fieldset>
+				</div>
+				<div class="op">
+					<fieldset>
+						<legend>Gradient style</legend>
+						<input id="gradInputNone" type="radio" name="gradRadio" value="none"><label for="gradInputNone">None</label>
+						<br>
+						<input id="gradInputSmooth" type="radio" name="gradRadio" value="smooth" checked><label for="gradInputSmooth" >Smooth</label>
+						<br>
+						<input id="gradInputRev" type="radio" name="gradRadio" value="rev"><label for="gradInputRev">Reversed</label>
+					</fieldset>
+				</div>
+				<div class="op">
+					<input id="radiusInput" type="number" value="1" step="0.1" min="0">
+					<label for="radiusInput">Radius multiplier</label>
+				</div>
+				<div class="op">
+					<input id="layersInput" type="number" value="6" step="1" min="1">
+					<label for="layersInput">Number of Layers</label>
+				</div>
+			</div>
+			<p>"Seed of Life" pattern drawn on an HTML5 canvas, without re-drawing any lines</p>
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>

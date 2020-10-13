@@ -13,12 +13,12 @@ body{
 }
 
 a{
-	color: fuchsia;
+	color: #00ffcc;
 }
 
 a:hover{
-	color: #f9f;
-	text-shadow: 0 0 15px fuchsia;
+	color: #b3fff0;
+	text-shadow: 0 0 15px #00ffcc;
 }
 
 main{
@@ -90,8 +90,8 @@ input[type="text"]{
 select{
 	padding: 5px;
 	background-color: black;
-	color: fuchsia;
-	border: 1px inset fuchsia;
+	color: #00ffcc;
+	border: 1px inset #00ffcc;
 	border-radius: 0.5em;
 }
 
