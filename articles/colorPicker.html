@@ -27,6 +27,15 @@
 		#backingCanv{
 			z-index: 0;
 		}
+		
+		.line{
+			display: flex;
+			padding: 10px;
+			border-radius: 10px;
+		}
+		.line input{
+			flex-grow: 1;
+		}
 	</style>
 </head>
 <body>
@@ -54,15 +63,19 @@
 			<div class="optionsArea">
 				<div class="op">
 					<select id="harmonySelect">
+						<option value="free">Free click</option>
 						<option value="comp">Complementary</option>
 						<option disabled value="tetra">Tetradic</option>
 						<option disabled value="analagous">Analogous</option>
-						<option disabled value="tri">Triadic</option>
-						<option disabled value="square">Square</option>
+						<option value="tri">Triadic</option>
+						<option value="square">Square</option>
 						<option disabled value="splitComp">Split Complement</option>
 					</select>
 					<label for="harmonySelect">Color Harmony</label>
 				</div>
+			</div>
+			<div id="savedArea">
+				
 			</div>
 		</section>
 		<div class="scrollOverflow"></div>
