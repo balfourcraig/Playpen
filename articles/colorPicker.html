@@ -32,9 +32,15 @@
 			display: flex;
 			padding: 10px;
 			border-radius: 10px;
+			align-items: center;
 		}
 		.line input{
 			flex-grow: 1;
+			border-style: solid;
+			padding: 10px;
+		}
+		.line .harmony{
+			padding: 10px;
 		}
 	</style>
 </head>
@@ -53,6 +59,7 @@
 			<h1>Color Picker</h1>
 		</header>
 		<section>
+			<p>Click to record colours</p>
 			<div id="canvArea">
 				<div id="sizeCalc"></div>
 				<canvas id="backingCanv"></canvas>
@@ -66,12 +73,16 @@
 						<option value="free">Free click</option>
 						<option value="comp">Complementary</option>
 						<option disabled value="tetra">Tetradic</option>
-						<option disabled value="analagous">Analogous</option>
+						<option value="analogous">Analogous</option>
 						<option value="tri">Triadic</option>
 						<option value="square">Square</option>
 						<option disabled value="splitComp">Split Complement</option>
 					</select>
 					<label for="harmonySelect">Color Harmony</label>
+				</div>
+				<div class="op">
+					<input id="showLabelsInput" type="checkbox" checked>
+					<label for="showLabelsInput">Show Labels</label>
 				</div>
 			</div>
 			<div id="savedArea">

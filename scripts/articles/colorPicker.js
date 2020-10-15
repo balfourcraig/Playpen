@@ -11,6 +11,9 @@ function setUp(){
 	const w = sizeCalc.getBoundingClientRect().width;
 	const h = w;
 	
+	let currentPointDetails = [];
+	let currentHarmony = '';
+	
 	document.getElementById('sizeCalc').style.height = h + 'px';
 	backingC.setAttribute('width', w);
 	backingC.setAttribute('height', h);
@@ -47,82 +50,84 @@ function setUp(){
 			else if (mode === 'square'){
 				squareMove(mousePos);
 			}
+			else if (mode === 'analogous'){
+				analogousMove(mousePos);
+			}
 		}
 	}
 	
 	function mouseClick(e){
-		if(e && e.clientX && e.clientY) {
-			let canvRect = c.getBoundingClientRect();
-			mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
-			const mode = getMode();
-			if(mode === 'free'){
-				freeClick(mousePos);
-			}
-			else if(mode === 'comp'){
-				complementaryClick(mousePos);
-			}
-			else if(mode === 'tri'){
-				triadicClick(mousePos);
-			}
-			else if(mode === 'square'){
-				squareClick(mousePos);
-			}
-		}
+		appendLine(currentPointDetails, currentHarmony);
 	}
 	
 	function squareMove(mousePos){
 		ctx.clearRect(0,0,w,h);
 		const points = mirrorAroundCenter(mousePos, 4);
+		const details = [];
 		for(let i = 0; i < points.length; i++){
 			const p = points[i];
-			const details = getPointDetails(p);
-			ctx.strokeStyle = ctx.strokeStyle = 'hsl(0,0%,' + ((1-details.hsl[2]) * 100) + '%)';;
+			const d = getPointDetails(p);
+			details.push(d);
+			ctx.strokeStyle = ctx.strokeStyle = 'hsl(0,0%,' + ((1-d.hsl[2]) * 100) + '%)';;
 			
 			ctx.beginPath();
 			ctx.moveTo(p.x, p.y);
 			ctx.lineTo(points[(i+1)%points.length].x, points[(i+1)%points.length].y);
 			ctx.stroke();
-			highlightPoint(details, 10, true);
+			highlightPoint(d, 10);
 		}
+		previewColors(details, 'Square');
 	}
 	
 	function triadicMove(mousePos){
 		ctx.clearRect(0,0,w,h);
 		const points = mirrorAroundCenter(mousePos, 3);
+		const details = [];
 		for(let p of points){
+			details.push(getPointDetails(p));
 			const grad = ctx.createLinearGradient(p.x, p.y, center.x, center.y);
-			grad.addColorStop(0, 'black');
-			grad.addColorStop(1, 'white');
+			grad.addColorStop(0, 'white');
+			grad.addColorStop(1, 'black');
 			ctx.strokeStyle = grad;
 			
 			ctx.beginPath();
 			ctx.moveTo(p.x, p.y);
 			ctx.lineTo(center.x, center.y);
 			ctx.stroke();
-			highlightPoint(getPointDetails(p), 10, true);
+			highlightPoint(getPointDetails(p), 10);
 		}
+		previewColors(details, 'Triadic');
 	}
 	
-	function triadicClick(mousePos){
-		const points = mirrorAroundCenter(mousePos, 3);
+	function analogousMove(mousePos){
+		ctx.clearRect(0,0,w,h);
 		const details = [];
-		for(let p of points){
-			details.push(getPointDetails(p));
+		const initialAngle = angleBetweenPoints(mousePos.x, mousePos.y, center.x, center.y);
+		const dist = distToPoint(mousePos.x, mousePos.y, center);
+		const angle = 0.3;
+		for(let i = -2; i < 3; i++){
+			const x = Math.sin(initialAngle + i * angle) * dist + center.x;
+			const y = Math.cos(initialAngle + i * angle) * dist + center.y;
+			const p = getPointDetails({x,y});
+			
+			const grad = ctx.createLinearGradient(p.point.x, p.point.y, center.x, center.y);
+			grad.addColorStop(0, 'white');
+			grad.addColorStop(1, 'black');
+			ctx.strokeStyle = grad;
+			
+			ctx.beginPath();
+			ctx.moveTo(p.point.x, p.point.y);
+			ctx.lineTo(center.x, center.y);
+			ctx.stroke();
+			
+			highlightPoint(p,10);
+			details.push(p);
 		}
-		appendLine(details);
-	}
-	
-	function squareClick(mousePos){
-		const points = mirrorAroundCenter(mousePos, 4);
-		const details = [];
-		for(let p of points){
-			details.push(getPointDetails(p));
-		}
-		appendLine(details);
+		previewColors(details, 'Analogous');
 	}
 	
 	function mirrorAroundCenter(point, reflections){
-		const initialAngle = angleBetweenPoints(mousePos.x, mousePos.y, center.x, center.y);
+		const initialAngle = angleBetweenPoints(point.x, point.y, center.x, center.y);
 		const dist = distToPoint(point.x, point.y, center);
 		
 		const reflectAngle = (Math.PI * 2) / reflections;
@@ -143,9 +148,9 @@ function setUp(){
 		const compDetails = getPointDetails(comp);
 		
 		const grad = ctx.createLinearGradient(mousePos.x, mousePos.y, comp.x, comp.y);
-		grad.addColorStop(0, compDetails.hex);
-		grad.addColorStop(0.5, 'white');
-		grad.addColorStop(1, mouseDetails.hex);
+		grad.addColorStop(0, 'white');
+		grad.addColorStop(0.5, 'black');
+		grad.addColorStop(1, 'white');
 		ctx.fillStyle = grad;
 		ctx.strokeStyle = grad;
 		
@@ -153,38 +158,49 @@ function setUp(){
 		ctx.moveTo(mousePos.x, mousePos.y);
 		ctx.lineTo(comp.x, comp.y);
 		ctx.stroke();
-		highlightPoint(compDetails, 10, true);
-		highlightPoint(mouseDetails, 10, true);
-	}
-
-	function complementaryClick(mousePos){
-		const mouseDetails = getPointDetails(mousePos);
-		const compDetails = getPointDetails(pointReflect(mousePos, center, -2));
-		appendLine([mouseDetails, compDetails]);
+		highlightPoint(compDetails, 10);
+		highlightPoint(mouseDetails, 10);
+		previewColors([mouseDetails, compDetails], 'Complementary');
 	}
 
 	function freeMove(mousePos) {
 		ctx.clearRect(0,0,w,h);
-		highlightPoint(getPointDetails(mousePos), 10, true);
+		const relativeDist = distToPoint(mousePos.x, mousePos.y, center)/radius;
+		if(relativeDist > 1){
+			
+		}
+		const details = getPointDetails(mousePos);
+		highlightPoint(details, 10);
+		previewColors([details], 'Free');
 	}
-	
-	function freeClick(mousePos){
-		appendLine([getPointDetails(mousePos)]);
-	}
-	
-	function highlightPoint(details, size, showHex){
+
+	function highlightPoint(details, size){
 		ctx.fillStyle = 'hsl(' + (details.hsl[0] * 360) + ',' + (details.hsl[1] * 100) + '%,' + (details.hsl[2] * 100) + '%)';
 		ctx.strokeStyle = 'hsl(' + (details.hsl[0] * 360 + 180) + ',' + (details.hsl[1] * 100) + '%,' + ((1-details.hsl[2]) * 100) + '%)';
 		
 		const halfSize = size / 2;
 		ctx.fillRect(details.point.x -halfSize, details.point.y -halfSize, size, size);
 		ctx.strokeRect(details.point.x -halfSize, details.point.y -halfSize, size, size);
-		if(showHex){
+		if(document.getElementById('showLabelsInput').checked){
 			drawTextBG(ctx, details.hex, 10, details.point.x, details.point.y);
 		}
 	}
 	
-	function appendLine(colorDetails){
+	function previewColors(details, harmony){
+		const blockWidth = w/details.length;
+		const blockHeight = h * 0.05;
+		let offSet = 0;
+		for(let i = 0; i < details.length; i++){
+			ctx.fillStyle = details[i].hex;
+			ctx.fillRect(offSet, 0, blockWidth, blockHeight);
+			ctx.fillRect(offSet, h - blockHeight, blockWidth, blockHeight);
+			offSet += blockWidth;
+		}
+		currentHarmony = harmony;
+		currentPointDetails = details;
+	}
+	
+	function appendLine(colorDetails, harmony){
 		const line = document.createElement('div');
 		line.setAttribute('class', 'line');
 		for(let d of colorDetails){
@@ -193,6 +209,11 @@ function setUp(){
 			hexInput.setAttribute('style', 'border-color: ' + d.hex);
 			line.appendChild(hexInput);
 		}
+		const harmonyLabel = document.createElement('label');
+		harmonyLabel.setAttribute('class', 'harmony');
+		harmonyLabel.innerText = harmony;
+		line.appendChild(harmonyLabel);
+		
 		const deleteBtn = document.createElement('button');
 		deleteBtn.innerText = 'X';
 		deleteBtn.addEventListener('click', () => {
@@ -279,7 +300,7 @@ function setUp(){
 		}
 		else{
 			const angle = angleBetweenPoints(x, y, center.x, center.y) / (Math.PI * 2);
-			return [angle, sat, distMapped];
+			return [angle, sat, 1-distMapped];
 		}
 	}
 }
