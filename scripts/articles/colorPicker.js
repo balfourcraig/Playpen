@@ -182,7 +182,7 @@ function setUp(){
 		ctx.fillRect(details.point.x -halfSize, details.point.y -halfSize, size, size);
 		ctx.strokeRect(details.point.x -halfSize, details.point.y -halfSize, size, size);
 		if(document.getElementById('showLabelsInput').checked){
-			drawTextBG(ctx, details.hex, 10, details.point.x, details.point.y);
+			drawTextBG(ctx, details.hex, 20, details.point.x, details.point.y);
 		}
 	}
 	
@@ -220,7 +220,7 @@ function setUp(){
 			line.parentElement.removeChild(line);
 		});
 		line.appendChild(deleteBtn);
-		document.getElementById('savedArea').appendChild(line);
+		document.getElementById('savedArea').prepend(line);
 	}
 	
 	function getPointDetails(point){
@@ -306,32 +306,14 @@ function setUp(){
 }
 
 function drawTextBG(ctx, txt, font, x, y) {
-
-    // lets save current state as we make a lot of changes        
     ctx.save();
-
-    // set font
-    ctx.font = font;
-
-    // draw text from top - makes life easier at the moment
+    ctx.font = font + 'px consolas';
     ctx.textBaseline = 'top';
-
-    // color for background
     ctx.fillStyle = '#000';
-    
-    // get width of text
     var width = ctx.measureText(txt).width;
-
-    // draw background rect assuming height of font
-    ctx.fillRect(x, y, width, parseInt(font, 10));
-    
-    // text color
+    ctx.fillRect(x, y, width, font);
     ctx.fillStyle = '#fff';
-
-    // draw text on top
     ctx.fillText(txt, x, y);
-    
-    // restore original state
     ctx.restore();
 }
 
