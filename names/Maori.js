@@ -64,8 +64,15 @@ function maoriSurname(){
 	return maoriFirstname('M', 4);
 }
 
-function maoriName(gender){
-	let name = maoriFirstname(gender,3) + ' ' + maoriSurname();
+function maoriName(options){
+	const gender = options.gender === 'MF' ? Math.random() > 0.5 ? 'M' : 'F' : options.gender;
+	let name = '';
+	if(options.firstname)
+		name += maoriFirstname(gender,3);
+	if(options.surname)
+		name +=  ' ' + maoriSurname();
+	name = name.trim();
+
 	if(Math.random() < 0.06)
 		name = 'Te ' + name;
 	return {culture: 'Maori', value: name, gender: gender};

@@ -24,10 +24,14 @@
 			text-align: center;
 			color: goldenrod;
 		}
+		#tabs .optionsArea{
+			display: none;
+		}
 	</style>
 	<script src="Latin.js"></script>
 	<script src="Germanic.js"></script>
 	<script src="Maori.js"></script>
+	<script src="Spanish.js"></script>
 	<script src="nameGen2.js"></script>
 </head>
 <body>
@@ -38,7 +42,6 @@
 		<a href="../about.html">About</a>
 	</nav>
 </div>
-
 <main>
 	<div class="pageWidth">
 		<header>
@@ -64,8 +67,30 @@
 						<option value="latin">Roman</option>
 						<option value="germanic">Germanic</option>
 						<option value="maori">Maori</option>
+						<option value="spanish">Spanish</option>
+						<option value="chinese">Chinese</option>
 					</select>
 					<label for="cultureSelect">Culture</label>
+				</div>
+				<div class="op">
+					<select id="firstLastNameSelect">
+						<option value="first">Firstnames only</option>
+						<option value="last">Surname only</option>
+						<option value="both" selected>Full names</option>
+					</select>
+					<label for="firstLastNameSelect">Style</label>
+				</div>
+			</div>
+			<div id="tabs">
+				<div id="germanicOptions" class="optionsArea">
+					<div class="op">
+						<input id="germanicTitleCheck" type="checkbox" checked>
+						<label for="germanicTitleCheck">Titles</label>
+					</div>
+					<div class="op">
+						<input id="germanicDescriptionCheck" type="checkbox" checked>
+						<label for="germanicDescriptionCheck">Descriptions</label>
+					</div>
 				</div>
 			</div>
 			<button id="genBtn">Generate</button>

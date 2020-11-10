@@ -1,14 +1,9 @@
-const latinData = JSON.parse(`{
-	"title": "Latin",
+const chineseData = JSON.parse(`{
+	"title": "Chinese",
 	"suffixesM": [
 		"US",
 		"O",
-		"IAN",
-		"IUS",
-		"IX",
-		"EUS",
-		"EIUS",
-		"ANUS"
+		"IAN"
 	],
 	"suffixesF": [
 		"A",
@@ -60,39 +55,39 @@ const latinData = JSON.parse(`{
 }
 `);
 
-const latinElement = (elName) => latinData[elName][getRandomInt(0, latinData[elName].length -1)];
-const latinConsonant = () => latinElement('consonantSounds');
-const latinVowel = () => latinElement('vowelSounds');
+const chineseElement = (elName) => chineseData[elName][getRandomInt(0, chineseData[elName].length -1)];
+const chineseConsonant = () => chineseElement('consonantSounds');
+const chineseVowel = () => chineseElement('vowelSounds');
 
-function latinFirstname(gender){
+function chineseFirstname(gender){
 	let name = '';
 	for(let i = 0; i < getRandomInt(1,2); i++){
-		name += latinVowel() + latinConsonant()
+		name += chineseVowel() + chineseConsonant()
 	}
 	if(gender === 'M')
-		name += latinElement('suffixesM');
+		name += chineseElement('suffixesM');
 	else if (gender === 'F')
-		name += latinElement('suffixesF');
+		name += chineseElement('suffixesF');
 	else
-		name += latinVowel();
+		name += chineseVowel();
 	
 	return capitalize(name);
 }
 
-function latinSurname(){
-	return latinFirstname('M');
+function chineseSurname(){
+	return chineseFirstname('M');
 }
 
-function latinName(options){
+function chineseName(options){
 	const gender = options.gender === 'MF' ? Math.random() > 0.5 ? 'M' : 'F' : options.gender;
 	let name = '';
 	if(options.firstname)
-		name += latinFirstname(gender)
+		name += chineseFirstname(gender)
 	if(options.surname)
-		name += ' ' + latinSurname();
+		name += ' ' + chineseSurname();
 	name = name.trim();
 	
 	if(options.surname && Math.random() < 0.3)
-		name += ' ' + latinSurname();
-	return {culture: 'Latin', value: name, gender: gender};
+		name += ' ' + chineseSurname();
+	return {culture: 'Chinese', value: name, gender: gender};
 }

@@ -18,7 +18,9 @@ function setUp(){
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0,0,w,h);
 		drawCircle(center, w*0.3, '#aaa');
-		drawMoonArc(center, w * 0.3, parseFloat(document.getElementById('phaseInput').value));
+		const phase = parseFloat(document.getElementById('phaseInput').value);
+		document.getElementById('phaseReadout').innerText = moonNameForPhase(phase) + ' : ' + phase;
+		drawMoonArc(center, w * 0.3, phase);
 	});
 }
 
@@ -32,21 +34,23 @@ function drawPattern(){
 	
 }
 
-function drawMoonArc(center, radius, phase){
+function drawMoonArc(center, radius, phase){//This is all wrong
 	const moonColor = '#888';
-	if(phase < 0.01){
-		return;
-		//drawCircle(center, radius, '#800', false);
+	if(phase < 0.05 || phase > 0.95){//new
+		//return;
+		drawCircle(center, radius, '#800', false);
 	}
-	else if (phase < 0.499){
+	else if (phase < 0.25){//wax
 		ctx.fillStyle = '#008';
 		ctx.beginPath();
 		ctx.arc(center.x, center.y, radius, Math.PI * 0.5, Math.PI * 1.5, true);
 		ctx.moveTo(center.x, center.y - radius);
-		ctx.bezierCurveTo(center.x - (radius * phase * 1.333 * 2), center.y - radius, center.x - (radius * phase * 1.333 * 2), center.y + radius,center.x, center.y + radius);
+		const x = center.x - (radius * phase * 1.333 * 4);
+		ctx.bezierCurveTo(x, center.y - radius, x, center.y + radius,center.x, center.y + radius);
 		ctx.fill();
 	}
-	else if (phase > 0.45 && phase < 0.55){
+	else if (phase > 0.45 && phase < 0.55){//full
+		return
 		ctx.fillStyle = '#080';
 		ctx.beginPath();
 		ctx.arc(center.x, center.y, radius, Math.PI * 0.5, Math.PI * 1.5, true);
@@ -54,8 +58,6 @@ function drawMoonArc(center, radius, phase){
 		ctx.lineTo(radius,center.x, center.y + radius);
 		ctx.fill();
 	}
-	
-	
 }
 
 function drawCircle(center, radius, style, stroke){

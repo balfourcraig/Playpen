@@ -1,13 +1,30 @@
+function getOptions(){
+	const firstLast = document.getElementById('firstLastNameSelect').value;
+	const options = {
+		firstname: firstLast === 'first' || firstLast === 'both',
+		surname: firstLast === 'last' || firstLast === 'both',
+		gender: document.getElementById('genderSelect').value,
+		germanic: {
+			titles: document.getElementById('germanicTitleCheck').checked,
+			descriptions: document.getElementById('germanicDescriptionCheck').checked
+		}
+	};
+	return options;
+}
+
 function printNames(numToPrint, append){
 	const nameList = document.getElementById('nameList');
-	const genderFilter = document.getElementById('genderSelect').value;
 	const warnings = document.getElementById('warnings');
 	warnings.innerHTML = '';
 	let nameFunc;
-	const allNameFuncs = [latinName, germanicName, maoriName];
-	switch(document.getElementById('cultureSelect').value){
+	const allNameFuncs = [latinName, germanicName, maoriName, spanishName];
+	const culture = document.getElementById('cultureSelect').value;
+	switch(culture){
 		case 'latin':
 			nameFunc = latinName;
+			break;
+		case 'spanish':
+			nameFunc = spanishName;
 			break;
 		case 'germanic':
 			nameFunc = germanicName;
@@ -16,18 +33,22 @@ function printNames(numToPrint, append){
 			nameFunc = maoriName;
 			warnings.innerText = 'Notice: No distinction between Maori M and F names';
 			break;
+		case 'chinese':
+			warnings.innerText = 'Warning: Not implemented';
+			nameFunc = chineseName;
+			break;
 		case 'any':
-			nameFunc = (gender) => {
-				return allNameFuncs[getRandomInt(0, allNameFuncs.length-1)](gender);
+			nameFunc = (options) => {
+				return allNameFuncs[getRandomInt(0, allNameFuncs.length-1)](options);
 			};
 			break;
 		default:
 			nameFunc = (x) => console.log('Unknown culture');
 	}
-	
 	if(!append){
 		nameList.innerHTML = '';
 	}
+	
 	const table = document.createElement('table');
 	
 	const headerRow = document.createElement('tr');
@@ -38,16 +59,11 @@ function printNames(numToPrint, append){
 		headerRow.appendChild(h);
 	}
 	table.appendChild(headerRow);
-	
+	const options = getOptions();
 	for(let i = 0; i < numToPrint; i++){
 		const row = document.createElement('tr');
-		
-		const item = document.createElement('td');
-		let gender = genderFilter;
-		if(gender === 'MF')
-			gender = Math.random() > 0.5 ? 'M' : 'F';
-		
-		const gen = nameFunc(gender);
+		const item = document.createElement('td');	
+		const gen = nameFunc(options);
 		item.innerHTML = gen.value;
 		row.setAttribute('class', 'gender' + gen.gender);
 		row.appendChild(item);
@@ -72,7 +88,20 @@ function printNames(numToPrint, append){
 	nameList.appendChild(moreBtn);
 }
 
+function optionTabs(){
+	const culture = document.getElementById('cultureSelect').value;
+	const tabs = document.querySelectorAll('#tabs .optionsArea');
+	for(let i = 0; i < tabs.length; i++){
+		if(tabs[i].id === culture + 'Options')
+			tabs[i].style.display = 'block';
+		else
+			tabs[i].style.display = null;
+	}
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+	optionTabs();
+	document.getElementById('cultureSelect').addEventListener('change', optionTabs);
 	document.getElementById('genBtn').addEventListener('click',() => {
 		const numToPrint = parseInt(document.getElementById('numNamesInput').value);
 		printNames(numToPrint, false);

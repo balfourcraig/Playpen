@@ -377,38 +377,40 @@ function germanicDescription(){
 	return germanicElement('descriptions');
 }
 
-function germanicName(gender){
+function germanicName(options){
+	const gender = options.gender === 'MF' ? Math.random() > 0.5 ? 'M' : 'F' : options.gender;
 	const flags = germanicElement('combinationBitflags');
-
+	
 	let name = '';
 	
-	if((flags & 4) === 4 && Math.random() < 0.8)
+	if(options.germanic.titles && (flags & 4) === 4 && Math.random() < 0.4)
 		name += germanicTitle(gender);
 	
-	if((flags & 1) === 1)
+	if(options.firstname && (flags & 1) === 1)
 		name += ' ' + germanicFirstname(gender, 2);
 	
-	if((flags & 2) === 2)
+	if(options.surname && (flags & 2) === 2)
 		name += ' ' + germanicSurname(gender);
 	
-	if((flags & 16) === 16){
-		if(Math.random() < 0.35)
-			name += ' ' + germanicElement('numbers');
-		else
-			name += ' the ' + germanicDescription();
+	if(options.germanic.descriptions){
+		if((flags & 16) === 16 && Math.random() < 0.7){
+			if(Math.random() < 0.35)
+				name += ' ' + germanicElement('numbers');
+			else
+				name += ' the ' + germanicDescription();
+		}
+		if((flags & 8) === 8){
+			if(Math.random() < 0.3)
+				name += ' of ' + germanicLocation();
+			else if(Math.random() < 0.5)
+				name += ' Van' + germanicLocation();
+			else
+				name += ' Von' + germanicLocation();
+		}
 	}
-	if((flags & 8) === 8){
-		if(Math.random() < 0.3)
-			name += ' of ' + germanicLocation();
-		else if(Math.random() < 0.5)
-			name += ' Van' + germanicLocation();
-		else
-			name += ' Von' + germanicLocation();
-	}
-		
-	
+	if(name === '')
+		name = germanicFirstname(gender, 2);
 	return {culture: 'Germanic', value: name.trim(), gender: gender};
-	
 	//return germanicFirstname(gender, 2) + ' ' + germanicSurname(gender);
 }
 
