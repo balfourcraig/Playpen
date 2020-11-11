@@ -1,56 +1,101 @@
 const chineseData = JSON.parse(`{
 	"title": "Chinese",
-	"suffixesM": [
-		"US",
-		"O",
-		"IAN"
-	],
-	"suffixesF": [
-		"A",
-		"IA"
+	"completeNames" :[
+		"BO",
+		"CHANG",
+		"CHAO",
+		"CHEN",
+		"AH",
+		"AI",
+		"BAI",
+		"CHIN",
+		"DA",
+		"FEN",
+		"FU",
+		"HAI",
+		"HE",
+		"HONG",
+		"JIA",
+		"JIANG",
+		"LI",
+		"LEE",
+		"KIM",
+		"LIM",
+		"MEI",
+		"MING",
+		"PING",
+		"TAI",
+		"TAO",
+		"WEI",
+		"XIANG",
+		"XIU",
+		"YANG",
+		"YI",
+		"ZHE",
+		"ZHENG"
 	],
 	"vowelSounds": [
-		"AE",
-		"IA",
 		"A",
-		"I",
-		"AHE",
-		"O",
-		"U",
-		"IU",
+		"AI",
+		"AO",
 		"E",
+		"I",
+		"U",
+		"O",
+		"UA",
+		"YU",
+		"UIYI",
 		"UI",
-		"IO",
-		"AU"
+		"IA",
+		"IU",
+		"YA"
 	],
 	"consonantSounds": [
-		"QU",
-		"NCT",
-		"L",
+		"H",
 		"N",
-		"R",
-		"S",
 		"B",
-		"LV",
-		"T",
-		"RN",
-		"C",
-		"ND",
-		"PT",
-		"RV",
-		"V",
-		"XT",
-		"RT",
-		"RG",
+		"CH",
+		"NG",
+		"D",
+		"F",
+		"G",
+		"NT",
+		"J",
+		"NH",
+		"K",
+		"L",
 		"M",
-		"FR",
-		"GR",
-		"PP",
-		"RB",
-		"BL",
-		"MP",
-		"GN",
-		"LL"		
+		"Q",
+		"SH",
+		"S",
+		"T",
+		"W",
+		"X",
+		"ZH"
+	],
+	"suffixs": [
+		"AH",
+		"AI",
+		"AO",
+		"O",
+		"EN",
+		"ENG",
+		"IN",
+		"UN",
+		"A",
+		"ONG",
+		"ANG",
+		"ING",
+		"U",
+		"YU",
+		"UO",
+		"UA",
+		"UI",
+		"YI",
+		"AN",
+		"EI",
+		"UAN",
+		"IANG"
 	]
 }
 `);
@@ -58,19 +103,28 @@ const chineseData = JSON.parse(`{
 const chineseElement = (elName) => chineseData[elName][getRandomInt(0, chineseData[elName].length -1)];
 const chineseConsonant = () => chineseElement('consonantSounds');
 const chineseVowel = () => chineseElement('vowelSounds');
+const chineseSuffix = () => chineseElement('suffixs');
+
+function chineseNameSegment(gender){
+	if(Math.random() < 0.5)
+		return chineseElement('completeNames');
+	else
+		return chineseVowel() + chineseConsonant();
+}
 
 function chineseFirstname(gender){
 	let name = '';
-	for(let i = 0; i < getRandomInt(1,2); i++){
-		name += chineseVowel() + chineseConsonant()
-	}
-	if(gender === 'M')
-		name += chineseElement('suffixesM');
-	else if (gender === 'F')
-		name += chineseElement('suffixesF');
-	else
-		name += chineseVowel();
 	
+	if(Math.random() < 0.4){//very short name
+		name += chineseNameSegment();
+	}
+	else{
+		for(let i = 0; i < getRandomInt(0,2); i++){
+			name += chineseNameSegment();
+		}
+		name += chineseSuffix();
+	}
+
 	return capitalize(name);
 }
 
@@ -86,8 +140,6 @@ function chineseName(options){
 	if(options.surname)
 		name += ' ' + chineseSurname();
 	name = name.trim();
-	
-	if(options.surname && Math.random() < 0.3)
-		name += ' ' + chineseSurname();
+
 	return {culture: 'Chinese', value: name, gender: gender};
 }

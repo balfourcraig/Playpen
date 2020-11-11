@@ -17,7 +17,7 @@ function printNames(numToPrint, append){
 	const warnings = document.getElementById('warnings');
 	warnings.innerHTML = '';
 	let nameFunc;
-	const allNameFuncs = [latinName, germanicName, maoriName, spanishName];
+	const allNameFuncs = [latinName, germanicName, maoriName, spanishName, chineseName];
 	const culture = document.getElementById('cultureSelect').value;
 	switch(culture){
 		case 'latin':
@@ -34,7 +34,6 @@ function printNames(numToPrint, append){
 			warnings.innerText = 'Notice: No distinction between Maori M and F names';
 			break;
 		case 'chinese':
-			warnings.innerText = 'Warning: Not implemented';
 			nameFunc = chineseName;
 			break;
 		case 'any':
