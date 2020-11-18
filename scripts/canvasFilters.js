@@ -52,7 +52,6 @@ function filterRipple(ctx, x, y, w, h, choppiness){
 	for(let row = 0; row < h; row++){
 		for(let col = 0; col < w; col++){
 			const destOffset = (row * w + col) * 4;
-			let lightness = 1;//(row/h + 0.3);
 			
 			let shiftedRow = 0;
 			let shiftedCol = 0;
@@ -69,7 +68,6 @@ function filterRipple(ctx, x, y, w, h, choppiness){
 					+ Math.sin((colShift + (1-ripplePos)) * 50 * 1.5);
 				colShift += 0.5;
 				colShift *= 10;
-				//colShift *= (1 - row/h + 0.1) * 2;
 				colShift *= choppiness;
 				colShift = ~~colShift;
 				
@@ -80,7 +78,6 @@ function filterRipple(ctx, x, y, w, h, choppiness){
 					+ (Math.cos((rowShift + (1-ripplePos)) * 90) * 0.5);
 				rowShift + 0.5;
 				rowShift *= 2;
-				//rowShift *= (1 - row/h + 0.1) * 2;
 				rowShift *= choppiness;
 				rowShift = ~~rowShift;
 
@@ -97,9 +94,9 @@ function filterRipple(ctx, x, y, w, h, choppiness){
 					shiftedCol = Math.abs(shiftedCol);
 			}
 			const srcOffset = (shiftedRow * w + shiftedCol) * 4;
-			destData.data[destOffset] = 0.7 * lightness * srcData.data[srcOffset];
-			destData.data[destOffset + 1] = lightness * srcData.data[srcOffset + 1];
-			destData.data[destOffset + 2] = 1.2 * lightness * srcData.data[srcOffset + 2];
+			destData.data[destOffset] = srcData.data[srcOffset];
+			destData.data[destOffset + 1] = srcData.data[srcOffset + 1];
+			destData.data[destOffset + 2] = srcData.data[srcOffset + 2];
 			destData.data[destOffset + 3] = 255;
 		}
 	}

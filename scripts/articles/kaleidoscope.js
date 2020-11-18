@@ -12,7 +12,8 @@ let backgroundObjects = [];
 
 function setUp(){
 	const c = document.getElementById('canv');
-	const backC = document.getElementById('backCanv'); //document.createElement('canvas');
+	//const backC = document.getElementById('backCanv');
+	const backC = document.createElement('canvas');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 	h = w;
 	center = {x: w/2, y: h/2};
@@ -34,7 +35,11 @@ function setUp(){
 				x: Math.random() * half + half,
 				y: Math.random() * half + half,
 				radius: Math.random() * w * 0.06,
-				color: randomColor()
+				color: randomColor(),
+				v: {
+					x: (Math.random() - 0.5) * 2,
+					y: (Math.random() - 0.5) * 2
+				}
 			});
 		}
 		else{
@@ -45,7 +50,15 @@ function setUp(){
 				xTo: Math.random() * half + half,
 				yTo: Math.random() * half + half,
 				radius: Math.random() * w * 0.04,
-				color: randomColor()
+				color: randomColor(),
+				vFrom: {
+					x: (Math.random() - 0.5) * 2,
+					y: (Math.random() - 0.5) * 2
+				},
+				vTo: {
+					x: (Math.random() - 0.5) * 2,
+					y: (Math.random() - 0.5) * 2
+				}
 			});
 		}
 	}
@@ -149,7 +162,8 @@ function drawSimpleBackground(){
 let firstFrame = true;
 function drawBackground(){
 	const rippleStrength = parseFloat(document.getElementById('rippleStrengthInput').value);
-	if(rippleStrength || firstFrame){
+	const speed = parseFloat(document.getElementById('speedInput').value);
+	if(speed || rippleStrength || firstFrame){
 		firstFrame = false;
 		backCtx.globalAlpha = 1;
 		backCtx.fillStyle = backColor;
@@ -161,6 +175,14 @@ function drawBackground(){
 		for(let o of backgroundObjects){
 			if(o.type === 'circle'){
 				drawCircle(backCtx, o.x, o.y, o.radius, o.color, true);
+				if(speed){
+					if(o.x <= half || o.x >= w)
+						o.v.x *= -1;
+					if(o.y <= half || o.y >= h)
+						o.v.y *= -1;
+					o.x += o.v.x * speed;
+					o.y += o.v.y * speed;
+				}
 			}
 			else if(o.type === 'line'){
 				backCtx.strokeStyle = o.color;
@@ -168,6 +190,20 @@ function drawBackground(){
 				backCtx.moveTo(o.xFrom, o.yFrom);
 				backCtx.lineTo(o.xTo, o.yTo);
 				backCtx.stroke();
+				if(speed){
+					if(o.xFrom <= half || o.xFrom >= w)
+						o.vFrom.x *= -1;
+					if(o.yFrom <= half || o.yFrom >= h)
+						o.vFrom.y *= -1;
+					if(o.xTo <= half || o.xTo >= w)
+						o.vTo.x *= -1;
+					if(o.yTo <= half || o.yTo >= h)
+						o.vTo.y *= -1;
+					o.xFrom += o.vFrom.x * speed;
+					o.yFrom += o.vFrom.y * speed;
+					o.xTo += o.vTo.x * speed;
+					o.yTo += o.vTo.y * speed;
+				}
 			}
 		}
 		if(rippleStrength){
