@@ -121,11 +121,9 @@ function pointOnCircle(center, radius, totalPoints, pointNum){
 }
 
 function distance(p1, p2){
-	const xDiff = Math.abs(p1.x - p2.x);
-	const yDiff = Math.abs(p1.y - p2.y);
-	
-	const dist = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
-	return dist;
+	const xDiff = p1.x - p2.x;
+	const yDiff = p1.y - p2.y;
+	return Math.sqrt(xDiff * xDiff + yDiff * yDiff);
 }
 
 function midpoint(p1, p2){

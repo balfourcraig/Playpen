@@ -107,6 +107,13 @@
 					<label for="boidSizeInput">Boid Size</label>
 				</div>
 			</div>
+			<p>Each "boid" mimics a single animal in a flock such as a bird like a starling, or schools of fish. Each boid is only aware of other boids which are within its field of view, and close to it. There are a series of simple rules governing how the boids move:</p>
+			<ul>
+				<li>Cohesion: How tightly the boids pack. This means steering towards the center of any nearby groups</li>
+				<li>Alignment: How much the boids try to match their speed and direction with those around them</li>
+				<li>Separation: How much the boids try to avoid their neighbours. This generally acts opposite cohesion</li>
+			</ul>
+			by adjusting these values, you can change the behaviour of the whole flock
 		</section>
 		<div class="scrollOverflow"></div>
 	</div>
