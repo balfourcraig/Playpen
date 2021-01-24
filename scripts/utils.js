@@ -3,6 +3,11 @@ const goldenAngleRad = 2.39996322972865332;
 
 let randh = Math.random();
 
+
+function arrayRandom(arr){
+	return arr[Math.floor(Math.random() * arr.length)];
+}
+
 function removeFromArray(arr, item){
 	let index = arr.indexOf(item);
 	if(index !== -1)

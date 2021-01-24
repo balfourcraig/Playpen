@@ -279,8 +279,7 @@ const germanicData = JSON.parse(`{
 		"IE",
 		"U",
 		"AU",
-		"IU",
-		""
+		"IU"
 	],
 	"consonantSounds": [
 		"R",

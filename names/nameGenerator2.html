@@ -8,6 +8,9 @@
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 	<script src="../scripts/utils.js"></script>
 	<style>
+		#nameList{
+			font-family: 'Times New Roman';
+		}
 		#nameList table{
 			width: 100%;
 		}
@@ -19,6 +22,9 @@
 		}
 		.genderF{
 			color: #f44d8c;
+		}
+		.genderMF{
+			color: #aa31cc;
 		}
 		#warnings{
 			text-align: center;
@@ -33,6 +39,7 @@
 	<script src="Maori.js"></script>
 	<script src="Spanish.js"></script>
 	<script src="Chinese.js"></script>
+	<script src="Celestial.js"></script>
 	<script src="nameGen2.js"></script>
 </head>
 <body>
@@ -70,6 +77,7 @@
 						<option value="maori">Maori</option>
 						<option value="spanish">Spanish</option>
 						<option value="chinese">Chinese</option>
+						<option value="celestial">Celestial</option>
 					</select>
 					<label for="cultureSelect">Culture</label>
 				</div>
@@ -91,6 +99,12 @@
 					<div class="op">
 						<input id="germanicDescriptionCheck" type="checkbox" checked>
 						<label for="germanicDescriptionCheck">Descriptions</label>
+					</div>
+				</div>
+				<div id="celestialOptions" class="optionsArea">
+					<div class="op">
+						<input id="celestialTitleCheck" type="checkbox">
+						<label for="celestialTitleCheck">Titles</label>
 					</div>
 				</div>
 			</div>

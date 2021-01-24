@@ -95,7 +95,7 @@ function drawPattern(){
 		drawLeafAtPoint(p, radius, angle, tipColor, rootColor);
 	}
 	
-	
+	filterVignette(ctx, 0,0,w,h,parseFloat(document.getElementById('VignetteInput').value));
 	
 	animationID = requestAnimationFrame(() => {
 		drawPattern();

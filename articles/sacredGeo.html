@@ -6,6 +6,7 @@
 	<title>Seed of Life - Craig's Playpen</title>
 	<link rel="stylesheet" href="../css/styles.css">
 	<script src="../scripts/utils.js"></script>
+	<script src="../scripts/canvasFilters.js"></script>
 	<script src="../scripts/articles/sacredGeo.js"></script>
 	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
 </head>
@@ -69,6 +70,10 @@
 				<div class="op">
 					<input id="layersInput" type="number" value="6" step="1" min="1">
 					<label for="layersInput">Number of Layers</label>
+				</div>
+				<div class="op">
+					<input id="vignetteInput" type="range" value="0.5" step="any" min="0" max="1">
+					<label for="vignetteInput">Vignette</label>
 				</div>
 			</div>
 			<p>"Seed of Life" pattern drawn on an HTML5 canvas, without re-drawing any lines</p>

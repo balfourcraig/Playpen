@@ -62,12 +62,20 @@ function setUp(){
 			});
 		}
 	}
-	
-	setInterval(() => {
+	function draw(){
 		drawBackground();
-		//drawSimpleBackground();
 		drawKaleidoscope();
-	}, 150);
+		window.requestAnimationFrame(() =>{
+			draw();
+		});
+	}
+	animationID = window.requestAnimationFrame(() =>{
+		draw();
+	});
+	//setInterval(() => {
+		//drawBackground();
+		//drawKaleidoscope();
+	//}, 150);
 }
 
 function drawCircle(ctx, x, y, radius, color, fill){

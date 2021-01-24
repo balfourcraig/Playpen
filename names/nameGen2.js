@@ -7,6 +7,9 @@ function getOptions(){
 		germanic: {
 			titles: document.getElementById('germanicTitleCheck').checked,
 			descriptions: document.getElementById('germanicDescriptionCheck').checked
+		},
+		celestial: {
+			titles: document.getElementById('celestialTitleCheck').checked
 		}
 	};
 	return options;
@@ -17,11 +20,15 @@ function printNames(numToPrint, append){
 	const warnings = document.getElementById('warnings');
 	warnings.innerHTML = '';
 	let nameFunc;
-	const allNameFuncs = [latinName, germanicName, maoriName, spanishName, chineseName];
+	const allNameFuncs = [latinName, germanicName, maoriName, spanishName, chineseName, celestialName];
 	const culture = document.getElementById('cultureSelect').value;
 	switch(culture){
 		case 'latin':
 			nameFunc = latinName;
+			break;
+		case 'celestial':
+			nameFunc = celestialName;
+			warnings.innerText = 'Notice: Angels have distinction between M and F names and have only one name';
 			break;
 		case 'spanish':
 			nameFunc = spanishName;

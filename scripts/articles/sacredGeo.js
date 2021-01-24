@@ -129,6 +129,9 @@ function drawPattern(){
 		document.getElementById('drawBtn').removeAttribute('style');
 		document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 	}
+	const vignette = parseFloat(document.getElementById('vignetteInput').value);
+	filterVignette(ctx, 0, 0, w, h, vignette);
+	
 }
 
 const seedAngle = Math.PI / 3;
@@ -193,6 +196,11 @@ function randomiseValues(){
 		document.getElementById('gradInputRev').checked = true;
 	
 	document.getElementById('randomRotInput').checked = Math.random() > 0.5;
+	if(Math.random() > 0.5)
+		document.getElementById('vignetteInput').value = Math.random();
+	else
+		document.getElementById('vignetteInput').value = 0;
+	
 }
 
 
