@@ -30,6 +30,9 @@ function printNames(numToPrint, append){
 			nameFunc = celestialName;
 			warnings.innerText = 'Notice: Angels have distinction between M and F names and have only one name';
 			break;
+		case 'english':
+			nameFunc = englishName;
+			break;
 		case 'spanish':
 			nameFunc = spanishName;
 			break;

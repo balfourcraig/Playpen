@@ -34,12 +34,14 @@
 			display: none;
 		}
 	</style>
+	<script src="nameUtils.js"></script>
 	<script src="Latin.js"></script>
 	<script src="Germanic.js"></script>
 	<script src="Maori.js"></script>
 	<script src="Spanish.js"></script>
 	<script src="Chinese.js"></script>
 	<script src="Celestial.js"></script>
+	<script src="English.js"></script>
 	<script src="nameGen2.js"></script>
 </head>
 <body>
@@ -72,12 +74,13 @@
 				<div class="op">
 					<select id="cultureSelect">
 						<option value="any">ANY</option>
-						<option value="latin">Roman</option>
+						<option value="celestial">Celestial</option>
+						<option value="chinese">Chinese</option>
+						<option value="english">English</option>
 						<option value="germanic">Germanic</option>
 						<option value="maori">Maori</option>
+						<option value="latin">Roman</option>
 						<option value="spanish">Spanish</option>
-						<option value="chinese">Chinese</option>
-						<option value="celestial">Celestial</option>
 					</select>
 					<label for="cultureSelect">Culture</label>
 				</div>
