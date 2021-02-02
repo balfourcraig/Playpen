@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Points - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<script src="../scripts/articles/triangleDots.js"></script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../showcase.html">Showcase</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Points</h1>
+		</header>
+		<section>
+			<div class="optionsArea">
+				<div class="op">
+					<button id="drawBtn">Draw!</button>
+					<button id="stopDrawingBtn" style="display:none">STOP</button>
+				</div>
+			</div>
+			
+			<div id="sizeCalc"></div>
+			<img id="modMulResult">
+			<div id="canvResult"><canvas id="canvas"></canvas></div>
+			
+			<div class="optionsArea">
+				<div class="op">
+					<input id="animateInput" type="checkbox" checked>
+					<label for="animateInput">Animate</label>
+				</div>
+				<div class="op">
+					<input id="framesInput" type="number" value="800">
+					<label for="framesInput">Number of frames</label>
+				</div>
+				<div class="op">
+					<input id="iterationsInput" type="number" value="500">
+					<label for="iterationsInput">Iterations per frame</label>
+				</div>
+				<div class="op">
+					<input id="opacityInput" type="number" value="0.2" step="0.05">
+					<label for="opacityInput">Point Opacity</label>
+				</div>
+				<div class="op">
+					<input id="numPoints" type="range" value="3" step="1" min="3" max="9">
+					<label for="numPoints">NumPoints <span id="numPointsReadout"></span></label>
+				</div>
+			</div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
