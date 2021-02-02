@@ -46,6 +46,7 @@ function drawPattern(){
 	const iterationsPerFrame = parseInt(document.getElementById('iterationsInput').value);
 	const frames = parseInt(document.getElementById('framesInput').value);
 	const opacity = parseFloat(document.getElementById('opacityInput').value);
+	const ratio = parseFloat(document.getElementById('ratioInput').value);
 	
 	if(animate){
 		frame(0);
@@ -80,22 +81,34 @@ function drawPattern(){
 		let nextX, nextY;
 		let r = ~~(Math.random() * numCorners);
 
-		currentPoint = midpoint(currentPoint, corners[r]);
+		currentPoint = proportionalMidpoint(currentPoint, corners[r], ratio);
 		
 		ctx.fillStyle = color;
 		ctx.fillRect(currentPoint.x, currentPoint.y, 1, 1);
 	}
 }
 
+function proportionalMidpoint(p1, p2, weight){
+	const xDiff = p1.x - p2.x;
+	const yDiff = p1.y - p2.y;
+	return {x: p1.x - xDiff * weight, y: p1.y - yDiff * weight};
+}
+
 window.addEventListener('DOMContentLoaded', () => {
-	document.getElementById('drawBtn').addEventListener('click',drawPattern);
+	document.getElementById('drawBtn').addEventListener('click', drawPattern);
 	
-	setUpSliderReadout('numPoints','numPointsReadout')
+	setUpSliderReadout('numPoints','numPointsReadout');
+	setUpSliderReadout('ratioInput','ratioReadout');
 	
 	document.getElementById('stopDrawingBtn').addEventListener('click', () => {
 		cancelAnimationFrame(animationID);
 		document.getElementById('stopDrawingBtn').setAttribute('style','display:none');
 		document.getElementById('drawBtn').removeAttribute('style');
+	});
+	document.getElementById('ratioInput').addEventListener('input', drawPattern);
+	document.getElementById('setIdealBtn').addEventListener('click', () => {
+		document.getElementById('ratioInput').value = idealRatio(parseInt(document.getElementById('numPoints').value));
+		drawPattern();
 	});
 	setUpBlankCanvas();
 });
@@ -105,4 +118,25 @@ function setUpSliderReadout(sliderName, readoutName){
 	document.getElementById(sliderName).addEventListener('input', () => {
 		document.getElementById(readoutName).innerText = '(' + document.getElementById(sliderName).value + ')';
 	});
+}
+
+function idealRatio(numPoints){
+	switch(numPoints){
+		case 3:
+			return 0.5;//exact
+		case 4:
+			return 0.52;//fudged to see detail
+		case 5:
+			return 0.6180331732534712;//exact (I think)
+		case 6:
+			return 0.6666666666667;//exact
+		case 7:
+			return 0.692;//estimate
+		case 8:
+			return 0.708;//estimate
+		case 9:
+			return 0.742;//estimate
+		default:
+			return 0.5;
+	}
 }

@@ -28,6 +28,9 @@
 					<button id="drawBtn">Draw!</button>
 					<button id="stopDrawingBtn" style="display:none">STOP</button>
 				</div>
+				<div class="op">
+					<button id="setIdealBtn">Ideal</button>
+				</div>
 			</div>
 			
 			<div id="sizeCalc"></div>
@@ -54,6 +57,10 @@
 				<div class="op">
 					<input id="numPoints" type="range" value="3" step="1" min="3" max="9">
 					<label for="numPoints">NumPoints <span id="numPointsReadout"></span></label>
+				</div>
+				<div class="op">
+					<input id="ratioInput" type="number" value="0.5" step="any" min="0" max="1">
+					<label for="ratioInput">Ratio <span id="ratioReadout"></span></label>
 				</div>
 			</div>
 		</section>
