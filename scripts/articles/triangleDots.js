@@ -42,7 +42,27 @@ function drawPattern(){
 		//corners.push(pointByAngle(center, radius, angle * (1 + i)));
 		corners.push(pointOnCircle(center, radius, numCorners, i));
 	}
-	let currentPoint = {x: Math.random() * w, y: Math.random() * h};
+	let currentPoint;// = {x: Math.random() * w, y: Math.random() * h};
+	switch(document.getElementById('startPointSelect').value){
+		case 'corner':
+			currentPoint = arrayRandom(corners);
+			break;
+		case 'center':
+			currentPoint = center;
+			break;
+		case 'contained':
+			if(numPoints < 8){
+				currentPoint = randomPointInNGon(corners);
+			}
+			else{
+				const containMaxRad = distance(center, midpoint(corners[0], corners[1]));
+				currentPoint = pointOnCircle(center, Math.random() * containMaxRad, 50, ~~(Math.random() * 50))
+			}
+			break;
+		case 'any':
+			currentPoint = {x: Math.random() * w, y: Math.random() * h};
+			break;
+	}
 	const iterationsPerFrame = parseInt(document.getElementById('iterationsInput').value);
 	const frames = parseInt(document.getElementById('framesInput').value);
 	const opacity = parseFloat(document.getElementById('opacityInput').value);
@@ -81,7 +101,8 @@ function drawPattern(){
 		let nextX, nextY;
 		let r = ~~(Math.random() * numCorners);
 
-		currentPoint = proportionalMidpoint(currentPoint, corners[r], ratio);
+		//currentPoint = proportionalMidpoint(currentPoint, corners[r], ratio);
+		currentPoint = randomPointInNGon(corners);
 		
 		ctx.fillStyle = color;
 		ctx.fillRect(currentPoint.x, currentPoint.y, 1, 1);
@@ -98,7 +119,7 @@ window.addEventListener('DOMContentLoaded', () => {
 	document.getElementById('drawBtn').addEventListener('click', drawPattern);
 	
 	setUpSliderReadout('numPoints','numPointsReadout');
-	setUpSliderReadout('ratioInput','ratioReadout');
+	//setUpSliderReadout('ratioInput','ratioReadout');
 	
 	document.getElementById('stopDrawingBtn').addEventListener('click', () => {
 		cancelAnimationFrame(animationID);
@@ -106,6 +127,7 @@ window.addEventListener('DOMContentLoaded', () => {
 		document.getElementById('drawBtn').removeAttribute('style');
 	});
 	document.getElementById('ratioInput').addEventListener('input', drawPattern);
+	document.getElementById('numPoints').addEventListener('input', drawPattern);
 	document.getElementById('setIdealBtn').addEventListener('click', () => {
 		document.getElementById('ratioInput').value = idealRatio(parseInt(document.getElementById('numPoints').value));
 		drawPattern();
@@ -118,6 +140,81 @@ function setUpSliderReadout(sliderName, readoutName){
 	document.getElementById(sliderName).addEventListener('input', () => {
 		document.getElementById(readoutName).innerText = '(' + document.getElementById(sliderName).value + ')';
 	});
+}
+
+function randomPointInNGon(corners){
+	const tris = getTrianglesForNGon(corners);
+	const areas = [];
+	let totalArea = 0;
+	for(let t of tris){
+		const a = areaOfTriangle(t[0], t[1], t[2]);
+		totalArea += a;
+		areas.push(a);
+	}
+	const selected = Math.random() * totalArea;
+	let pos = 0;
+	for(let i = 0; i < tris.length; i++){
+		pos += areas[i];
+		if(selected <= pos){
+			return randomPointInTriangle(tris[i][0], tris[i][1], tris[i][2]);
+		}
+	}
+	alert('ERROR ' + totalArea + ' : ' + selected);
+	
+}
+
+function getTrianglesForNGon(corners){
+	const tris = [];
+	if(corners.length === 3){
+		tris.push([corners[0], corners[1], corners[2]]);
+	}
+	else if(corners.length === 4){
+		tris.push([corners[0], corners[1], corners[2]]);
+		tris.push([corners[0], corners[2], corners[3]]);
+	}
+	else if(corners.length === 5){
+		tris.push([corners[0], corners[1], corners[2]]);
+		tris.push([corners[0], corners[2], corners[4]]);
+		tris.push([corners[2], corners[3], corners[4]]);
+	}
+	else if(corners.length === 6){
+		tris.push([corners[0], corners[1], corners[2]]);
+		tris.push([corners[0], corners[2], corners[5]]);
+		tris.push([corners[2], corners[5], corners[3]]);
+		tris.push([corners[3], corners[4], corners[5]]);
+	}
+	else if(corners.length === 7){
+		tris.push([corners[0], corners[1], corners[2]]);
+		tris.push([corners[0], corners[2], corners[6]]);
+		tris.push([corners[2], corners[6], corners[3]]);
+		tris.push([corners[3], corners[6], corners[5]]);
+		tris.push([corners[3], corners[4], corners[5]]);
+	}
+	return tris;
+	
+}
+
+function areaOfTriangle(a,b,c){
+	const chunk1 = a.x * (b.y - c.y);
+	const chunk2 = b.x * (c.y - a.y);
+	const chunk3 = c.x * (a.y - b.y);
+	return Math.abs((chunk1 + chunk2 + chunk3) / 2);
+}
+
+function randomPointInTriangle(a,b,c){
+	let p = Math.random()
+    let q = Math.random()
+
+    if (p + q > 1) {
+    	p = 1 - p
+      q = 1 - q
+    }
+		
+    // A + AB * p + BC * q
+    let x = a.x + (b.x - a.x) * p + (c.x - a.x) * q
+    let y = a.y + (b.y - a.y) * p + (c.y - a.y) * q
+
+    return { x, y }
 }
 
 function idealRatio(numPoints){
