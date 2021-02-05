@@ -101,8 +101,8 @@ function drawPattern(){
 		let nextX, nextY;
 		let r = ~~(Math.random() * numCorners);
 
-		//currentPoint = proportionalMidpoint(currentPoint, corners[r], ratio);
-		currentPoint = randomPointInNGon(corners);
+		currentPoint = proportionalMidpoint(currentPoint, corners[r], ratio);
+		//currentPoint = randomPointInNGon(corners);
 		
 		ctx.fillStyle = color;
 		ctx.fillRect(currentPoint.x, currentPoint.y, 1, 1);
