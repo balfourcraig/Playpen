@@ -180,7 +180,7 @@ function applyURLParams(){
 	if(urlVars['colorOffset'])
 		document.getElementById('colorOffsetInput').value = urlVars['colorOffset'];
 	if(urlVars['autoDraw'])
-		initialDraw = urlVars['autoDraw'] == 'true';
+		initialDraw = urlVars['colorOffset'] == 'true';
 }
 
 function copyPermalink(){
