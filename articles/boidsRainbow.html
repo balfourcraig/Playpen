@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Boids - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<script src="../scripts/articles/boidsRainbow.js"></script>
+	<style>
+	#canvArea{
+		position: relative;
+		background-color: white;
+		border-radius: 10px;
+	}
+	#canv, #tailCanvas{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	
+	#canv{
+		z-index: 1;
+		border: 2px solid black;
+		border-radius: 10px;
+	}
+	
+	#tailCanvas{
+		z-index: 0;
+		border: 2px solid transparent;
+		opacity: 0.7;
+	}
+	</style>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../showcase.html">Showcase</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Boids</h1>
+		</header>
+		<section>
+			<div>
+				<fieldset>
+					<legend>Interaction type</legend>
+					<input id="modeNone" type="radio" name="drawMode" value="none" checked><label for="modeNone">None</label>
+					<input id="modeMousePush" type="radio" name="drawMode" value="mousePush"><label for="modeMousePush">Push</label>
+					<input id="modeDrag" type="radio" name="drawMode" value="drag"><label for="modeDrag">Drag</label>
+					<input id="modeAddCircle" type="radio" name="drawMode" value="addCircle"><label for="modeAddCircle">+Circle</label>
+					<input id="modeAddLine" type="radio" name="drawMode" value="addLine"><label for="modeAddLine">+Line</label>
+					<input id="modeDelete" type="radio" name="drawMode" value="delete"><label for="modeDelete">Delete</label>
+				</fieldset>
+			</div>
+			<div id="canvArea">
+				<div id="sizeCalc"></div>
+				<canvas id="canv"></canvas>
+			</div>
+			
+			<div class="optionsArea">
+				<div class="op">
+					<input id="numBoidsInput" type="range" min="2" max="100" value="15" step="1">
+					<label for="numBoidsInput">Num of boids <span id="numBoidsReadout"></span></label>
+				</div>
+				<div class="op">
+					<input id="cohesionInput" type="range" min="0" max="1" value="0.3" step="any">
+					<label for="cohesionInput">Cohesion</label>
+				</div>
+				<div class="op">
+					<input id="alignmentInput" type="range" min="0" max="1" value="0.1" step="any">
+					<label for="alignmentInput">Alignment</label>
+				</div>
+				<div class="op">
+					<input id="separationInput" type="range" min="0" max="1" value="0.05" step="any">
+					<label for="separationInput">Separation</label>
+				</div>
+				<div class="op">
+					<input id="speedInput" type="range" min="1" max="15" value="12" step="any">
+					<label for="speedInput">Speed</label>
+				</div>
+				<div class="op">
+					<input id="mouseInput" type="range" min="0" max="1" value="0.2" step="any">
+					<label for="mouseInput">Mouse Force</label>
+				</div>
+				<div class="op">
+					<input id="wallInput" type="range" min="0" max="12" value="3.5" step="any">
+					<label for="wallInput">Wall Force</label>
+				</div>
+				<div class="op">
+					<input id="predatorInput" type="range" min="0" max="12" value="12" step="any">
+					<label for="predatorInput">Predator Force</label>
+				</div>
+				<div class="op">
+					<input id="boidSizeInput" type="range" min="0" max="20" value="4" step="any">
+					<label for="boidSizeInput">Boid Size</label>
+				</div>
+			</div>
+			<p>Each "boid" mimics a single animal in a flock such as a bird like a starling, or schools of fish. Each boid is only aware of other boids which are within its field of view, and close to it. There are a series of simple rules governing how the boids move:</p>
+			<ul>
+				<li>Cohesion: How tightly the boids pack. This means steering towards the center of any nearby groups</li>
+				<li>Alignment: How much the boids try to match their speed and direction with those around them</li>
+				<li>Separation: How much the boids try to avoid their neighbours. This generally acts opposite cohesion</li>
+			</ul>
+			by adjusting these values, you can change the behaviour of the whole flock
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
