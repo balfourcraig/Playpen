@@ -6,11 +6,8 @@ let w = 1;
 let c = null;
 let ctx = null;
 
-let tailCtx = null;
-
 let boids = null;
-let mouseOver = false;
-let mousePos = null;
+
 let sight = 50;
 
 let globalSpeed = 12;
@@ -25,57 +22,14 @@ let alignment = 0;
 let separation = 0;
 let mouseForce = 0;
 let wallForce = 0;
-let predatorForce = 0;
 
-let obstacles = [];
-
-let holding = null;
-let anchorPoint = null;
-
-function getDrawingMode(){
-	return document.querySelector('input[name="drawMode"]:checked').value;
-}
-
-function setUpDemoObstacles(numObs){
-	obstacles = [];
-	for(let i = 0; i < numObs; i++){
-		const shapeIndex = Math.random();
-		if(shapeIndex < 0.5){
-			obstacles.push(
-			{
-				shapeType: 'circle',
-				radius: Math.random() * 50 + 10,
-				center: {
-					x: Math.random() * (w - 2 * sight) + sight,
-					y: Math.random() * (h - 2 * sight) + sight
-				},
-				dragable: true,
-				color: randomColor()
-			});
-		}
-		else{
-			obstacles.push({
-				shapeType: 'line',
-				color: randomColor(),
-				dragable: true,
-				from: {
-					x: Math.random() * (w - 2 * sight) + sight,
-					y: Math.random() * (h - 2 * sight) + sight
-				},
-				to: {
-					x: Math.random() * (w - 2 * sight) + sight,
-					y: Math.random() * (h - 2 * sight) + sight
-				}
-			});
-		}
-	}
-}
 
 function setUp(){
 	maxBoids = parseInt(document.getElementById('numBoidsInput').getAttribute('max'));
 	c = document.getElementById('canv');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 	h = w;
+	sight = w/10;
 	document.getElementById('sizeCalc').style.height = h + 'px';
 	c.setAttribute('width', w);
 	c.setAttribute('height', h);
@@ -87,121 +41,7 @@ function setUp(){
 		boids.push(createBoidAtRandom());
 	}
 	
-	//PREDATOR
-	//boids.push(createPredatorAtRandom());
-	
-	c.addEventListener('mouseover', (e) => {
-		mouseOver = true;
-	});
-	c.addEventListener('mouseleave', (e) => {
-		mouseOver = false;
-		mousePos = null;
-	});
-	c.addEventListener('mousemove', mouseMove);
-	c.addEventListener('mousedown', mouseDown);
-	c.addEventListener('mouseup', mouseUp);
-	
-	setUpDemoObstacles(4);
-	
 	setInterval(draw, 50);
-}
-
-function mouseUp(e){
-	holding = null;
-	const mode = getDrawingMode();
-	if(mode === 'addCircle' && anchorPoint){
-		let canvRect = c.getBoundingClientRect();
-		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
-		const rad = distToPoint(anchorPoint, mousePos);
-		const circle = {
-			shapeType: 'circle',
-			color: randomColor(),
-			dragable: true,
-			center: anchorPoint,
-			radius: rad
-		};
-		obstacles.push(circle);
-	}
-	else if(mode === 'addLine' && anchorPoint){
-		let canvRect = c.getBoundingClientRect();
-		const mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
-		const line = {
-			shapeType: 'line',
-			color: randomColor(),
-			dragable: true,
-			from: anchorPoint,
-			to: mousePos,
-		};
-		obstacles.push(line);
-	}
-	anchorPoint = null;
-}
-
-function mouseDown(e) {
-	if(e && e.clientX && e.clientY) {
-		let canvRect = c.getBoundingClientRect();
-		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
-		
-		const mode = getDrawingMode();
-		for(let i = 0; i < obstacles.length; i++){
-			if(obstacles[i].dragable && (
-				//(obstacles[i].shapeType === 'rect' && distToRect(mousePos, obstacles[i], w, true) === 0)
-				 (obstacles[i].shapeType === 'circle' && distToCircle(mousePos, obstacles[i], w, true) === 0)
-				|| (obstacles[i].shapeType === 'line' && distToLine(mousePos, obstacles[i], true, w) < 5)
-			)){
-				if(mode === 'drag'){
-					holding = obstacles[i];
-					return false;
-				}
-				else if (mode === 'delete'){
-					const index = obstacles.indexOf(obstacles[i]);
-					obstacles.splice(index, 1);
-					return false;
-				}
-			}
-		}
-		if (mode === 'addCircle' || mode === 'addRect' || mode === 'addLine'){
-			anchorPoint = mousePos;
-		}
-	}
-}
-
-function mouseMove(e){
-	const mode = getDrawingMode();
-	if(e && e.clientX && e.clientY) {
-		let canvRect = c.getBoundingClientRect();
-		mousePos = {x: e.clientX - canvRect.left, y: e.clientY - canvRect.top};
-		
-		lastMousePoint = mousePos;
-
-		if(holding){
-			if(holding.shapeType === 'circle'){
-				holding.center = mousePos;
-			}
-			else if (holding.shapeType === 'line'){
-				const lineWidth = holding.to.x - holding.from.x;
-				const lineHeight = holding.to.y - holding.from.y;
-				const newFrom = {
-					x: mousePos.x - lineWidth/2,
-					y: mousePos.y - lineHeight/2,
-				};
-				const newTo = {
-					x: mousePos.x + lineWidth/2,
-					y: mousePos.y + lineHeight/2,
-				};
-				holding.from = newFrom;
-				holding.to = newTo;
-			}
-		}
-		
-		else if(holding){
-			return false;
-		}
-	}
-}
-
-function invertVelocity(vec){
-	return {x: vec.x * -1, y: vec.y * -1};
 }
 
 function createBoidAtRandom(){
@@ -218,19 +58,6 @@ function createBoidAtPosition(position){
 		},
 		color: 'hsl(' + (Math.random() * 140 + 80) + ',50%,50%)',
 		role: 'prey'
-	}
-}
-
-function createPredatorAtRandom(){
-	const speed = globalSpeed;
-	return {
-		position: {x: Math.random() * (w - 2 * sight) + sight, y: Math.random() * (h - 2 * sight) + sight},
-		velocity: {
-			x: Math.random() * speed * 2 - speed,
-			y: Math.random() * speed * 2 - speed
-		},
-		color: 'hsl(' + (Math.random() * 10) + ',50%,50%)',
-		role: 'predator'
 	}
 }
 
@@ -318,16 +145,6 @@ function avoidOther(boid, neighbours){
 	boid.velocity.y += moveY * separation;
 }
 
-function avoidMouse(boid){
-	if(mousePos && mouseOver){
-		const scaledDist = 1 - (dist(boid.position, mousePos) / (sight * 2));
-		if(scaledDist < 1 && scaledDist > 0){
-			boid.velocity.x += (boid.position.x - mousePos.x) * scaledDist * scaledDist * mouseForce;
-			boid.velocity.y += (boid.position.y - mousePos.y) * scaledDist * scaledDist * mouseForce;
-		}
-	}
-}
-
 function avoidWalls(boid){
 	let moveX = 0;
 	let moveY = 0;
@@ -347,110 +164,6 @@ function avoidWalls(boid){
 	
 	boid.velocity.x += moveX * wallForce;
 	boid.velocity.y += moveY * wallForce;
-}
-
-function nearestLinePoint(point, line, preventExtrapolation){
-	if(line.from.x > line.to.x){
-		const temp = line.from;
-		line.from = line.to;
-		line.to = temp;
-	}
-	
-	let iX = 0;
-	let iY = 0;
-	
-	if(Math.abs(line.from.y - line.to.y) < 0.01){//flat
-		iX = point.x;
-		iY = line.from.y;
-	}
-	else if(Math.abs(line.from.x - line.to.x) < 0.01){//vertical
-		iX = line.from.x;
-		iY = point.y
-	}
-	else{
-		const lM = (line.to.y - line.from.y) / (line.to.x - line.from.x);
-		const pM = (line.from.x - line.to.x) / (line.to.y - line.from.y);
-		const lC = line.from.y - lM * line.from.x;
-		const pC = point.y - pM * point.x;
-		
-		iX = -(lC - pC) / (lM - pM);
-		iY = -(lM * -iX) + lC;
-	}
-
-	if(preventExtrapolation && (
-		(line.from.x < line.to.x && iX < line.from.x)
-		|| (line.to.x < line.from.x && iX < line.to.x)
-		|| (line.from.x > line.to.x && iX > line.from.x)
-		|| (line.to.x > line.from.x && iX > line.to.x)
-		|| (line.from.y < line.to.y && iY < line.from.y)
-		|| (line.to.y < line.from.y && iY < line.to.y)
-		|| (line.from.y > line.to.y && iY > line.from.y)
-		|| (line.to.y > line.from.y && iY > line.to.y)
-		))
-	{
-		const distFrom = distToPoint(point, line.from);
-		const distTo = distToPoint(point, line.to);
-		if(distFrom < distTo){
-			return line.from;
-		}
-		else{
-			return line.to;
-		}
-	}
-	else
-	{
-		return {x: iX, y: iY};
-	}
-}
-
-function distToLine(point, line, preventExtrapolation){
-	const p = nearestLinePoint(point, line, preventExtrapolation);
-	return distToPoint(point, p);
-}
-
-function distToPoint(p1, p2){
-	const dX = p1.x - p2.x;
-	const dY = p1.y - p2.y;
-	return Math.sqrt((dX * dX) + (dY * dY));
-}
-
-function distToCircle(p, circle, fill){
-	const distToCenter = distToPoint(p, circle.center);
-	if(distToCenter < circle.radius){
-		if(fill)
-			return 0;
-		else
-			return circle.radius - distToCenter;
-	}
-	else
-		return distToCenter - circle.radius;
-}
-
-function avoidObstacles(boid){
-	const obForce = wallForce * wallForce;
-	let moveX = 0;
-	let moveY = 0;
-	for(let ob of obstacles){
-		if(ob.shapeType === 'circle'){
-			let dist = distToCircle(boid.position, ob, true) / sight;
-			if(dist < 1){
-				dist = (-1 * Math.log(dist) + 0.001) + 0.7;
-				moveX += (boid.position.x - ob.center.x) / (sight) * dist;
-				moveY += (boid.position.y - ob.center.y) / (sight) * dist;
-			}
-		}
-		else if(ob.shapeType === 'line'){
-			const p = nearestLinePoint(boid.position, ob, true);
-			let dist = distToPoint(boid.position, p) / sight;
-			if(dist < 1){
-				dist = (-1 * Math.log(dist) + 0.001) + 0.7;
-				moveX += (boid.position.x - p.x) / sight * dist;
-				moveY += (boid.position.y - p.y) / sight * dist;
-			}
-		}
-	}
-	boid.velocity.x += moveX * obForce;
-	boid.velocity.y += moveY * obForce;
 }
 
 function matchVelocity(boid, neighbours){
@@ -549,7 +262,6 @@ function drawRainbow(){
 }
 
 function draw(){
-	const mode = getDrawingMode();
 	cohesion = parseFloat(document.getElementById('cohesionInput').value);
 	alignment = parseFloat(document.getElementById('alignmentInput').value);
 	separation = parseFloat(document.getElementById('separationInput').value);
@@ -581,12 +293,7 @@ function draw(){
 			matchVelocity(boid, neighbours);
 			avoidOther(boid, neighbours);
 		}
-		
-		
-		if(mode === 'mousePush')
-			avoidMouse(boid);
 		avoidWalls(boid);
-		avoidObstacles(boid);
 		limitSpeed(boid);
 		updateBoidPos(boid);
 		//drawBoid(boid, debugLines, neighbours);
