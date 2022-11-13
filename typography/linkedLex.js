@@ -1,8 +1,12 @@
 const strokeStartColor = 'green';
 const strokeEndColor = 'orange';
 const strokeJoinColor = 'orange';
+const strokeDelay = 100;
+
+let timeoutId = null;
 
 const linkedLex = (line) => {
+	clearTimeout(timeoutId);
 	console.log(`lexing ${line}`);
 	let letters = [];
 	
@@ -38,13 +42,32 @@ const linkedLex = (line) => {
 	}
 	let penPos = {x: 0, y: 0.9};
 	let prevEnd = penPos;
+	let steps = [];
 	for(let inst of letterInstructions){
-		if(inst.join)
-			joinLetters(ctx, prevEnd, inst.penStart, scale, penPos);
-		inst.instructions(ctx, penPos, scale);
-		penPos.x += inst.penEnd.x * scale;
-		penPos.y += inst.penEnd.x * scale;
-		prevEnd = inst.penEnd;
+		if(inst.join){
+			steps.push(() => {
+				joinLetters(ctx, prevEnd, inst.penStart, scale, penPos);
+			});
+		}
+		for(let i of inst.instructions){
+			steps.push(() => {
+				i(ctx, penPos, scale);
+			});
+		}
+		steps.push(() => {
+			penPos.x += inst.penEnd.x * scale;
+			penPos.y += inst.penEnd.x * scale;
+			prevEnd = inst.penEnd;
+		});
 	}
+	animateLine(steps, 0);
 }
 
+const animateLine = (allActions, index) => {
+	if(index < allActions.length){
+		allActions[index]();
+		timeoutId = setTimeout(() => {
+			animateLine(allActions, index + 1);
+		}, strokeDelay);
+	}
+}
