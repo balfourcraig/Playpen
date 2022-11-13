@@ -1,0 +1,50 @@
+const strokeStartColor = 'green';
+const strokeEndColor = 'orange';
+const strokeJoinColor = 'orange';
+
+const linkedLex = (line) => {
+	console.log(`lexing ${line}`);
+	let letters = [];
+	
+	
+	const resultArea = document.getElementById('nameList');
+	const c = document.createElement('canvas');
+	const scale = 100;
+	const w = 9 * scale;
+	const h = scale;
+	c.setAttribute('width', w);
+	c.setAttribute('height', h);
+	const ctx = c.getContext('2d');
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = 'black';
+	ctx.fillStyle = 'rgb(255,230,200)';
+	ctx.fillRect(0, 0, w, h);
+	resultArea.appendChild(c);
+	const letterInstructions = [];
+	for(const c of line){
+		console.log(c);
+		if(c === 'T'){
+			letterInstructions.push(letter_T());
+		}
+		else if (c === 't'){
+			letterInstructions.push(letter_t());
+		}
+		else if (c === 'h'){
+			letterInstructions.push(letter_h());
+		}
+		else if (c === 'e'){
+			letterInstructions.push(letter_e());
+		}
+	}
+	let penPos = {x: 0, y: 0.9};
+	let prevEnd = penPos;
+	for(let inst of letterInstructions){
+		if(inst.join)
+			joinLetters(ctx, prevEnd, inst.penStart, scale, penPos);
+		inst.instructions(ctx, penPos, scale);
+		penPos.x += inst.penEnd.x * scale;
+		penPos.y += inst.penEnd.x * scale;
+		prevEnd = inst.penEnd;
+	}
+}
+

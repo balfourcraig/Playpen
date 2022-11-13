@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>Linked Writing - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+	<script src="lexer.js"></script>
+	<script src="linkedLex.js"></script>
+	<script src="letters.js"></script>
+	<script src="linked.js"></script>
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../showcase.html">Showcase</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>Linked writing</h1>
+		</header>
+		<section>
+			<div class="optionsArea">
+				<div class="op">
+				<label for="textInput">Input text: </label>
+					<input id="textInput" type="text" value="The">
+					
+				</div>
+			</div>
+			<button id="genBtn">Generate</button>
+		</section>
+		<section>
+			<div id="nameList"></div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+<script>
+	document.getElementById('genBtn').addEventListener('click', (e) => {
+		const result = document.getElementById('textInput').value;
+		buildLinked(result);
+	});
+</script>
+</html>
