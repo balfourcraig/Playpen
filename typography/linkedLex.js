@@ -1,11 +1,13 @@
 const strokeStartColor = 'green';
 const strokeEndColor = 'orange';
 const strokeJoinColor = 'orange';
-const strokeDelay = 100;
+let strokeDelay = 100;
 
 let timeoutId = null;
 
 const linkedLex = (line) => {
+	let showStartEnd = document.getElementById('showStartEndCheck').checked;
+	strokeDelay = parseInt(document.getElementById('animateSpeedInput').max) - parseInt(document.getElementById('animateSpeedInput').value);
 	clearTimeout(timeoutId);
 	console.log(`lexing ${line}`);
 	let letters = [];
@@ -30,21 +32,45 @@ const linkedLex = (line) => {
 		if(c === 'T'){
 			letterInstructions.push(letter_T());
 		}
-		else if (c === 't'){
-			letterInstructions.push(letter_t());
+		else if (c === 'a'){
+			letterInstructions.push(letter_a());
 		}
-		else if (c === 'h'){
-			letterInstructions.push(letter_h());
+		else if (c === 'b'){
+			letterInstructions.push(letter_b());
 		}
 		else if (c === 'e'){
 			letterInstructions.push(letter_e());
 		}
+		else if (c === 'h'){
+			letterInstructions.push(letter_h());
+		}
+		else if (c === 'i'){
+			letterInstructions.push(letter_i());
+		}
+		else if (c === 'l'){
+			letterInstructions.push(letter_l());
+		}
+		else if (c === 'o'){
+			letterInstructions.push(letter_o());
+		}
+		else if (c === 't'){
+			letterInstructions.push(letter_t());
+		}
+		else{
+			letterInstructions.push(letter_unknown());
+		}
 	}
 	let penPos = {x: 0, y: 0.9};
 	let prevEnd = penPos;
+	let prevJoin = true;
 	let steps = [];
 	for(let inst of letterInstructions){
-		if(inst.join){
+		if(showStartEnd){
+			steps.push(() => {
+				circleAt(ctx, inst.penStart, 0.03, scale, penPos, strokeStartColor);
+			});
+		}
+		if(inst.join && prevJoin){
 			steps.push(() => {
 				joinLetters(ctx, prevEnd, inst.penStart, scale, penPos);
 			});
@@ -54,10 +80,14 @@ const linkedLex = (line) => {
 				i(ctx, penPos, scale);
 			});
 		}
+		
 		steps.push(() => {
+			if(showStartEnd)
+				circleAt(ctx, inst.penEnd, 0.03, scale, penPos, strokeEndColor);
 			penPos.x += inst.penEnd.x * scale;
 			penPos.y += inst.penEnd.x * scale;
 			prevEnd = inst.penEnd;
+			prevJoin = inst.join;
 		});
 	}
 	animateLine(steps, 0);
