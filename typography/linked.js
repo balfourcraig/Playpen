@@ -9,7 +9,7 @@ const joinLetters = (ctx, start, end, scale, penPos) => {
 	ctx.moveTo(penPos.x, start.y * scale);
 	//ctx.lineTo(penPos.x + end.x * scale, end.y * scale);
 	//ctx.bezierCurveTo(halfX, start.y * scale, halfX, end.y * scale, penPos.x + end.x * scale, end.y * scale);
-	ctx.quadraticCurveTo(halfX, (start.y * scale) * 1.1, penPos.x + end.x * scale, end.y * scale);
+	ctx.quadraticCurveTo(halfX, (start.y * scale) * 1.05, penPos.x + end.x * scale, end.y * scale);
 	
 	ctx.strokeStyle = strokeJoinColor;
 	ctx.stroke();

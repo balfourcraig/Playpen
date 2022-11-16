@@ -38,6 +38,12 @@ const linkedLex = (line) => {
 		else if (c === 'b'){
 			letterInstructions.push(letter_b());
 		}
+		else if (c === 'c'){
+			letterInstructions.push(letter_c());
+		}
+		else if (c === 'd'){
+			letterInstructions.push(letter_d());
+		}
 		else if (c === 'e'){
 			letterInstructions.push(letter_e());
 		}
