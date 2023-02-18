@@ -71,4 +71,24 @@ color: red;
 	border:none;
 	padding:10px;
 	font-size:24px;
+	cursor: pointer;
+}
+
+#buildBtn:hover{
+	background-color: lightgray;
+}
+
+#resultPane {
+  width: 100%;
+  text-align: center;
+  padding: 50px 0;
+}
+
+#resultPane.correct{
+	background-color: limeGreen;
+}
+
+#resultPane.incorrect{
+	background-color: darkred;
+	
 }

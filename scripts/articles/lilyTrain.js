@@ -83,6 +83,8 @@ const setup = () => {
 	optionsEl.classList.remove('hidden');
 	const resultPane = document.getElementById('resultPane');
 	resultPane.innerHTML = '';
+	resultPane.classList.remove('correct');
+	resultPane.classList.remove('incorrect');
 	//beginSmoke(engineC);
     const grade = (num, carriage) => {
 		resultPane.classList.remove('hidden');
@@ -92,6 +94,7 @@ const setup = () => {
             tickEl.innerText = '\u2714'; // Unicode character for tick
             optionsEl.classList.add('hidden');
             resultPane.appendChild(tickEl);
+			resultPane.classList.add('correct');
 			//setTimeout(setup,1000);
         } else {
             const crossEl = document.createElement('div');
@@ -99,9 +102,11 @@ const setup = () => {
             crossEl.innerText = '\u2716'; // Unicode character for cross
             optionsEl.classList.add('hidden');
             resultPane.appendChild(crossEl);
+			resultPane.classList.add('incorrect');
 			setTimeout(() => {
 				resultPane.innerHTML = '';
 				optionsEl.classList.remove('hidden');
+				resultPane.classList.remove('incorrect');
 				carriage.classList.add('hidden');
 			}, 1000);
         }
