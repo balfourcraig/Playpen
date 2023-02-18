@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html lang="en-nz">
+<html>
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	<meta charset="UTF-8">
-	<title>Lily's Train</title>
+	<title>Lily's page</title>
 	<link rel="stylesheet" href="../css/lilyTrain.css">
 	<script src="../scripts/articles/lilyTrain.js"></script>
 </head>
 <body>
-
+	<div class="pageDiv">
+		<h1>Can you guess the missing number?</h1>
+		<div class="optionsAreas">
+			<input id="numCarriagesInput" type="number" min="3" max="10" value="5" step="1">
+			<button id="buildBtn">BUILD!</button>
+		</div>
+		<div class="train"></div>
+		<div class="options"></div>
+		<div id="resultPane"></div>
+	</div>
 </body>
 </html>

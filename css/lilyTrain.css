@@ -1,7 +1,74 @@
+/* Styling for the train and its carriages */
 body{
-	background: lightblue;
+	background-color: #ceeafb;
 }
 
-h1{
-	color: red;
+.pageDiv{
+	width: 100%;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.train {
+display: flex;
+}
+
+/* Styling for the options */
+.options {
+display: flex;
+justify-content: center;
+}
+
+.option {
+margin: 10px;
+padding: 10px 20px;
+font-size: 32px;
+cursor: pointer;
+font-family: Arial;
+background-color: white;
+}
+
+.option:hover {
+background-color: lightgray;
+}
+
+/* Styling for the tick and cross symbols */
+.tick,
+.cross {
+font-size: 30px;
+}
+
+.tick {
+color: green;
+}
+
+.cross {
+color: red;
+}
+
+.hidden{
+	display: none;
+}
+
+.smokeHolder{
+	position:absolute;
+	pointer-events: none;
+}
+
+.optionsAreas{
+	margin-bottom:50px;
+}
+
+#numCarriagesInput{
+	padding: 10px;
+	font-size: 24px;
+}
+
+#buildBtn{
+	background:white;
+	border:none;
+	padding:10px;
+	font-size:24px;
 }
