@@ -13,12 +13,13 @@ body{
 
 .train {
 display: flex;
+flex-wrap: wrap;
 }
 
 /* Styling for the options */
 .options {
 display: flex;
-justify-content: center;
+flex-wrap: wrap;
 }
 
 .option {
