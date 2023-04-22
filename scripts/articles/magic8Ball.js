@@ -33,11 +33,12 @@ const answers = [
 ];
 
 function guess(){
-	if(document.getElementById('apiCheck').checked){
+	const callType = document.getElementById('callTypeSelect').value;
+	if(callType == 'api'){
 		apiGuess();
 		return;
 	}
-	const useGoldenRand = document.getElementById('goldenInput').checked;
+	const useGoldenRand = callType == 'golden';
 	
 	const index = useGoldenRand ? pickNumberGolden(answers.length) : ~~(Math.random() * answers.length);
 	const answer = answers[index];
@@ -48,10 +49,12 @@ function guess(){
 function apiGuess(){
 	const holder = document.getElementById('MagicResultHolder');
 	holder.innerHTML = 'Loading...';
+	document.getElementById('askBtn').disabled = true;
 	const address = 'https://magiceightballapi.azurewebsites.net/api/MagicEightBall';
 	fetch(address)
 		.then(response => response.json())
 		.then(data => {
+			document.getElementById('askBtn').disabled = false;
 			displayGuess(data.Text, data.AnswerType);
 		}
 	).catch(err => {

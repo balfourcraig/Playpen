@@ -33,11 +33,12 @@
 			<h1>Magic 8 Ball</h1>
 		</header>
 		<section>
-			<input id="goldenInput" type="checkbox" checked>
-			<label for="goldenInput">Use Golden Rand</label>
-			<br>
-			<input id="apiCheck" type="checkbox">
-			<label for="apiCheck">Use API</label>
+			<select id="callTypeSelect">
+				<option value="normal">Math.random</option>
+				<option value="golden" selected>Golden ration random</option>
+				<option value="api">API call</option>
+			</select>
+			<label for="callTypeSelect">Call type</label>
 			<br>
 			<br>
 			<button id="askBtn">Ask!</button>
