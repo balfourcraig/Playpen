@@ -1,17 +1,17 @@
 const letter_a = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.05, y: 0.75}, {x: 0.15, y: 0.55}, {x: 0.4, y: 0.6}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.05, y: 0.75}, {x: 0.15, y: 0.55}, {x: 0.4, y: 0.6}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.4, y: 0.6}, {x: -0.1, y: 0.7}, {x: 0.3, y: 1}, {x: 0.45, y: 0.8}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.4, y: 0.6}, {x: -0.1, y: 0.7}, {x: 0.3, y: 1}, {x: 0.45, y: 0.8}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.45, y: 0.8}, {x: 0.5, y: 0.3}, {x: 0.2, y: 0.5}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.45, y: 0.8}, {x: 0.5, y: 0.3}, {x: 0.2, y: 0.5}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.2, y: 0.5}, {x: 0.7, y: 0.2}, {x: 0.25, y: 1.2}, {x: 0.55, y: 0.8}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.2, y: 0.5}, {x: 0.7, y: 0.2}, {x: 0.25, y: 1.2}, {x: 0.55, y: 0.8}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.05, y: 0.75},
@@ -24,20 +24,20 @@ const letter_a = () => {
 const letter_b = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.1, y: 0.8}, {x: 0.2, y: 0.5}, {x: 0.25, y: 0.1}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.1, y: 0.8}, {x: 0.2, y: 0.5}, {x: 0.25, y: 0.1}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.25, y: 0.1}, {x: 0.2, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.25, y: 0.1}, {x: 0.2, y: 0.9}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.2, y: 0.5}, {x: 0.35, y: 0.5}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.2, y: 0.5}, {x: 0.35, y: 0.5}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.35, y: 0.5}, {x: 0.55, y: 0.5}, {x: 0.55, y: 0.9}, {x: 0.15, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.35, y: 0.5}, {x: 0.55, y: 0.5}, {x: 0.55, y: 0.9}, {x: 0.15, y: 0.9}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.15, y: 0.9}, {x: 0.45, y: 0.88}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.15, y: 0.9}, {x: 0.45, y: 0.88}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.1, y: 0.8},
@@ -49,11 +49,11 @@ const letter_b = () => {
 const letter_c = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.1, y: 0.9}, {x: 0.2, y: 0.8}, {x: 0.25, y: 0.45}, {x: 0.6, y: 0.55}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.1, y: 0.9}, {x: 0.2, y: 0.8}, {x: 0.25, y: 0.45}, {x: 0.6, y: 0.55}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.6, y: 0.55}, {x: 0.25, y: 0.45}, {x: 0.1, y: 1.0}, {x: 0.6, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.6, y: 0.55}, {x: 0.25, y: 0.45}, {x: 0.1, y: 1.0}, {x: 0.6, y: 0.9}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.1, y: 0.9},
@@ -65,17 +65,17 @@ const letter_c = () => {
 const letter_d = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.05, y: 0.75}, {x: 0.15, y: 0.55}, {x: 0.4, y: 0.6}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.05, y: 0.75}, {x: 0.15, y: 0.55}, {x: 0.4, y: 0.6}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.4, y: 0.6}, {x: -0.1, y: 0.7}, {x: 0.3, y: 1}, {x: 0.4, y: 0.8}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.4, y: 0.6}, {x: -0.1, y: 0.7}, {x: 0.3, y: 1}, {x: 0.4, y: 0.8}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.4, y: 0.8}, {x: 0.55, y: 0.7}, {x: 0.5, y: 0.1}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.4, y: 0.8}, {x: 0.55, y: 0.7}, {x: 0.5, y: 0.1}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.5, y: 0.1}, {x: 0.35, y: 0.95}, {x: 0.6, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.5, y: 0.1}, {x: 0.35, y: 0.95}, {x: 0.6, y: 0.9}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.05, y: 0.75},
@@ -88,14 +88,14 @@ const letter_d = () => {
 const letter_e = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.1, y: 0.8}, {x: 0.5, y: 0.75}, {x: 0.4, y: 0.55}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.1, y: 0.8}, {x: 0.5, y: 0.75}, {x: 0.4, y: 0.55}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.4, y: 0.55}, {x: 0.2, y: 0.4}, {x: 0.05, y: 0.7}, {x: 0.15, y: 0.8}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.4, y: 0.55}, {x: 0.2, y: 0.4}, {x: 0.05, y: 0.7}, {x: 0.15, y: 0.8}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.15, y: 0.8}, {x: 0.25, y: 1.1}, {x: 0.4, y: 0.85}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.15, y: 0.8}, {x: 0.25, y: 1.1}, {x: 0.4, y: 0.85}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.1, y: 0.8},
@@ -104,20 +104,39 @@ const letter_e = () => {
 	}
 }
 
+const letter_f = () => {
+	return {
+		instructions:[
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.1, y: 0.8}, {x: 0.2, y: 0.5}, {x: 0.25, y: 0.1}, scale, penPos, useGradient);
+			},
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.25, y: 0.1}, {x: 0.2, y: 0.9}, scale, penPos, useGradient);
+			},
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.2, y: 0.5}, {x: 0.35, y: 0.5}, scale, penPos, useGradient);
+			},
+		],
+		penStart: {x: 0.1, y: 0.8},
+		penEnd: {x: 0.35, y: 0.5},
+		join: true
+	}
+}
+
 const letter_h = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.1, y: 0.8}, {x: 0.2, y: 0.5}, {x: 0.25, y: 0.1}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.1, y: 0.8}, {x: 0.2, y: 0.5}, {x: 0.25, y: 0.1}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.25, y: 0.1}, {x: 0.2, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.25, y: 0.1}, {x: 0.2, y: 0.9}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.2, y: 0.5}, {x: 0.35, y: 0.5}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.2, y: 0.5}, {x: 0.35, y: 0.5}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.35, y: 0.5}, {x: 0.55, y: 0.5}, {x: 0.55, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.35, y: 0.5}, {x: 0.55, y: 0.5}, {x: 0.55, y: 0.9}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.1, y: 0.8},
@@ -129,13 +148,13 @@ const letter_h = () => {
 const letter_i = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.1, y: 0.9}, {x: 0.25, y: 0.7}, {x: 0.2, y: 0.5}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.1, y: 0.9}, {x: 0.25, y: 0.7}, {x: 0.2, y: 0.5}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.2, y: 0.5}, {x: 0.15, y: 0.95}, {x: 0.3, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.2, y: 0.5}, {x: 0.15, y: 0.95}, {x: 0.3, y: 0.9}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
+			(ctx, penPos, scale, useGradient) => {
 				circleAt(ctx, {x: 0.2, y: 0.35}, 0.03, scale, penPos, strokeStartColor);
 			},
 		],
@@ -148,11 +167,11 @@ const letter_i = () => {
 const letter_l = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.35, y: 0.7}, {x: 0.3, y: 0.1}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.35, y: 0.7}, {x: 0.3, y: 0.1}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.3, y: 0.1}, {x: 0.25, y: 0.95}, {x: 0.4, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.3, y: 0.1}, {x: 0.25, y: 0.95}, {x: 0.4, y: 0.9}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.2, y: 0.9},
@@ -164,17 +183,17 @@ const letter_l = () => {
 const letter_o = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.1, y: 0.55}, {x: 0.25, y: 0.5}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.1, y: 0.55}, {x: 0.25, y: 0.5}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.25, y: 0.5}, {x: 0.0, y: 0.55}, {x: 0.0, y: 0.9}, {x: 0.3, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.25, y: 0.5}, {x: 0.0, y: 0.55}, {x: 0.0, y: 0.9}, {x: 0.3, y: 0.9}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				bezierTo(ctx, {x: 0.3, y: 0.9}, {x: 0.55, y: 0.9}, {x: 0.55, y: 0.55}, {x: 0.35, y: 0.5}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				bezierTo(ctx, {x: 0.3, y: 0.9}, {x: 0.55, y: 0.9}, {x: 0.55, y: 0.55}, {x: 0.35, y: 0.5}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.35, y: 0.5}, {x: 0.5, y: 0.55}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.35, y: 0.5}, {x: 0.5, y: 0.55}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.1, y: 0.55},
@@ -186,14 +205,14 @@ const letter_o = () => {
 const letter_t = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.35, y: 0.7}, {x: 0.3, y: 0.1}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.2, y: 0.9}, {x: 0.35, y: 0.7}, {x: 0.3, y: 0.1}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				quadraticTo(ctx, {x: 0.3, y: 0.1}, {x: 0.25, y: 0.95}, {x: 0.4, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				quadraticTo(ctx, {x: 0.3, y: 0.1}, {x: 0.25, y: 0.95}, {x: 0.4, y: 0.9}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.1, y: 0.32}, {x: 0.45, y: 0.28}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.1, y: 0.32}, {x: 0.45, y: 0.28}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.2, y: 0.9},
@@ -205,12 +224,12 @@ const letter_t = () => {
 const letter_T = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.1, y: 0.12}, {x: 0.6, y: 0.08}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.1, y: 0.12}, {x: 0.6, y: 0.08}, scale, penPos, useGradient);
 				
 			},
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.35, y: 0.1}, {x: 0.35, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.35, y: 0.1}, {x: 0.35, y: 0.9}, scale, penPos, useGradient);
 				
 			},
 		],
@@ -223,11 +242,11 @@ const letter_T = () => {
 const letter_unknown = () => {
 	return {
 		instructions:[
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.1, y: 0.9}, {x: 0.5, y: 0.1}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.1, y: 0.9}, {x: 0.5, y: 0.1}, scale, penPos, useGradient);
 			},
-			(ctx, penPos, scale) => {
-				lineTo(ctx, {x: 0.1, y: 0.1}, {x: 0.5, y: 0.9}, scale, penPos);
+			(ctx, penPos, scale, useGradient) => {
+				lineTo(ctx, {x: 0.1, y: 0.1}, {x: 0.5, y: 0.9}, scale, penPos, useGradient);
 			},
 		],
 		penStart: {x: 0.1, y: 0.9},

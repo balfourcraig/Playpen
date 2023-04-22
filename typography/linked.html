@@ -37,12 +37,18 @@
 					<input id="showStartEndCheck" type="checkbox">
 					<label for="showStartEndCheck">Show start and end points</label>
 				</div>
+				
 				<div class="op">
 					<input id="animateSpeedInput" type="range" min="5" max="500" value="400">
 					<label for="animateSpeedInput">Animate speed</label>
 				</div>
+				<div class="op">
+					<input id="showColorCheck" type="checkbox" checked>
+					<label for="showColorCheck">Show colors</label>
+				</div>
 			</div>
 			<button id="genBtn">Generate</button>
+			<button id="gclearBtn">Clear</button>
 		</section>
 		<section>
 			<div id="nameList"></div>
@@ -55,6 +61,9 @@
 	document.getElementById('genBtn').addEventListener('click', (e) => {
 		const result = document.getElementById('textInput').value;
 		buildLinked(result);
+	});
+	document.getElementById('gclearBtn').addEventListener('click', (e) => {
+		document.getElementById('nameList').innerHTML = '';
 	});
 </script>
 </html>

@@ -1,12 +1,24 @@
-const strokeStartColor = 'green';
-const strokeEndColor = 'orange';
-const strokeJoinColor = 'orange';
+let strokeStartColor = 'green';
+let strokeEndColor = 'orange';
+let strokeJoinColor = 'orange';
 let strokeDelay = 100;
 
 let timeoutId = null;
 
 const linkedLex = (line) => {
 	let showStartEnd = document.getElementById('showStartEndCheck').checked;
+	const useGradient = document.getElementById('showColorCheck').checked;
+	if(useGradient){
+		strokeStartColor = 'green';
+		strokeEndColor = 'orange';
+		strokeJoinColor = 'orange';
+	}
+	else{
+		strokeStartColor = 'black';
+		strokeEndColor = 'black';
+		strokeJoinColor = 'black';
+	}
+
 	strokeDelay = parseInt(document.getElementById('animateSpeedInput').max) - parseInt(document.getElementById('animateSpeedInput').value);
 	clearTimeout(timeoutId);
 	console.log(`lexing ${line}`);
@@ -28,7 +40,6 @@ const linkedLex = (line) => {
 	resultArea.appendChild(c);
 	const letterInstructions = [];
 	for(const c of line){
-		console.log(c);
 		if(c === 'T'){
 			letterInstructions.push(letter_T());
 		}
@@ -47,6 +58,9 @@ const linkedLex = (line) => {
 		else if (c === 'e'){
 			letterInstructions.push(letter_e());
 		}
+		// else if (c === 'f'){
+		// 	letterInstructions.push(letter_f());
+		// }
 		else if (c === 'h'){
 			letterInstructions.push(letter_h());
 		}
@@ -83,7 +97,7 @@ const linkedLex = (line) => {
 		}
 		for(let i of inst.instructions){
 			steps.push(() => {
-				i(ctx, penPos, scale);
+				i(ctx, penPos, scale, useGradient);
 			});
 		}
 		
