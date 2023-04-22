@@ -8,52 +8,75 @@ function pickNumberGolden(max){
 
 
 const answers = [
-	{ text: "It is certain.", type: "Affermative" },
-	{ text: "Without a doubt.", type: "Affermative" },
-	{ text: "It is decidedly so.", type: "Affermative" },
-	{ text: "Yes&mdash;definitely.", type: "Affermative" },
-	{ text: "You may rely on it.", type: "Affermative" },
-	{ text: "As I see it, yes.", type: "Affermative" },
-	{ text: "Most likely.", type: "Affermative" },
-	{ text: "Outlook good.", type: "Affermative" },
-	{ text: "Yes.", type: "Affermative" },
-	{ text: "Signs point to yes.", type: "Affermative" },
+	{ text: "It is certain.", type: "affirmative" },
+	{ text: "Without a doubt.", type: "affirmative" },
+	{ text: "It is decidedly so.", type: "affirmative" },
+	{ text: "Yes&mdash;definitely.", type: "affirmative" },
+	{ text: "You may rely on it.", type: "affirmative" },
+	{ text: "As I see it, yes.", type: "affirmative" },
+	{ text: "Most likely.", type: "affirmative" },
+	{ text: "Outlook good.", type: "affirmative" },
+	{ text: "Yes.", type: "affirmative" },
+	{ text: "Signs point to yes.", type: "affirmative" },
 
-	{ text: "Reply hazy, try again.", type: "NonCommital" },
-	{ text: "Ask again later.", type: "NonCommital" },
-	{ text: "Better not tell you now.", type: "NonCommital" },
-	{ text: "Cannot predict now.", type: "NonCommital" },
-	{ text: "Concentrate and ask again.", type: "NonCommital" },
+	{ text: "Reply hazy, try again.", type: "non-committal" },
+	{ text: "Ask again later.", type: "non-committal" },
+	{ text: "Better not tell you now.", type: "non-committal" },
+	{ text: "Cannot predict now.", type: "non-committal" },
+	{ text: "Concentrate and ask again.", type: "non-committal" },
 
-	{ text: "Don't count on it.", type: "Negative" },
-	{ text: "My reply is no.", type: "Negative" },
-	{ text: "My sources say no.", type: "Negative" },
-	{ text: "Outlook not so good.", type: "Negative" },
-	{ text: "Very doubtful.", type: "Negative" },
+	{ text: "Don't count on it.", type: "negative" },
+	{ text: "My reply is no.", type: "negative" },
+	{ text: "My sources say no.", type: "negative" },
+	{ text: "Outlook not so good.", type: "negative" },
+	{ text: "Very doubtful.", type: "negative" },
 ];
 
 function guess(){
-	const holder = document.getElementById('MagicResultHolder');
-	holder.innerHTML = '';
+	if(document.getElementById('apiCheck').checked){
+		apiGuess();
+		return;
+	}
 	const useGoldenRand = document.getElementById('goldenInput').checked;
 	
-	//const answer = answers[Math.floor(Math.random() * answers.length)];
 	const index = useGoldenRand ? pickNumberGolden(answers.length) : ~~(Math.random() * answers.length);
-	//console.log(index);
 	const answer = answers[index];
 	
+	displayGuess(answer.text, answer.type);
+}
+
+function apiGuess(){
+	const holder = document.getElementById('MagicResultHolder');
+	holder.innerHTML = 'Loading...';
+	const address = 'https://magiceightballapi.azurewebsites.net/api/MagicEightBall';
+	fetch(address)
+		.then(response => response.json())
+		.then(data => {
+			displayGuess(data.Text, data.AnswerType);
+		}
+	).catch(err => {
+		holder.innerHTML = 'Error loading answer.';
+		console.error(err);
+	});
+
+}
+
+function displayGuess(text, type){
+	const holder = document.getElementById('MagicResultHolder');
+	holder.innerHTML = '';
+	
 	const answerEl = document.createElement('span');
-	answerEl.innerHTML = answer.text;
-	answerEl.title = answer.type;
+	answerEl.innerHTML = text;
+	answerEl.title = type;
 	let color = '#000';
-	switch(answer.type){
-		case 'Affermative':
+	switch(type.toLowerCase()){
+		case 'affirmative':
 			color = 'lime';
 			break;
-		case 'NonCommital':
+		case 'non-committal':
 			color = 'gold';
 			break;
-		case 'Negative':
+		case 'negative':
 			color = 'red';
 			break;
 	}
