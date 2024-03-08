@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en-nz">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta charset="UTF-8">
+	<title>House Map - Craig's Playpen</title>
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+	<script src="../scripts/utils.js"></script>
+    <script src="../scripts/articles/houseMapData.js"></script>
+	<script src="../scripts/articles/houseMap.js"></script>
+    <style>
+	#sizeCalc{
+		pointer-events: none;
+	}
+	#canvArea{
+		position: relative;
+		background-color: white;
+		border-radius: 10px;
+	}
+	#drawLayer, #mapLayer{
+		position: absolute;
+		left: 0;
+		top: 0;
+	}
+	
+	#drawLayer{
+		z-index: 1;
+		border: 2px solid black;
+		border-radius: 10px;
+	}
+	
+	#mapLayer{
+		z-index: 0;
+		border: 2px solid transparent;
+	}
+	#readoutArea{
+		position: fixed;
+		top: 0;
+		left: 0;
+		background-color: #444;
+		padding:1em;
+	}
+	#distanceReadout{
+		color: #afa;
+	}
+	</style>    
+</head>
+<body>
+<div class="navHolder">
+	<nav>
+		<a href="../index.html">Home</a>
+		<a class="selected" href="../showcase.html">Showcase</a>
+		<a href="../about.html">About</a>
+	</nav>
+</div>
+
+<main>
+	<div class="pageWidth">
+		<header>
+			<h1>House Map</h1>
+		</header>
+		<section id="readoutArea">
+			<ul>
+				<li id="inRoomsReadout">Room</li>
+				<li id="mousePosReadout">MousePos</li>
+				<li id="distanceReadout">Dist</li>
+				<li id="areaReadout">Dist</li>
+			</ul>
+		</section>	
+		<section>
+            <div id="canvArea">
+                <div id="sizeCalc"></div>
+                <canvas id="drawLayer" tabindex="0">
+                    Your browser does not support the HTML5 canvas tag.
+                </canvas>
+                <canvas id="mapLayer">
+                    Your browser does not support the HTML5 canvas tag.
+                </canvas>
+            </div>
+		</section>
+		<div class="scrollOverflow"></div>
+	</div>
+</main>
+</body>
+</html>
