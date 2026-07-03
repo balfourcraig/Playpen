@@ -1,0 +1,32 @@
+.imageGallery{
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    grid-gap: 1em;
+}
+
+.imageBlock{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.imageBlock img{
+    width: 100%;
+     cursor: -moz-zoom-in; 
+    cursor: -webkit-zoom-in;
+    cursor: zoom-in;
+}
+
+.imageBlocker{
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    position: fixed;
+    display: flex;
+    justify-content: center;
+}
+
+.imageBlocker img{
+    height: 100%;
+    cursor: zoom-out;
+}
