@@ -37,14 +37,42 @@ function setUp(){
 	mapCtx.lineCap = 'round';
 	mapCtx.strokeStyle = 'blue';
 	mapCtx.fillStyle = 'white';
+	mapCtx.textAlign = "center";
 	drawCtx.lineWidth = 2;
     drawMap();
 	drawLayer.addEventListener('mousemove', mouseMove);
 	document.addEventListener('keydown', keyDown);
 	document.addEventListener('mousedown', mouseDown);
+
+	document.getElementById('btnZoomIn').addEventListener('click', () => zoomMap(10));
+	document.getElementById('btnZoomOut').addEventListener('click', () => zoomMap(-10));
+	document.getElementById('btnZoomReset').addEventListener('click', zoomReset);
+
+	document.getElementById('btnMoveUp').addEventListener('click', () => moveMap({x: 0, y: 1}));
+	document.getElementById('btnMoveDown').addEventListener('click', () => moveMap({x: 0, y: -1}));
+	document.getElementById('btnMoveLeft').addEventListener('click', () => moveMap({x: 1, y: 0}));
+	document.getElementById('btnMoveRight').addEventListener('click', () => moveMap({x: -1, y: 0}));
+
 	// document.addEventListener('contextmenu', function(event) {
 	// 	event.preventDefault();
 	// });
+}
+
+function zoomMap(factor){
+	scaleFactor += factor;
+	drawMap();
+}
+
+function zoomReset(){
+	scaleFactor = w / houseWidthMetres;
+	globablOffset = {x: 1, y: 1};
+	drawMap();
+}
+
+function moveMap(moveBy){
+	globablOffset.x += moveBy.x;
+	globablOffset.y += moveBy.y;
+	drawMap();
 }
 
 function arraysEqual(arr1, arr2){
@@ -88,7 +116,7 @@ function drawMousePos(){
 		drawCtx.moveTo(0, mousePos.y);
 		drawCtx.lineTo(w, mousePos.y);
 		drawCtx.stroke();
-		drawCross(globalOrigin);
+		drawCross(mousePos);
 	}
 	if(globalOrigin){
 		drawCtx.strokeStyle = 'rgba(0, 255, 0, 0.2)';
@@ -96,6 +124,7 @@ function drawMousePos(){
 		drawCtx.moveTo(globalOrigin.x, globalOrigin.y);
 		drawCtx.lineTo(mousePos.x, mousePos.y);
 		drawCtx.stroke();
+		drawCross(globalOrigin);
 	}
 }
 
@@ -176,21 +205,56 @@ function areaOfPolygon(polygon){
 }
 
 function drawRoom(room, baseOffset){
-    mapCtx.beginPath();
+	mapCtx.strokeStyle = room.color ? room.color : 'black';
+	mapCtx.fillStyle = room.color ? room.color : 'black';
+	mapCtx.beginPath();
     mapCtx.moveTo((room.points[0].x + baseOffset.x + room.offset.x) * scaleFactor, (room.points[0].y + baseOffset.y + room.offset.y) * scaleFactor);
     for(let i = 1; i < room.points.length; i++){
         mapCtx.lineTo((room.points[i].x + baseOffset.x + room.offset.x) * scaleFactor, (room.points[i].y + baseOffset.y + room.offset.y) * scaleFactor);
-    }
+    
+		if(room.mouseOver){
+			const mid = midpoint(room.points[i - 1], room.points[i]);
+			const dist = distance(room.points[i - 1], room.points[i]);
+			mapCtx.fillText(roundToPrecision(dist, 2) + 'm', (mid.x + baseOffset.x + room.offset.x) * scaleFactor, (mid.y + baseOffset.y + room.offset.y) * scaleFactor )
+			
+		}
+	}
     mapCtx.closePath();
-    mapCtx.strokeStyle = room.color ? room.color : 'black';
+
 	if(room.mouseOver){
-		mapCtx.fillStyle = room.color ? room.color : 'black';
+		const mid = midpoint(room.points[0], room.points[room.points.length -1]);
+		const dist = distance(room.points[0], room.points[room.points.length -1]);
+		mapCtx.fillText(roundToPrecision(dist, 2) + 'm', (mid.x + baseOffset.x + room.offset.x) * scaleFactor, (mid.y + baseOffset.y + room.offset.y) * scaleFactor )
+		
+	}
+    
+	if(room.mouseOver){
 		mapCtx.globalAlpha = 0.1;
 		mapCtx.fill();
 		mapCtx.globalAlpha = 1;
 	}
  	mapCtx.stroke();
 	
+	if(room.windows && room.windows.length > 0){
+		for(let i = 0; i < room.windows.length; i++){
+			let window = room.windows[i];
+			let windowPos = {x: (window.position.x + baseOffset.x + room.offset.x) * scaleFactor, y: (window.position.y + baseOffset.y + room.offset.y) * scaleFactor};
+			let windowWidth = window.width * scaleFactor;
+			let windowAngle = window.angle;
+			mapCtx.beginPath();
+			mapCtx.moveTo(windowPos.x, windowPos.y);
+			mapCtx.lineTo(windowPos.x + windowWidth * Math.cos(windowAngle * Math.PI / 180), windowPos.y + windowWidth * Math.sin(windowAngle * Math.PI / 180));
+			mapCtx.strokeStyle = window.color ? window.color : 'black';
+			mapCtx.lineWidth = 3;
+			mapCtx.stroke();
+			mapCtx.lineWidth = 1;
+			mapCtx.beginPath();
+			mapCtx.moveTo(windowPos.x, windowPos.y);
+			mapCtx.strokeStyle = window.color ? window.color : 'black';
+			mapCtx.stroke();
+		}
+	}
+
 	if(room.doors && room.doors.length > 0){
 		for(let i = 0; i < room.doors.length; i++){
 			let door = room.doors[i];
@@ -253,13 +317,18 @@ function updateReadouts(){
 
 	if(mousePos){
 		mouseInRooms();
+		areaReadout.innerHTML = '';
 		if(currentHovered.length > 0){
 			inRoomsReadout.innerText = 'In rooms: ' + currentHovered.map((room) => room.name).join(', ');
-			areaReadout.innerText = 'Area: ' + areaOfPolygon(currentHovered[0].points).toFixed(2) + 'm²';
+			for(let r of currentHovered){
+				let li = document.createElement('li');
+				li.innerText = 'Area of ' + r.name + ': ' + areaOfPolygon(r.points).toFixed(2) + 'm²';
+				areaReadout.appendChild(li);
+			}
 		}
 		else{
 			inRoomsReadout.innerText = 'In rooms: -';
-			areaReadout.innerText = 'Area: -';
+			areaReadout.innerHTML = '<li>Area: -</li>';
 		}
 		if(hoverChanged){
 			console.log("draw")

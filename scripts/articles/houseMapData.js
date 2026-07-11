@@ -4,6 +4,9 @@ const house = {
     offset: { x: 0, y: 0 },
     points: [
         { x: 0, y: 0 },
+        // { x: 9.6, y: 0},
+        // { x: 9.6, y: 12.3},
+        // { x: 0, y: 12.3},
     ],
     doors: [
         {
@@ -39,6 +42,30 @@ const house = {
                     openInwards: true,
                 },
             ],
+            subParts: [
+                {
+                    name: "bedroom cupboard",
+                    color: "black",
+                    offset: { x: 3.2, y: 0 },
+                    points: [
+                        { x: 0, y: 0 },
+                        { x: 0.61, y: 0 },
+                        { x: 0.61, y: 1.72 },
+                        { x: 0, y: 1.72 }
+
+                    ],
+                    doors:[
+                         {
+                            name: "Cupboard Door",
+                            color: "silver",
+                            position: { x: 0.05, y: 0.8 },
+                            width: 0.77,
+                            angle: 90,
+                            openInwards: true,
+                        },
+                    ]
+                }
+            ]
         },
         {
             name: "Study",
@@ -115,6 +142,14 @@ const house = {
                     angle: 180,
                     openInwards: true,
                 },
+                {
+                    name: "Door",
+                    color: "silver",
+                    position: { x: -0.15, y: 1.2 },
+                    width: 1,
+                    angle: 270,
+                    openInwards: true
+                },
             ],
         },
         {
@@ -141,6 +176,16 @@ const house = {
                 { x: 4.48, y: 2.46 },
                 { x: 4.48, y: 3.91 },
                 { x: 0, y: 3.91 },
+            ],
+            doors: [
+                {
+                    name: "Door",
+                    color: "silver",
+                    position: { x: 2.8, y: -0.07 },
+                    width: 1,
+                    angle: 0,
+                    openInwards: true
+                },
             ]
         },
         {
@@ -190,34 +235,54 @@ const house = {
         {
             name: "Bathroom",
             color: "blue",
-            offset: { x: 6.77, y: 7.9 },
-            points: [
-                { x: 0, y: 0 },
-                { x: 2.8, y: 0 },
-                { x: 2.8, y: 1.17 },
-                { x: 0, y: 1.17 },
-            ]
-        },
-        {
-            name: "Shower",
-            color: "dodgerblue",
             offset: { x: 6.77, y: 7.25 },
             points: [
                 { x: 0, y: 0 },
-                { x: 0.8, y: 0 },
-                { x: 0.8, y: 0.65 },
-                { x: 0, y: 0.65 },
-            ]
-        },
-        {
-            name: "Bath",
-            color: "dodgerblue",
-            offset: { x: 7.57, y: 7.25 },
-            points: [
-                { x: 0, y: 0 },
-                { x: 2, y: 0 },
-                { x: 2, y: 0.65 },
-                { x: 0, y: 0.65 },
+                { x: 2.8, y: 0 },
+                { x: 2.8, y: 1.85 },
+                { x: 0, y: 1.85 },
+            ],
+            doors: [
+                {
+                    name: "Door",
+                    color: "silver",
+                    position: { x: -0.05, y: 1.65 },
+                    width: 0.8,
+                    angle: 270,
+                    openInwards: true,
+                },
+                {
+                    name: "Door",
+                    color: "silver",
+                    position: { x: 1.2, y: 1.9 },
+                    width: 0.8,
+                    angle: 0,
+                    openInwards: true,
+                }
+            ],
+            subParts: [
+                {
+                    name: "Shower",
+                    color: "blue",
+                    offset: { x: 0, y: 0 },
+                    points: [
+                        { x: 0, y: 0 },
+                        { x: 0.8, y: 0 },
+                        { x: 0.8, y: 0.65 },
+                        { x: 0, y: 0.65 },
+                    ]
+                },
+                {
+                    name: "Bath",
+                    color: "blue",
+                    offset: { x: 1, y: 0},
+                    points: [
+                        { x: 0, y: 0 },
+                        { x: 1.8, y: 0 },
+                        { x: 1.8, y: 0.65 },
+                        { x: 0, y: 0.65 },
+                    ]
+                },
             ]
         },
         {
@@ -229,6 +294,16 @@ const house = {
                 { x: 1.68, y: 0 },
                 { x: 1.68, y: 0.81},
                 { x: 0, y: 0.81},
+            ],
+            doors: [
+                {
+                    name: "Door",
+                    color: "silver",
+                    position: { x: 0.05, y: 0.88 },
+                    width: 0.8,
+                    angle: 0,
+                    openInwards: true,
+                }
             ]
         },
         {
@@ -240,11 +315,21 @@ const house = {
                 { x: 1.68, y: 0 },
                 { x: 1.68, y: 2.11},
                 { x: 0, y: 2.11},
+            ],
+            doors: [
+                {
+                    name: "Door",
+                    color: "silver",
+                    position: { x: -0.05, y: 2 },
+                    width: 0.8,
+                    angle: 270,
+                    openInwards: true,
+                }
             ]
         },
         {
             name: "Kitchen",
-            color: "gold",
+            color: "#e68a00",
             offset: { x: 3.15, y: 9.23 },
             points: [
                 { x: 0, y: 0 },
@@ -253,6 +338,14 @@ const house = {
                 { x: 3.48, y: 1.9 },
                 { x: 3.48, y: 3},
                 { x: 0, y: 3},
+            ],
+            windows: [
+                {
+                    color: 'lightBlue',
+                    position: {x: 0.8, y: 3.01},
+                    width: 1.8,
+                    angle: 0
+                }
             ]
         }
     ]
