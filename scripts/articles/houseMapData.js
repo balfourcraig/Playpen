@@ -34,7 +34,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Bedroom Door",
                     color: "silver",
                     position: { x: 3.11, y: 3.26 },
                     width: 0.77,
@@ -81,7 +81,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Study Door",
                     color: "silver",
                     position: { x: 0.05, y: 3.26 },
                     width: 0.77,
@@ -102,7 +102,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Spare Room Door",
                     color: "silver",
                     position: { x: -0.05, y: 0.69 },
                     width: 0.77,
@@ -127,7 +127,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Hot Water Door",
                     color: "blue",
                     position: { x: 2.95, y: 5.5 },
                     width: 0.77,
@@ -135,7 +135,7 @@ const house = {
                     openInwards: true,
                 },
                 {
-                    name: "Door",
+                    name: "Kitchen Door",
                     color: "silver",
                     position: { x: 3.86, y: 5.8 },
                     width: 0.77,
@@ -143,7 +143,7 @@ const house = {
                     openInwards: true,
                 },
                 {
-                    name: "Door",
+                    name: "Conservatory Door",
                     color: "silver",
                     position: { x: -0.15, y: 1.2 },
                     width: 1,
@@ -179,7 +179,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Lounge Door",
                     color: "silver",
                     position: { x: 2.8, y: -0.07 },
                     width: 1,
@@ -200,7 +200,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Back Door",
                     color: "silver",
                     position: { x: 1.4, y: -0.07 },
                     width: 1,
@@ -223,7 +223,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Slider",
                     color: "silver",
                     position: { x: 1.4, y: -0.07 },
                     width: 1.1,
@@ -244,7 +244,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Bathroom Door",
                     color: "silver",
                     position: { x: -0.05, y: 1.65 },
                     width: 0.8,
@@ -252,7 +252,7 @@ const house = {
                     openInwards: true,
                 },
                 {
-                    name: "Door",
+                    name: "Toilet Door",
                     color: "silver",
                     position: { x: 1.2, y: 1.9 },
                     width: 0.8,
@@ -297,7 +297,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Toilet-Laundry Door",
                     color: "silver",
                     position: { x: 0.05, y: 0.88 },
                     width: 0.8,
@@ -318,7 +318,7 @@ const house = {
             ],
             doors: [
                 {
-                    name: "Door",
+                    name: "Laundry Door",
                     color: "silver",
                     position: { x: -0.05, y: 2 },
                     width: 0.8,

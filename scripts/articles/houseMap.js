@@ -16,6 +16,7 @@ let h = 0;
 let scaleFactor = 1;
 
 let currentHovered = [];
+let currentDoors = [];
 let hoverChanged = false;
 
 function setUp(){
@@ -56,6 +57,61 @@ function setUp(){
 	// document.addEventListener('contextmenu', function(event) {
 	// 	event.preventDefault();
 	// });
+}
+
+function distToLine(point, line){	
+	if(line.from.x > line.to.x){
+		const temp = line.from;
+		line.from = line.to;
+		line.to = temp;
+	}
+	
+	let iX = 0;
+	let iY = 0;
+	
+	if(Math.abs(line.from.y - line.to.y) < 0.01){//flat
+		iX = point.x;
+		iY = line.from.y;
+	}
+	else if(Math.abs(line.from.x - line.to.x) < 0.01){//vertical
+		iX = line.from.x;
+		iY = point.y
+	}
+	else{
+		const lM = (line.to.y - line.from.y) / (line.to.x - line.from.x);
+		const pM = (line.from.x - line.to.x) / (line.to.y - line.from.y);
+		const lC = line.from.y - lM * line.from.x;
+		const pC = point.y - pM * point.x;
+		
+		iX = -(lC - pC) / (lM - pM);
+		iY = -(lM * -iX) + lC;
+	}
+
+	if(
+		(line.from.x < line.to.x && iX < line.from.x)
+		|| (line.to.x < line.from.x && iX < line.to.x)
+		|| (line.from.x > line.to.x && iX > line.from.x)
+		|| (line.to.x > line.from.x && iX > line.to.x)
+		|| (line.from.y < line.to.y && iY < line.from.y)
+		|| (line.to.y < line.from.y && iY < line.to.y)
+		|| (line.from.y > line.to.y && iY > line.from.y)
+		|| (line.to.y > line.from.y && iY > line.to.y)
+		)
+	{
+		return minPoints(point, line.from, line.to);
+	}
+	else
+	{
+		const deltaX = Math.abs(point.x - iX);
+		const deltaY = Math.abs(point.y - iY);
+		const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+		
+		return dist;
+	}
+}
+
+function minPoints(p1, p2, p3){
+	return Math.min(distance(p1, p2), distance(p1, p3));
 }
 
 function zoomMap(factor){
@@ -141,9 +197,15 @@ function resetMouseOverRooms(room){
 function mouseInRooms(){
 	let mousePosMapped = {x: (mousePos.x / scaleFactor) - globablOffset.x, y: (mousePos.y / scaleFactor) - globablOffset.y};
 	let inRooms = null;
+	let prevDoors = [];
+	for(let d of currentDoors){
+		prevDoors.push(d);
+	}
+	currentDoors = [];
 	if(house){
 		inRooms = pointInRoom(mousePosMapped, house);
-		if(arraysEqual(inRooms, currentHovered)){
+		
+		if(arraysEqual(prevDoors, currentDoors) && arraysEqual(inRooms, currentHovered)){
 			hoverChanged = false;
 			return;
 		}
@@ -164,6 +226,14 @@ function pointInRoom(point, room){
 			inside.push(room);
 		}
 	}
+	if(room.doors && room.doors.length > 0){
+		for(let d of room.doors){
+			d.near = pointNearDoor(point, d, 0.1);
+			if(d.near){
+				currentDoors.push(d);
+			}
+		}
+	}
 	if(room.subParts && room.subParts.length > 0){
 		for(let i = 0; i < room.subParts.length; i++){
 			let inSubRoom = pointInRoom(point, room.subParts[i]);
@@ -173,6 +243,20 @@ function pointInRoom(point, room){
 		}
 	}
 	return inside;
+}
+
+function pointNearDoor(point, door, threshold){
+	let doorLine = {
+		from: door.position,
+		to: {
+			x: door.position.x + door.width * Math.cos(door.angle * Math.PI / 180),
+			y: door.position.y + door.width * Math.sin(door.angle * Math.PI / 180)
+		}
+	};
+
+	let doorDist = distToLine(point, doorLine);
+
+	return doorDist < threshold
 }
 
 function pointInPolygon(point, polygon) {
@@ -201,7 +285,15 @@ function areaOfPolygon(polygon){
 		area -= polygon[j].x * polygon[i].y;
 	}
 	return area / 2;
+}
 
+function perimeterOfPolygon(polygon){
+	let dist = 0;
+	for(let i = 0; i < polygon.length; i++){
+		let j = (i + 1) % polygon.length;
+		dist += distance(polygon[i], polygon[j]);
+	}
+	return dist;
 }
 
 function drawRoom(room, baseOffset){
@@ -261,10 +353,15 @@ function drawRoom(room, baseOffset){
 			let doorPos = {x: (door.position.x + baseOffset.x + room.offset.x) * scaleFactor, y: (door.position.y + baseOffset.y + room.offset.y) * scaleFactor};
 			let doorWidth = door.width * scaleFactor;
 			let doorAngle = door.angle;
+			
+
 			mapCtx.beginPath();
 			mapCtx.moveTo(doorPos.x, doorPos.y);
 			mapCtx.lineTo(doorPos.x + doorWidth * Math.cos(doorAngle * Math.PI / 180), doorPos.y + doorWidth * Math.sin(doorAngle * Math.PI / 180));
-			mapCtx.strokeStyle = door.color ? door.color : 'black';
+			if(door.near)
+				mapCtx.strokeStyle = 'red';
+			else
+				mapCtx.strokeStyle = door.color ? door.color : 'black';
 			mapCtx.lineWidth = 4;
 			mapCtx.stroke();
 			mapCtx.lineWidth = 1;
@@ -310,48 +407,49 @@ function mouseMove(event){
 }
 
 function updateReadouts(){
-	const mousePosReadout = document.getElementById('mousePosReadout');
-	const distanceReadout = document.getElementById('distanceReadout');
-	const inRoomsReadout = document.getElementById('inRoomsReadout');
 	const areaReadout = document.getElementById('areaReadout');
-
 	if(mousePos){
 		mouseInRooms();
 		areaReadout.innerHTML = '';
 		if(currentHovered.length > 0){
-			inRoomsReadout.innerText = 'In rooms: ' + currentHovered.map((room) => room.name).join(', ');
+			const inRoomsReadout = document.createElement('li');
+			inRoomsReadout.innerText = currentHovered.map((room) => room.name).join(', ');
+			areaReadout.appendChild(inRoomsReadout);
+
 			for(let r of currentHovered){
-				let li = document.createElement('li');
-				li.innerText = 'Area of ' + r.name + ': ' + areaOfPolygon(r.points).toFixed(2) + 'm²';
-				areaReadout.appendChild(li);
+				const areaLi = document.createElement('li');
+				areaLi.innerText = `${r.name} Area: ${areaOfPolygon(r.points).toFixed(2)}m²`;
+				areaReadout.appendChild(areaLi);
+
+				const perimeterLi = document.createElement('li');
+				perimeterLi.innerText = `${r.name} Perimeter ${perimeterOfPolygon(r.points).toFixed(2)}m`;
+				areaReadout.appendChild(perimeterLi);
 			}
 		}
-		else{
-			inRoomsReadout.innerText = 'In rooms: -';
-			areaReadout.innerHTML = '<li>Area: -</li>';
+		if(currentDoors && currentDoors.length > 0){
+			for(let d of currentDoors){
+				const doorLi = document.createElement('li');
+				doorLi.innerText = `${d.name} width: ${d.width}m`;
+				areaReadout.appendChild(doorLi);
+			}
 		}
 		if(hoverChanged){
 			console.log("draw")
 			drawMap();
 		}
 	}
-	else{
-		inRoomsReadout.innerText = 'In rooms: -';
-	}
 
 	if(mousePos && globalOrigin){
 		const xDist = ((globalOrigin.x - mousePos.x) / scaleFactor);
 		const yDist = ((globalOrigin.y - mousePos.y) / scaleFactor);
+		const mousePosReadout = document.createElement('li');
 		mousePosReadout.innerText = 'X: ' + xDist.toFixed(2) + 'm, Y: ' + yDist.toFixed(2) + 'm';
+		areaReadout.appendChild(mousePosReadout);
 
 		const distance = Math.sqrt(xDist * xDist + yDist * yDist);
+		const distanceReadout = document.createElement('li');
 		distanceReadout.innerText = 'Distance: ' + distance.toFixed(2) + 'm';
-
-		
-	}
-	else{
-		mousePosReadout.innerText = 'X: -, Y: -';
-		distanceReadout.innerText = 'Distance: -';
+		areaReadout.appendChild(distanceReadout);
 	}
 }
 
@@ -364,7 +462,7 @@ function keyDown(event){
 	}
 	else if(event.key === 'Escape' || event.key === 'Esc' || event.key === 'esc' || event.key === 'ESC'){
 		globalOrigin = null;
-		mousePos = null;
+		//mousePos = null;
 		updateReadouts();
 		drawMap();
 		drawMousePos();

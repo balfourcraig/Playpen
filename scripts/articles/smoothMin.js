@@ -485,14 +485,6 @@ function distToLine(point, line, preventExtrapolation, clampVal){
 	{
 		return Math.min(clampVal, minPoints(point, line.from, line.to));
 	}
-	else
-	{
-		const deltaX = Math.abs(point.x - iX);
-		const deltaY = Math.abs(point.y - iY);
-		const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-		
-		return Math.min(clampVal, dist);
-	}
 }
 
 function setUpSliderReadout(sliderName, readoutName){
