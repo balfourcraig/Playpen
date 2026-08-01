@@ -42,6 +42,26 @@ const house = {
                     openInwards: true,
                 },
             ],
+            lights: [
+                {
+                    name: "Ceiling Light",
+                    color: 'rgba(255, 197, 39, 0.8)',
+                    position: {x: 1.5, y: 1.5},
+                    brightness: 5,
+                },
+                {
+                    name: "Bedside Light 1",
+                    color: 'rgba(255, 197, 39, 0.5)',
+                    position: {x: 0.5, y: 0.5},
+                    brightness: 2,
+                },
+                {
+                    name: "Bedside Light 1",
+                    color: 'rgba(255, 197, 39, 0.5)',
+                    position: {x: 2.5, y: 0.5},
+                    brightness: 2,
+                }
+            ],
             subParts: [
                 {
                     name: "bedroom cupboard",
@@ -89,6 +109,14 @@ const house = {
                     openInwards: false,
                 },
             ],
+            lights: [
+                {
+                    name: "Ceiling Light",
+                    color: 'rgba(255, 197, 39, 0.8)',
+                    position: {x: 2, y: 1.5},
+                    brightness: 5,
+                }
+            ]
         },
         {
             name: "Spare Room",
@@ -110,6 +138,14 @@ const house = {
                     openInwards: false,
                 },
             ],
+            lights: [
+                {
+                    name: "Ceiling Light",
+                    color: 'rgba(255, 197, 39, 0.8)',
+                    position: {x: 1.4, y: 1.8},
+                    brightness: 5,
+                }
+            ]
         },
         {
             name: "Hall",
@@ -151,6 +187,20 @@ const house = {
                     openInwards: true
                 },
             ],
+            lights: [
+                {
+                    name: "Hall Light 1",
+                    color: 'rgba(255, 197, 39, 0.8)',
+                    position: {x: 3.4, y: 0.6},
+                    brightness: 5,
+                },
+                {
+                    name: "Hall Light 2",
+                    color: 'rgba(255, 197, 39, 0.8)',
+                    position: {x: 3.4, y: 5.1},
+                    brightness: 5,
+                }
+            ]
         },
         {
             name: "Hot Water Cupboard",
@@ -259,6 +309,20 @@ const house = {
                     angle: 0,
                     openInwards: true,
                 }
+            ],
+            lights: [
+                {
+                    name: "Heat lamp",
+                    color: 'rgba(255, 197, 39, 0.9)',
+                    position: {x: 1.7, y: 1.1},
+                    brightness: 6,
+                },
+                {
+                    name: "lamp",
+                    color: 'rgba(255, 197, 39, 0.5)',
+                    position: {x: 1.7, y: 1},
+                    brightness: 6,
+                },
             ],
             subParts: [
                 {

@@ -18,7 +18,7 @@
 		background-color: white;
 		border-radius: 10px;
 	}
-	#drawLayer, #mapLayer{
+	#drawLayer, #mapLayer, #lightsLayer{
 		position: absolute;
 		left: 0;
 		top: 0;
@@ -28,6 +28,13 @@
 		z-index: 1;
 		border: 2px solid black;
 		border-radius: 10px;
+	}
+
+	#lightsLayer{
+		z-index: 2;
+		border: 2px solid black;
+		border-radius: 10px;
+		pointer-events: none;
 	}
 	
 	#mapLayer{
@@ -80,8 +87,18 @@
 			</div>
 		</section>	
 		<section>
+			<input id="chkShowLights" type="checkbox">
+			<label for="chkShowLights">Show Lights</label>
+			<br>
+			<input id="chkShowCursor" checked="checked" type="checkbox">
+			<label for="chkShowCursor">Show Cursor</label>
+		</section>
+		<section>
             <div id="canvArea">
                 <div id="sizeCalc"></div>
+				<canvas id="lightsLayer" tabindex="0">
+                    Your browser does not support the HTML5 canvas tag.
+                </canvas>
                 <canvas id="drawLayer" tabindex="0">
                     Your browser does not support the HTML5 canvas tag.
                 </canvas>

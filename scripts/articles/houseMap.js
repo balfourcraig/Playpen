@@ -1,7 +1,9 @@
 let drawLayer = null;
 let mapLayer = null;
+let lightsLayer = null;
 let drawCtx = null;
 let mapCtx = null;
+let lightsCtx = null;
 
 let houseWidthMetres = 11.5;
 let houseLengthMetres = 14;
@@ -22,6 +24,7 @@ let hoverChanged = false;
 function setUp(){
 	drawLayer = document.getElementById('drawLayer');
 	mapLayer = document.getElementById('mapLayer');
+	lightsLayer = document.getElementById('lightsLayer');
 	w = document.getElementById('sizeCalc').getBoundingClientRect().width;
 	h = w * (houseLengthMetres / houseWidthMetres);
 
@@ -32,15 +35,31 @@ function setUp(){
 	drawLayer.setAttribute('height', h);
 	mapLayer.setAttribute('width', w);
 	mapLayer.setAttribute('height', h);
+	lightsLayer.setAttribute('width', w);
+	lightsLayer.setAttribute('height', h);
 	drawCtx = drawLayer.getContext('2d');
 	mapCtx = mapLayer.getContext('2d');
+	lightsCtx = lightsLayer.getContext('2d');
+	lightsCtx.globalAlpha = 0.8;
 	mapCtx.lineWidth = 2;
 	mapCtx.lineCap = 'round';
 	mapCtx.strokeStyle = 'blue';
 	mapCtx.fillStyle = 'white';
 	mapCtx.textAlign = "center";
 	drawCtx.lineWidth = 2;
+	const chkLights = document.getElementById('chkShowLights');
+	if(chkLights.checked)
+		drawLights(house, globablOffset);
+	
     drawMap();
+	chkLights.addEventListener('change', () => {
+		if(chkLights.checked){
+			drawLights(house, globablOffset);
+		}
+		else{
+			lightsCtx.clearRect(0,0,w,h);
+		}
+	});
 	drawLayer.addEventListener('mousemove', mouseMove);
 	document.addEventListener('keydown', keyDown);
 	document.addEventListener('mousedown', mouseDown);
@@ -57,6 +76,50 @@ function setUp(){
 	// document.addEventListener('contextmenu', function(event) {
 	// 	event.preventDefault();
 	// });
+}
+
+function drawLights(room, baseOffset){
+	if(room.lights && room.lights.length > 0){
+		for(let l of room.lights){
+			const lPos = {
+				x: (l.position.x + baseOffset.x + room.offset.x) * scaleFactor,
+				y: (l.position.y + baseOffset.y + room.offset.y) * scaleFactor
+			};
+			const lightGrad = lightsCtx.createRadialGradient(
+				lPos.x,
+				lPos.y,
+				(l.brightness * scaleFactor) /10,
+				lPos.x,
+				lPos.y,
+				(l.brightness * scaleFactor) /2
+			)
+			lightGrad.addColorStop(0, l.color);
+			lightGrad.addColorStop(1, 'rgba(255,255,255,0)');
+
+			lightsCtx.fillStyle = lightGrad;
+			lightsCtx.fillRect(
+				lPos.x - (l.brightness * scaleFactor / 2),
+				lPos.y - (l.brightness * scaleFactor / 2),
+				l.brightness * scaleFactor,
+				l.brightness * scaleFactor
+			);
+
+			drawCircle(lightsCtx, lPos, 5, 'white')
+		}
+	}
+
+	if(room.subParts && room.subParts.length > 0){
+		for(let i = 0; i < room.subParts.length; i++){
+			drawLights(room.subParts[i], {x: baseOffset.x + room.offset.x, y: baseOffset.y + room.offset.y});
+		}
+	}
+}
+
+function drawCircle(ctx, position, radius, color){
+	ctx.fillStyle = color;
+	ctx.beginPath();
+	ctx.arc(position.x, position.y, radius, 0, 2 * Math.PI);
+	ctx.fill();
 }
 
 function distToLine(point, line){	
@@ -163,9 +226,10 @@ function drawCross(point){
 }
 
 function drawMousePos(){
-	if(mousePos){
+	const showChk = document.getElementById('chkShowCursor').checked;
+	drawCtx.clearRect(0, 0, w, h);
+	if(mousePos && showChk){
 		drawCtx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-		drawCtx.clearRect(0, 0, w, h);
 		drawCtx.beginPath();
 		drawCtx.moveTo(mousePos.x, 0);
 		drawCtx.lineTo(mousePos.x, h);
